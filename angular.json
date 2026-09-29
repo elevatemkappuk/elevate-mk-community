@@ -10,7 +10,12 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "inlineStyle": false,
+          "inlineTemplate": false,
+          "skipTests": false,
+          "standalone": true,
+          "style": "scss",
+          "type": "component"
         }
       },
       "root": "",
