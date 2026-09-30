@@ -89,4 +89,84 @@ describe('JoinPageComponent', () => {
     expect(compiled.querySelectorAll('.page-content > .form-panel').length).toBe(1);
     expect(compiled.querySelector('.site-footer')).toBeNull();
   });
+
+  it('keeps whitespace-only required text invalid and select placeholders invalid', () => {
+    const form = component.joinForm;
+
+    form.controls.first_name.setValue('   ');
+    expect(form.controls.first_name.invalid).toBe(true);
+    expect(form.controls.gender.invalid).toBe(true);
+    expect(form.controls.age_range.invalid).toBe(true);
+    expect(form.controls.industry.invalid).toBe(true);
+  });
+
+  it('accepts valid email format but rejects malformed email', () => {
+    const email = component.joinForm.controls.email;
+
+    email.setValue('not-an-email');
+    expect(email.invalid).toBe(true);
+
+    email.setValue('member@example.com');
+    expect(email.valid).toBe(true);
+  });
+
+  it('enables joining only when required fields are valid', () => {
+    const form = component.joinForm;
+    const button = () => fixture.nativeElement.querySelector('.submit-button') as HTMLButtonElement;
+
+    fixture.detectChanges();
+    expect(form.invalid).toBe(true);
+    expect(button().disabled).toBe(true);
+
+    form.patchValue({
+      first_name: 'Amina',
+      last_name: 'Zulu',
+      gender: 'FEMALE',
+      age_range: '30_34',
+      email: 'amina@example.com',
+      location: 'Milton Keynes',
+      industry: 'technology',
+      job_title: 'Engineer',
+    });
+    fixture.detectChanges();
+
+    expect(form.valid).toBe(true);
+    expect(button().disabled).toBe(false);
+  });
+
+  it('does not require optional mobile, LinkedIn, or marketing consent', () => {
+    const form = component.joinForm;
+
+    form.patchValue({
+      first_name: 'Amina',
+      last_name: 'Zulu',
+      gender: 'FEMALE',
+      age_range: '30_34',
+      email: 'amina@example.com',
+      location: 'Milton Keynes',
+      industry: 'technology',
+      job_title: 'Engineer',
+      mobile: '',
+      linkedin_url: '',
+      email_marketing_opt_in: false,
+    });
+
+    expect(form.valid).toBe(true);
+  });
+
+  it('marks invalid submission fields as touched and exposes one relevant message', () => {
+    const firstName = component.joinForm.controls.first_name;
+
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(firstName.touched).toBe(true);
+    expect(fixture.nativeElement.querySelector('#first-name-error')?.textContent).toContain(
+      'First name is required.',
+    );
+    expect(fixture.nativeElement.querySelector('#first-name')?.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('#first-name')?.getAttribute('aria-describedby')).toBe(
+      'first-name-error',
+    );
+  });
 });

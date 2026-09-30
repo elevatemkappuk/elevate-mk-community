@@ -33,42 +33,93 @@
         <p>Create your profile and become part of the Elevate MK professional community.</p>
       </div>
 
-      <form [formGroup]="joinForm" novalidate>
+      <form [formGroup]="joinForm" novalidate (ngSubmit)="onSubmit()">
         <div class="form-grid two-columns">
           <div class="field">
             <label for="first-name">First name <span aria-hidden="true">*</span></label>
-            <input id="first-name" type="text" formControlName="first_name" autocomplete="given-name" />
+            <input
+              id="first-name"
+              type="text"
+              formControlName="first_name"
+              autocomplete="given-name"
+              aria-required="true"
+              [attr.aria-invalid]="shouldShowError('first_name') ? 'true' : null"
+              [attr.aria-describedby]="shouldShowError('first_name') ? 'first-name-error' : null"
+            />
+            @if (shouldShowError('first_name')) {
+              <span id="first-name-error" class="field-error">{{ errorMessage('first_name') }}</span>
+            }
           </div>
           <div class="field">
             <label for="last-name">Last name <span aria-hidden="true">*</span></label>
-            <input id="last-name" type="text" formControlName="last_name" autocomplete="family-name" />
+            <input
+              id="last-name"
+              type="text"
+              formControlName="last_name"
+              autocomplete="family-name"
+              aria-required="true"
+              [attr.aria-invalid]="shouldShowError('last_name') ? 'true' : null"
+              [attr.aria-describedby]="shouldShowError('last_name') ? 'last-name-error' : null"
+            />
+            @if (shouldShowError('last_name')) {
+              <span id="last-name-error" class="field-error">{{ errorMessage('last_name') }}</span>
+            }
           </div>
         </div>
 
         <div class="form-grid two-columns">
           <div class="field">
             <label for="gender">Gender <span aria-hidden="true">*</span></label>
-            <select id="gender" formControlName="gender">
+            <select
+              id="gender"
+              formControlName="gender"
+              aria-required="true"
+              [attr.aria-invalid]="shouldShowError('gender') ? 'true' : null"
+              [attr.aria-describedby]="shouldShowError('gender') ? 'gender-error' : null"
+            >
               <option value="">Select your gender</option>
               @for (gender of genders; track gender.value) {
                 <option [value]="gender.value">{{ gender.label }}</option>
               }
             </select>
+            @if (shouldShowError('gender')) {
+              <span id="gender-error" class="field-error">{{ errorMessage('gender') }}</span>
+            }
           </div>
           <div class="field">
             <label for="age-range">Age range <span aria-hidden="true">*</span></label>
-            <select id="age-range" formControlName="age_range">
+            <select
+              id="age-range"
+              formControlName="age_range"
+              aria-required="true"
+              [attr.aria-invalid]="shouldShowError('age_range') ? 'true' : null"
+              [attr.aria-describedby]="shouldShowError('age_range') ? 'age-range-error' : null"
+            >
               <option value="">Select your age range</option>
               @for (ageRange of ageRanges; track ageRange.value) {
                 <option [value]="ageRange.value">{{ ageRange.label }}</option>
               }
             </select>
+            @if (shouldShowError('age_range')) {
+              <span id="age-range-error" class="field-error">{{ errorMessage('age_range') }}</span>
+            }
           </div>
         </div>
 
         <div class="field">
           <label for="email">Email address <span aria-hidden="true">*</span></label>
-          <input id="email" type="email" formControlName="email" autocomplete="email" />
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            aria-required="true"
+            [attr.aria-invalid]="shouldShowError('email') ? 'true' : null"
+            [attr.aria-describedby]="shouldShowError('email') ? 'email-error' : null"
+          />
+          @if (shouldShowError('email')) {
+            <span id="email-error" class="field-error">{{ errorMessage('email') }}</span>
+          }
         </div>
 
         <div class="field phone-field">
@@ -91,25 +142,66 @@
 
         <div class="field">
           <label for="location">Location <span aria-hidden="true">*</span></label>
-          <input id="location" type="text" formControlName="location" autocomplete="address-level2" />
+          <input
+            id="location"
+            type="text"
+            formControlName="location"
+            autocomplete="address-level2"
+            aria-required="true"
+            [attr.aria-invalid]="shouldShowError('location') ? 'true' : null"
+            [attr.aria-describedby]="shouldShowError('location') ? 'location-error' : null"
+          />
+          @if (shouldShowError('location')) {
+            <span id="location-error" class="field-error">{{ errorMessage('location') }}</span>
+          }
         </div>
 
         <div class="field">
           <label for="industry">Industry <span aria-hidden="true">*</span></label>
-          <select id="industry" formControlName="industry">
+          <select
+            id="industry"
+            formControlName="industry"
+            aria-required="true"
+            [attr.aria-invalid]="shouldShowError('industry') ? 'true' : null"
+            [attr.aria-describedby]="shouldShowError('industry') ? 'industry-error' : 'industry-help'"
+          >
             <option value="">Select your industry</option>
           </select>
-          <span class="field-help">Industry options will be available when membership submission is connected.</span>
+          <span id="industry-help" class="field-help">Industry options will be available when membership submission is connected.</span>
+          @if (shouldShowError('industry')) {
+            <span id="industry-error" class="field-error">{{ errorMessage('industry') }}</span>
+          }
         </div>
 
         <div class="field">
           <label for="job-title">Current role / job title <span aria-hidden="true">*</span></label>
-          <input id="job-title" type="text" formControlName="job_title" autocomplete="organization-title" />
+          <input
+            id="job-title"
+            type="text"
+            formControlName="job_title"
+            autocomplete="organization-title"
+            aria-required="true"
+            [attr.aria-invalid]="shouldShowError('job_title') ? 'true' : null"
+            [attr.aria-describedby]="shouldShowError('job_title') ? 'job-title-error' : null"
+          />
+          @if (shouldShowError('job_title')) {
+            <span id="job-title-error" class="field-error">{{ errorMessage('job_title') }}</span>
+          }
         </div>
 
         <div class="field">
           <label for="linkedin-url">LinkedIn profile <span class="optional">(optional)</span></label>
-          <input id="linkedin-url" type="url" formControlName="linkedin_url" autocomplete="url" />
+          <input
+            id="linkedin-url"
+            type="url"
+            formControlName="linkedin_url"
+            autocomplete="url"
+            [attr.aria-invalid]="shouldShowError('linkedin_url') ? 'true' : null"
+            [attr.aria-describedby]="shouldShowError('linkedin_url') ? 'linkedin-error' : null"
+          />
+          @if (shouldShowError('linkedin_url')) {
+            <span id="linkedin-error" class="field-error">{{ errorMessage('linkedin_url') }}</span>
+          }
         </div>
 
         <fieldset class="marketing-choice">
@@ -121,7 +213,7 @@
           </label>
         </fieldset>
 
-        <button class="submit-button" type="submit" disabled>Join Elevate MK</button>
+        <button class="submit-button" type="submit" [disabled]="joinForm.invalid">Join Elevate MK</button>
         <p class="signin-prompt">Already a member? Use <span>Sign in</span> above.</p>
       </form>
     </section>
