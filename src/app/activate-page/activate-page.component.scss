@@ -15,13 +15,10 @@
 .password-control:focus-within { border-color: var(--elevate-focus); outline: 3px solid rgb(205 153 23 / 18%); outline-offset: 1px; }
 .visibility-button { border: 0; padding: 0 1.3rem; background: transparent; color: var(--elevate-black); font: inherit; font-size: .95rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
 .visibility-button:hover { background: var(--elevate-gold-wash); }
-.primary-action { display: inline-flex; min-height: 4rem; align-items: center; justify-content: center; gap: .5rem; width: 100%; border: 0; border-radius: .25rem; padding: 1rem 1.25rem; background: var(--elevate-black); color: var(--elevate-gold); font: inherit; font-size: 1.1rem; font-weight: 850; cursor: pointer; }
-.primary-action:hover:not(:disabled) { background: var(--elevate-ink); }
-.primary-action:disabled { cursor: not-allowed; opacity: .6; }
 .terminal-state { width: 100%; }
 .terminal-state h2 { max-width: 600px; margin: 0; color: var(--elevate-black); font-size: clamp(2rem, 3.1vw, 3rem); letter-spacing: -.065em; line-height: 1; text-transform: uppercase; }
 .terminal-state > p:not(.eyebrow) { max-width: 38rem; margin: 2rem 0; color: var(--elevate-muted); font-size: 1.08rem; line-height: 1.5; }
-.terminal-state .primary-action { width: auto; }
+.terminal-state .community-primary-action { width: auto; }
 @media (max-width: 760px) {
   .activation-form-content .form-heading h2 { font-size: clamp(2.35rem, 10vw, 2.75rem); }
   .activation-form-content .form-heading > p:last-child { margin-bottom: 2.2rem; font-size: 1rem; }
@@ -30,5 +27,5 @@
   .match-guidance { margin-bottom: 1.9rem; font-size: .95rem; }
   .field-group { margin-bottom: 1.5rem; }
   .field-group label { font-size: .95rem; }
-  .password-control input, .primary-action { min-height: 3.75rem; }
+  .password-control input, .community-primary-action { min-height: 3.75rem; }
 }

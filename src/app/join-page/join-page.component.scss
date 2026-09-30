@@ -19,10 +19,6 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched { border-color: #a23a2
 .marketing-choice p { margin: .45rem 0 .95rem; color: var(--elevate-muted); font-size: .84rem; }
 .checkbox-label { display: flex; align-items: flex-start; gap: .7rem; color: var(--elevate-ink); font-size: .82rem; font-weight: 550; line-height: 1.45; }
 .checkbox-label input { flex: 0 0 auto; width: 1.25rem; min-height: 1.25rem; margin-top: .1rem; accent-color: var(--elevate-gold-deep); }
-.submit-button { width: 100%; min-height: 3.3rem; border: 0; border-radius: .25rem; background: var(--elevate-gold); color: var(--elevate-black); font: inherit; font-weight: 850; cursor: pointer; opacity: .52; }
-.submit-button:not(:disabled):hover { background: var(--elevate-black); color: var(--elevate-gold); }
-.submit-button:not(:disabled):active { transform: translateY(1px); }
-.submit-button:disabled { border: 1px solid rgb(11 11 10 / 18%); color: rgb(11 11 10 / 72%); cursor: not-allowed; }
 .signin-prompt { margin: 1rem 0 0; color: var(--elevate-muted); font-size: .82rem; text-align: center; }
 .signin-prompt span { color: var(--elevate-black); font-weight: 750; }
 @media (max-width: 820px) { .two-columns { grid-template-columns: 1fr; } }

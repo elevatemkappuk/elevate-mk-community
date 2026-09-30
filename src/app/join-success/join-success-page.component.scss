@@ -1,5 +1,7 @@
 :host { display: block; }
 
+.success-action { width: fit-content; }
+
 .success-shell {
   min-height: 100svh;
   background: var(--elevate-page);
@@ -88,25 +90,6 @@ h2 {
   margin: 1.75rem 0 2rem;
   font-size: 0.88rem;
   font-weight: 750;
-}
-
-.success-action {
-  display: inline-flex;
-  min-height: 3.2rem;
-  align-items: center;
-  justify-content: center;
-  padding: 0.9rem 1.35rem;
-  background: var(--elevate-black);
-  color: var(--elevate-gold);
-  font-weight: 850;
-  text-decoration: none;
-}
-
-.success-action:hover { background: var(--elevate-ink); }
-
-.success-action:focus-visible {
-  outline: 3px solid var(--elevate-black);
-  outline-offset: 3px;
 }
 
 @media (max-width: 760px) {

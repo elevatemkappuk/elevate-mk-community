@@ -233,7 +233,7 @@
         </fieldset>
 
         <button
-          class="submit-button"
+          class="community-primary-action submit-button"
           type="submit"
           [disabled]="joinForm.invalid || submissionState() === 'submitting' || industriesLoading() || industries().length === 0"
           [attr.aria-busy]="submissionState() === 'submitting' ? 'true' : null"
