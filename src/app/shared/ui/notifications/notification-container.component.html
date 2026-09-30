@@ -1,0 +1,35 @@
+<aside class="notification-stack" aria-label="Notifications">
+  @for (notification of notificationService.notifications(); track notification.id) {
+    <article
+      class="notification"
+      [class.notification-success]="notification.type === 'success'"
+      [class.notification-error]="notification.type === 'error'"
+      [class.notification-warning]="notification.type === 'warning'"
+      [class.notification-info]="notification.type === 'info'"
+      [attr.role]="notification.type === 'error' || notification.type === 'warning' ? 'alert' : 'status'"
+      [attr.aria-live]="notification.type === 'error' || notification.type === 'warning' ? 'assertive' : 'polite'"
+    >
+      <div class="notification-content">
+        @if (notification.title) {
+          <p class="notification-title">{{ notification.title }}</p>
+        }
+        <p class="notification-message">{{ notification.message }}</p>
+        @if (notification.action) {
+          <button class="notification-action" type="button" (click)="activateAction(notification.id, notification.action.callback)">
+            {{ notification.action.label }}
+          </button>
+        }
+      </div>
+      @if (notification.dismissible) {
+        <button
+          class="notification-dismiss"
+          type="button"
+          aria-label="Dismiss notification"
+          (click)="dismiss(notification.id)"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      }
+    </article>
+  }
+</aside>

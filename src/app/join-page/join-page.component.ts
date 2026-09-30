@@ -11,7 +11,9 @@ import {
 import { RouterLink } from '@angular/router';
 
 import { CommunityApiService, IndustryOption } from '../api/community-api.service';
+import { CommunityJoinApiError, CommunityJoinRequest, CommunityJoinService } from '../api/community-join.service';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
+import { NotificationService } from '../shared/ui/notifications/notification.service';
 
 type JoinForm = {
   first_name: FormControl<string>;
@@ -28,6 +30,10 @@ type JoinForm = {
   email_marketing_opt_in: FormControl<boolean>;
 };
 
+type SubmissionState = 'idle' | 'submitting' | 'success' | 'review' | 'error';
+
+const SERVER_ERROR = 'server';
+
 const trimmedRequired: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
   typeof control.value === 'string' && control.value.trim().length > 0 ? null : { required: true };
 
@@ -40,6 +46,10 @@ const trimmedRequired: ValidatorFn = (control: AbstractControl): ValidationError
 })
 export class JoinPageComponent implements OnInit {
   private readonly communityApi = inject(CommunityApiService);
+  private readonly communityJoin = inject(CommunityJoinService);
+  private readonly notifications = inject(NotificationService);
+  private idempotencyKey: string | null = null;
+  private payloadFingerprint: string | null = null;
 
   protected readonly industries = signal<IndustryOption[]>([]);
   protected readonly industryOptions = computed<SelectOption[]>(() =>
@@ -47,6 +57,8 @@ export class JoinPageComponent implements OnInit {
   );
   protected readonly industriesLoading = signal(true);
   protected readonly industriesError = signal('');
+  readonly submissionState = signal<SubmissionState>('idle');
+  protected readonly submissionError = signal('');
 
   protected readonly genders = [
     { value: 'MALE', label: 'Male' },
@@ -87,6 +99,15 @@ export class JoinPageComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.joinForm.valueChanges.subscribe(() => {
+      this.clearServerErrors();
+      this.idempotencyKey = null;
+      this.payloadFingerprint = null;
+      if (this.submissionState() === 'error' || this.submissionState() === 'review') {
+        this.submissionState.set('idle');
+        this.submissionError.set('');
+      }
+    });
     this.loadIndustries();
   }
 
@@ -117,6 +138,10 @@ export class JoinPageComponent implements OnInit {
 
   protected errorMessage(controlName: keyof JoinForm): string {
     const control = this.joinForm.controls[controlName];
+
+    if (control.hasError(SERVER_ERROR)) {
+      return control.getError(SERVER_ERROR) as string;
+    }
 
     if (controlName === 'gender' && control.hasError('required')) {
       return 'Select your gender.';
@@ -150,8 +175,104 @@ export class JoinPageComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.joinForm.invalid) {
+    if (this.joinForm.invalid || this.submissionState() === 'submitting' || this.industries().length === 0) {
       this.joinForm.markAllAsTouched();
+      this.focusFirstInvalid();
+      return;
     }
+
+    this.clearServerErrors();
+    const payload = this.toRequest();
+    const fingerprint = JSON.stringify(payload);
+    if (!this.idempotencyKey || this.payloadFingerprint !== fingerprint) {
+      this.idempotencyKey = crypto.randomUUID();
+      this.payloadFingerprint = fingerprint;
+    }
+
+    this.submissionState.set('submitting');
+    this.submissionError.set('');
+    this.communityJoin.submit(payload, this.idempotencyKey).subscribe({
+      next: () => {
+        this.submissionState.set('success');
+        setTimeout(() => document.getElementById('success-title')?.focus());
+      },
+      error: (error: CommunityJoinApiError) => this.handleSubmitError(error),
+    });
+  }
+
+  protected retrySubmission(): void {
+    this.onSubmit();
+  }
+
+  private toRequest(): CommunityJoinRequest {
+    const value = this.joinForm.getRawValue();
+    return {
+      ...value,
+      mobile: value.mobile.trim(),
+      linkedin_url: value.linkedin_url.trim(),
+      email_marketing_opt_in: Boolean(value.email_marketing_opt_in),
+    };
+  }
+
+  private handleSubmitError(error: CommunityJoinApiError): void {
+    if (error.status === 409) {
+      this.submissionState.set('review');
+      this.submissionError.set("We couldn't complete your membership automatically. Please contact Elevate MK so we can help.");
+      return;
+    }
+
+    if (error.status === 400) {
+      this.applyFieldErrors(error.body);
+      this.submissionState.set('error');
+      this.focusFirstInvalid();
+      return;
+    }
+
+    this.submissionState.set('error');
+    this.notifications.error("We couldn't submit your membership right now. Please try again.", {
+      action: {
+        label: 'Try again',
+        callback: () => this.onSubmit(),
+      },
+    });
+  }
+
+  private applyFieldErrors(body: unknown): void {
+    if (!body || typeof body !== 'object') {
+      return;
+    }
+
+    const knownFields = Object.keys(this.joinForm.controls) as Array<keyof JoinForm>;
+    for (const field of knownFields) {
+      const value = (body as Record<string, unknown>)[field];
+      const message = Array.isArray(value) && typeof value[0] === 'string' ? value[0] : null;
+      if (message) {
+        const control = this.joinForm.controls[field];
+        control.setErrors({ ...(control.errors ?? {}), [SERVER_ERROR]: message });
+        control.markAsTouched();
+      }
+    }
+  }
+
+  private clearServerErrors(): void {
+    for (const control of Object.values(this.joinForm.controls)) {
+      if (!control.hasError(SERVER_ERROR)) {
+        continue;
+      }
+      const errors = { ...(control.errors ?? {}) };
+      delete errors[SERVER_ERROR];
+      control.setErrors(Object.keys(errors).length ? errors : null);
+    }
+  }
+
+  private focusFirstInvalid(): void {
+    setTimeout(() => {
+      const field = Object.keys(this.joinForm.controls).find((name) => this.joinForm.controls[name as keyof JoinForm].invalid);
+      const elementId: Record<string, string> = {
+        first_name: 'first-name', last_name: 'last-name', gender: 'gender', age_range: 'age-range',
+        email: 'email', location: 'location', industry: 'industry', job_title: 'job-title', linkedin_url: 'linkedin-url',
+      };
+      document.getElementById(elementId[field ?? ''] ?? '')?.focus();
+    });
   }
 }

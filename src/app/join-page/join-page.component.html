@@ -33,7 +33,20 @@
         <p>Create your profile and become part of the Elevate MK professional community.</p>
       </div>
 
+      @if (submissionState() === 'success') {
+        <section class="success-panel" role="status" aria-live="polite" aria-labelledby="success-title" tabindex="-1">
+          <p class="eyebrow eyebrow-dark">Community membership</p>
+          <h2 id="success-title" tabindex="-1">You're in.</h2>
+          <p>Thanks for joining the Elevate MK professional community. We’ll be in touch with the next steps.</p>
+        </section>
+      } @else {
       <form [formGroup]="joinForm" novalidate (ngSubmit)="onSubmit()">
+        @if (submissionState() === 'review') {
+          <div class="submission-feedback" role="alert" aria-live="assertive">
+            <p>{{ submissionError() }}</p>
+            <button class="retry-button" type="button" (click)="retrySubmission()">Try again</button>
+          </div>
+        }
         <div class="form-grid two-columns">
           <div class="field">
             <label for="first-name">First name <span aria-hidden="true">*</span></label>
@@ -236,9 +249,17 @@
           </label>
         </fieldset>
 
-        <button class="submit-button" type="submit" [disabled]="joinForm.invalid">Join Elevate MK</button>
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="joinForm.invalid || submissionState() === 'submitting' || industriesLoading() || industries().length === 0"
+          [attr.aria-busy]="submissionState() === 'submitting' ? 'true' : null"
+        >
+          @if (submissionState() === 'submitting') { Joining... } @else { Join Elevate MK }
+        </button>
         <p class="signin-prompt">Already a member? Use <span>Sign in</span> above.</p>
       </form>
+      }
     </section>
   </main>
 

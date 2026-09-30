@@ -1,0 +1,96 @@
+:host {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  pointer-events: none;
+}
+
+.notification-stack {
+  display: grid;
+  gap: 0.75rem;
+  width: min(100% - 2rem, 27rem);
+  margin: 5.5rem 1rem 0 auto;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.notification {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 1rem 1rem 1rem 1.1rem;
+  border: 1px solid var(--elevate-border);
+  border-left: 0.3rem solid var(--elevate-gold-deep);
+  border-radius: 0.2rem;
+  background: var(--elevate-surface);
+  box-shadow: var(--elevate-shadow);
+  color: var(--elevate-ink);
+  pointer-events: auto;
+}
+
+.notification-error { border-left-color: #9d3f2f; }
+.notification-warning { border-left-color: var(--elevate-gold-deep); }
+.notification-info { border-left-color: #5d746d; }
+.notification-success { border-left-color: #4d7659; }
+
+.notification-content { min-width: 0; }
+
+.notification-title,
+.notification-message { margin: 0; }
+
+.notification-title {
+  margin-bottom: 0.25rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.notification-message {
+  color: var(--elevate-muted);
+  line-height: 1.45;
+}
+
+.notification-action,
+.notification-dismiss {
+  border: 0;
+  background: transparent;
+  color: var(--elevate-black);
+  cursor: pointer;
+  font: inherit;
+}
+
+.notification-action {
+  margin-top: 0.7rem;
+  padding: 0.35rem 0;
+  border-bottom: 2px solid var(--elevate-gold-deep);
+  font-weight: 800;
+}
+
+.notification-dismiss {
+  width: 2rem;
+  height: 2rem;
+  margin: -0.35rem -0.35rem 0 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.notification-action:focus-visible,
+.notification-dismiss:focus-visible {
+  outline: 3px solid var(--elevate-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .notification-stack {
+    width: min(100% - 2rem, 34rem);
+    margin: 5rem 1rem 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .notification { animation: notification-enter 160ms ease-out; }
+}
+
+@keyframes notification-enter {
+  from { opacity: 0; transform: translateY(-0.35rem); }
+  to { opacity: 1; transform: translateY(0); }
+}

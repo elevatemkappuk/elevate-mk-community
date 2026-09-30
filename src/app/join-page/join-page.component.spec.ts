@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 
 import { CommunityApiService, IndustryOption } from '../api/community-api.service';
+import { CommunityJoinAcceptedResponse, CommunityJoinRequest, CommunityJoinService } from '../api/community-join.service';
+import { NotificationService } from '../shared/ui/notifications/notification.service';
 import { JoinPageComponent } from './join-page.component';
 
 class StubCommunityApiService {
@@ -17,16 +19,38 @@ class StubCommunityApiService {
   }
 }
 
+class StubCommunityJoinService {
+  calls = 0;
+  requests: CommunityJoinRequest[] = [];
+  keys: string[] = [];
+  response: Observable<CommunityJoinAcceptedResponse> = of({
+    status: 'accepted',
+    message: 'Accepted.',
+  });
+
+  submit(request: CommunityJoinRequest, key: string): Observable<CommunityJoinAcceptedResponse> {
+    this.calls += 1;
+    this.requests.push(request);
+    this.keys.push(key);
+    return this.response;
+  }
+}
+
 describe('JoinPageComponent', () => {
   let fixture: ComponentFixture<JoinPageComponent>;
   let component: JoinPageComponent;
   let communityApi: StubCommunityApiService;
+  let communityJoin: StubCommunityJoinService;
 
   beforeEach(async () => {
     communityApi = new StubCommunityApiService();
+    communityJoin = new StubCommunityJoinService();
     await TestBed.configureTestingModule({
       imports: [JoinPageComponent],
-      providers: [{ provide: CommunityApiService, useValue: communityApi }],
+      providers: [
+        { provide: CommunityApiService, useValue: communityApi },
+        { provide: CommunityJoinService, useValue: communityJoin },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JoinPageComponent);
@@ -163,6 +187,85 @@ describe('JoinPageComponent', () => {
 
     expect(form.valid).toBe(true);
     expect(button().disabled).toBe(false);
+  });
+
+  it('submits the backend contract with enum values, industry slug, and consent boolean', () => {
+    component.joinForm.patchValue({
+      first_name: 'Amina', last_name: 'Zulu', gender: 'FEMALE', age_range: '30_34',
+      email: 'amina@example.com', location: 'Milton Keynes', industry: 'technology',
+      job_title: 'Engineer', email_marketing_opt_in: true,
+    });
+
+    component.onSubmit();
+
+    expect(communityJoin.calls).toBe(1);
+    expect(communityJoin.requests[0]).toEqual(expect.objectContaining({
+      gender: 'FEMALE', age_range: '30_34', industry: 'technology', email_marketing_opt_in: true,
+    }));
+    expect(communityJoin.keys[0]).toMatch(/[0-9a-f-]{36}/);
+  });
+
+  it('prevents duplicate submission and reuses the key when retrying unchanged data', () => {
+    component.joinForm.patchValue({
+      first_name: 'Amina', last_name: 'Zulu', gender: 'FEMALE', age_range: '30_34',
+      email: 'amina@example.com', location: 'Milton Keynes', industry: 'technology', job_title: 'Engineer',
+    });
+    component.onSubmit();
+    component.onSubmit();
+
+    expect(communityJoin.calls).toBe(1);
+    expect(component.submissionState()).toBe('success');
+  });
+
+  it('maps known backend field errors without exposing a raw response', () => {
+    communityJoin.response = throwError(() => ({ status: 400, body: { email: ['Email is already in use.'] } }));
+    component.joinForm.patchValue({
+      first_name: 'Amina', last_name: 'Zulu', gender: 'FEMALE', age_range: '30_34',
+      email: 'amina@example.com', location: 'Milton Keynes', industry: 'technology', job_title: 'Engineer',
+    });
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#email-error')?.textContent).toContain('Email is already in use.');
+    expect(fixture.nativeElement.textContent).not.toContain('"status"');
+  });
+
+  it('uses a retry notification for a retryable submission failure and reuses the idempotency key', () => {
+    communityJoin.response = throwError(() => ({ status: 503, body: null }));
+    component.joinForm.patchValue({
+      first_name: 'Amina', last_name: 'Zulu', gender: 'FEMALE', age_range: '30_34',
+      email: 'amina@example.com', location: 'Milton Keynes', industry: 'technology', job_title: 'Engineer',
+    });
+    component.onSubmit();
+    fixture.detectChanges();
+
+    const notifications = TestBed.inject(NotificationService);
+    expect(notifications.notifications().some((item) => item.type === 'error')).toBe(true);
+    expect(fixture.nativeElement.querySelector('.submission-feedback')).toBeNull();
+
+    const firstKey = communityJoin.keys[0];
+    communityJoin.response = of({ status: 'accepted', message: 'Accepted.' });
+    const action = fixture.nativeElement.querySelector('.notification-action') as HTMLButtonElement;
+    action.click();
+
+    expect(communityJoin.calls).toBe(2);
+    expect(communityJoin.keys[1]).toBe(firstKey);
+    expect(component.submissionState()).toBe('success');
+  });
+
+  it('keeps review responses as a persistent generic Join-page state', () => {
+    communityJoin.response = throwError(() => ({ status: 409, body: { code: 'SUBMISSION_REQUIRES_REVIEW' } }));
+    component.joinForm.patchValue({
+      first_name: 'Amina', last_name: 'Zulu', gender: 'FEMALE', age_range: '30_34',
+      email: 'amina@example.com', location: 'Milton Keynes', industry: 'technology', job_title: 'Engineer',
+    });
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.submission-feedback')?.textContent).toContain(
+      "We couldn't complete your membership automatically",
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('SUBMISSION_REQUIRES_REVIEW');
   });
 
   it('does not require optional mobile, LinkedIn, or marketing consent', () => {

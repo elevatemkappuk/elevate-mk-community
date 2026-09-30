@@ -238,6 +238,39 @@ h1 span {
   gap: 0.2rem;
 }
 
+.submission-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #b87900;
+  background: #fff7df;
+  color: #171717;
+}
+
+.submission-feedback p {
+  margin: 0;
+}
+
+.success-panel {
+  max-width: 38rem;
+  padding: 3rem 0;
+}
+
+.success-panel h2 {
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+}
+
+.success-panel p:last-child {
+  max-width: 32rem;
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
 label,
 legend {
   color: var(--elevate-black);
