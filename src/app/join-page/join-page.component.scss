@@ -49,6 +49,10 @@
   color: var(--elevate-gold);
 }
 
+.sign-in-button:active {
+  transform: translateY(1px);
+}
+
 .sign-in-button:focus-visible,
 .submit-button:focus-visible,
 input:focus-visible,
@@ -169,9 +173,14 @@ h1 span {
   place-items: center;
   background: var(--elevate-gold);
   color: var(--elevate-black);
-  font-size: 1rem;
+  font-size: 0;
   font-weight: 900;
   line-height: 1;
+}
+
+.benefit-icon::before {
+  content: '+';
+  font-size: 1rem;
 }
 
 .hero-footnote {
@@ -258,14 +267,31 @@ select:focus {
   box-shadow: 0 0 0 3px rgb(205 153 23 / 18%);
 }
 
+input:hover,
+select:hover {
+  border-color: var(--elevate-muted);
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: #a23a2d;
+  box-shadow: 0 0 0 3px rgb(162 58 45 / 14%);
+}
+
+input:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--elevate-ink);
+  box-shadow: 0 0 0 1000px var(--elevate-surface) inset;
+  transition: background-color 9999s ease-out;
+}
+
 .phone-control {
   display: grid;
   grid-template-columns: minmax(8.5rem, 0.42fr) minmax(0, 1fr);
   gap: 0.65rem;
 }
 
-.field-help,
-.shell-note {
+.field-help {
   color: var(--elevate-muted);
   font-size: 0.78rem;
   line-height: 1.45;
@@ -298,10 +324,15 @@ select:focus {
 
 .checkbox-label input {
   flex: 0 0 auto;
-  width: 1.1rem;
-  min-height: 1.1rem;
+  width: 1.25rem;
+  min-height: 1.25rem;
   margin-top: 0.1rem;
   accent-color: var(--elevate-gold-deep);
+}
+
+.checkbox-label input:focus-visible {
+  outline: 3px solid rgb(185 130 0 / 42%);
+  outline-offset: 2px;
 }
 
 .submit-button {
@@ -317,6 +348,21 @@ select:focus {
   opacity: 0.52;
 }
 
+.submit-button:not(:disabled):hover {
+  background: var(--elevate-black);
+  color: var(--elevate-gold);
+}
+
+.submit-button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.submit-button:disabled {
+  border: 1px solid rgb(11 11 10 / 18%);
+  color: rgb(11 11 10 / 72%);
+  cursor: not-allowed;
+}
+
 .signin-prompt {
   margin: 1rem 0 0;
   color: var(--elevate-muted);
@@ -327,11 +373,6 @@ select:focus {
 .signin-prompt span {
   color: var(--elevate-black);
   font-weight: 750;
-}
-
-.shell-note {
-  margin: 0.8rem 0 0;
-  text-align: center;
 }
 
 @media (max-width: 1100px) {
@@ -367,14 +408,14 @@ select:focus {
   }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 760px) {
   .page-content {
     display: block;
     min-height: 0;
   }
 
   .hero-panel {
-    min-height: 600px;
+    min-height: clamp(500px, calc(100svh - 72px), 680px);
     padding: 4rem 1.5rem 3rem;
   }
 
@@ -411,7 +452,15 @@ select:focus {
     font-size: 0.8rem;
   }
 
-  .hero-panel {
-    min-height: 560px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
