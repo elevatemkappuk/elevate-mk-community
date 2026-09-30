@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { API_CONFIG } from '../core/http/api-config';
+import { communityCredentialsInterceptor } from '../core/http/community-http.interceptors';
 import { CommunityAuthService } from './community-auth.service';
 
 describe('CommunityAuthService', () => {
@@ -13,7 +14,7 @@ describe('CommunityAuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         CommunityAuthService,
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([communityCredentialsInterceptor])),
         provideHttpClientTesting(),
         { provide: API_CONFIG, useValue: { apiBaseUrl: '/api/v1' } },
       ],
@@ -27,12 +28,14 @@ describe('CommunityAuthService', () => {
   it('posts the exact activation body and URL without persisting credentials', () => {
     service.activate('invitation-id', 'raw-token', 'Password-123!', 'Password-123!').subscribe();
     const csrf = http.expectOne('/api/v1/auth/csrf/');
-    csrf.flush({ csrf_token: 'csrf-token' });
+    csrf.flush({ csrf_token: 'csrf-token-a' });
     const activation = http.expectOne('/api/v1/community/activate/invitation-id/raw-token/');
     expect(activation.request.body).toEqual({ password: 'Password-123!', confirm_password: 'Password-123!' });
     expect(localStorage.length).toBe(0);
     expect(sessionStorage.length).toBe(0);
     activation.flush({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
+    const refreshedCsrf = http.expectOne('/api/v1/auth/csrf/');
+    refreshedCsrf.flush({ csrf_token: 'csrf-token-b' });
   });
 
   it('checks activation usability through the public activation URL', () => {
@@ -51,11 +54,55 @@ describe('CommunityAuthService', () => {
       expect(service.currentUser()).toEqual(user);
     });
     const csrf = http.expectOne('/api/v1/auth/csrf/');
-    csrf.flush({ csrf_token: 'csrf-token' });
+    csrf.flush({ csrf_token: 'csrf-token-a' });
     const login = http.expectOne('/api/v1/community/login/');
     expect(login.request.method).toBe('POST');
     expect(login.request.body).toEqual({ email: 'member@example.com', password: 'Community-password-123!' });
     expect(login.request.withCredentials).toBe(true);
+    expect(login.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
     login.flush({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
+    const refreshedCsrf = http.expectOne('/api/v1/auth/csrf/');
+    refreshedCsrf.flush({ csrf_token: 'csrf-token-b' });
+
+    service.logout().subscribe();
+    const logout = http.expectOne('/api/v1/auth/logout/');
+    expect(logout.request.headers.get('X-CSRFToken')).toBe('csrf-token-b');
+    expect(logout.request.withCredentials).toBe(true);
+    logout.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('does not refresh CSRF after invalid Community credentials', () => {
+    service.login('member@example.com', 'wrong-password').subscribe({ error: (error) => expect(error.status).toBe(400) });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    http.expectOne('/api/v1/community/login/').flush({ code: 'INVALID_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+    http.expectNone('/api/v1/auth/csrf/');
+  });
+
+  it('does not refresh CSRF when Community access is unavailable', () => {
+    service.login('member@example.com', 'password').subscribe({ error: (error) => expect(error.status).toBe(403) });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    http.expectOne('/api/v1/community/login/').flush({ code: 'COMMUNITY_ACCESS_UNAVAILABLE' }, { status: 403, statusText: 'Forbidden' });
+    http.expectNone('/api/v1/auth/csrf/');
+  });
+
+  it('refreshes CSRF after successful activation and uses it for logout', () => {
+    service.activate('invitation-id', 'raw-token', 'Password-123!', 'Password-123!').subscribe();
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    const activation = http.expectOne('/api/v1/community/activate/invitation-id/raw-token/');
+    expect(activation.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
+    activation.flush({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-b' });
+
+    service.logout().subscribe();
+    const logout = http.expectOne('/api/v1/auth/logout/');
+    expect(logout.request.headers.get('X-CSRFToken')).toBe('csrf-token-b');
+    logout.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('does not refresh CSRF after failed activation', () => {
+    service.activate('invitation-id', 'raw-token', 'bad', 'bad').subscribe({ error: (error) => expect(error.status).toBe(400) });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    http.expectOne('/api/v1/community/activate/invitation-id/raw-token/').flush({ code: 'PASSWORD_VALIDATION_ERROR' }, { status: 400, statusText: 'Bad Request' });
+    http.expectNone('/api/v1/auth/csrf/');
   });
 });

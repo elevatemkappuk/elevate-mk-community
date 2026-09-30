@@ -34,6 +34,11 @@ export class CommunityAuthService {
     return this.csrfBootstrap$;
   }
 
+  private refreshCsrf(): Observable<void> {
+    this.csrfBootstrap$ = null;
+    return this.bootstrapCsrf();
+  }
+
   loadCurrentUser(): Observable<CommunityUser | null> {
     if (!this.currentUserRequest$) {
       this.currentUserRequest$ = this.http.get<CommunityUser>(`${this.apiConfig.apiBaseUrl}/community/me/`).pipe(
@@ -64,6 +69,7 @@ export class CommunityAuthService {
         { email, password },
         { withCredentials: true },
       )),
+      switchMap((user) => this.refreshCsrf().pipe(map(() => user))),
       tap((user) => this.setCurrentUser(user)),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );
@@ -82,6 +88,7 @@ export class CommunityAuthService {
         `${this.apiConfig.apiBaseUrl}/community/activate/${encodeURIComponent(invitationId)}/${encodeURIComponent(token)}/`,
         { password, confirm_password: confirmPassword }, { withCredentials: true },
       )),
+      switchMap((user) => this.refreshCsrf().pipe(map(() => user))),
       tap((user) => this.setCurrentUser(user)),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );
