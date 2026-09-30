@@ -70,13 +70,28 @@ describe('ActivatePageComponent', () => {
 
   it('enforces safe immediate password rules and matching confirmation', () => {
     releaseCheck();
+    expect(fixture.nativeElement.querySelector('#confirm-password-error')).toBeNull();
+
+    component.activationForm.setValue({ password: 'Secure-password-123!', confirm_password: '' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#confirm-password-error')).toBeNull();
+
     component.activationForm.setValue({ password: '123', confirm_password: '123' });
+    fixture.detectChanges();
     expect(component.activationForm.invalid).toBe(true);
     expect(component.passwordError()).toBe('Use at least 8 characters.');
 
     component.activationForm.setValue({ password: 'Secure-password-123!', confirm_password: 'Different-password-123!' });
+    fixture.detectChanges();
     expect(component.activationForm.invalid).toBe(true);
-    expect(component.confirmError()).toBe('The passwords do not match.');
+    expect(component.confirmError()).toBe('Passwords do not match.');
+    expect(fixture.nativeElement.querySelector('#confirm-password-error')?.textContent).toContain('Passwords do not match.');
+    expect((fixture.nativeElement.querySelector('#activation-confirm-password') as HTMLInputElement).getAttribute('aria-invalid')).toBe('true');
+
+    component.activationForm.controls.confirm_password.setValue('Secure-password-123!');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#confirm-password-error')).toBeNull();
+    expect((fixture.nativeElement.querySelector('#activation-confirm-password') as HTMLInputElement).getAttribute('aria-invalid')).toBe('false');
   });
 
   it('disables the primary action until the password form is valid', () => {

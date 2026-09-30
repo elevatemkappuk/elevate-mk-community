@@ -61,10 +61,10 @@ export class ActivatePageComponent implements OnInit {
   }
   confirmError(): string {
     const server = this.serverErrors().confirm_password; const control = this.activationForm.controls.confirm_password;
-    if (server) return server; if (control.hasError('required')) return 'Confirm your password.'; if (this.activationForm.hasError('mismatch')) return 'The passwords do not match.'; return '';
+    if (server) return server; if (control.hasError('required')) return 'Confirm your password.'; if (this.hasPasswordMismatch()) return 'Passwords do not match.'; return '';
   }
   hasPasswordError(): boolean { return (this.activationForm.controls.password.invalid && this.activationForm.controls.password.touched) || !!this.serverErrors().password; }
-  hasConfirmError(): boolean { return (this.activationForm.controls.confirm_password.invalid && this.activationForm.controls.confirm_password.touched) || !!this.serverErrors().confirm_password; }
+  hasConfirmError(): boolean { return (this.activationForm.controls.confirm_password.invalid && this.activationForm.controls.confirm_password.touched) || !!this.serverErrors().confirm_password || this.hasPasswordMismatch(); }
   backToElevate(): void { window.location.href = 'https://elevatemk.org/'; }
 
   private handleError(error: CommunityApiError): void {
@@ -83,6 +83,10 @@ export class ActivatePageComponent implements OnInit {
       if (Array.isArray(messages) && typeof messages[0] === 'string') { next[field] = messages[0]; this.activationForm.controls[field].setErrors({ server: true }); this.activationForm.controls[field].markAsTouched(); }
     }
     this.serverErrors.set(next);
+  }
+  private hasPasswordMismatch(): boolean {
+    const { password, confirm_password } = this.activationForm.getRawValue();
+    return !!password && !!confirm_password && this.activationForm.hasError('mismatch');
   }
   private focusFirstInvalid(): void { setTimeout(() => { const target = this.activationForm.controls.password.invalid ? 'activation-password' : 'activation-confirm-password'; document.getElementById(target)?.focus(); }); }
 }
