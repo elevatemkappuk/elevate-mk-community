@@ -9,6 +9,7 @@ import { setCommunityCsrfToken } from '../core/http/community-http.interceptors'
 export interface CommunityUser { id: number; first_name: string; last_name: string; }
 export interface CommunityApiError { status: number; body: unknown; }
 export interface CommunityActivationResponse extends CommunityUser {}
+export interface CommunityActivationCheckResponse { usable: true; }
 interface CsrfBootstrapResponse { csrf_token: string; }
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +55,13 @@ export class CommunityAuthService {
     this.currentUser.set(user);
     this.sessionLoaded.set(true);
     this.currentUserRequest$ = of(user);
+  }
+
+  checkActivation(invitationId: string, token: string): Observable<CommunityActivationCheckResponse> {
+    return this.http.get<CommunityActivationCheckResponse>(
+      `${this.apiConfig.apiBaseUrl}/community/activate/${encodeURIComponent(invitationId)}/${encodeURIComponent(token)}/`,
+      { withCredentials: true },
+    ).pipe(catchError((error: unknown) => throwError(() => this.toApiError(error))));
   }
 
   activate(invitationId: string, token: string, password: string, confirmPassword: string): Observable<CommunityActivationResponse> {

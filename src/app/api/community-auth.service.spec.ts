@@ -34,4 +34,14 @@ describe('CommunityAuthService', () => {
     expect(sessionStorage.length).toBe(0);
     activation.flush({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
   });
+
+  it('checks activation usability through the public activation URL', () => {
+    service.checkActivation('invitation-id', 'raw-token').subscribe((response) => {
+      expect(response).toEqual({ usable: true });
+    });
+
+    const check = http.expectOne('/api/v1/community/activate/invitation-id/raw-token/');
+    expect(check.request.method).toBe('GET');
+    check.flush({ usable: true });
+  });
 });

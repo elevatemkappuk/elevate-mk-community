@@ -6,7 +6,7 @@ import { CommunityApiError, CommunityAuthService } from '../api/community-auth.s
 import { NotificationService } from '../shared/ui/notifications/notification.service';
 import { CommunityAccountShellComponent } from '../shared/ui/account-shell/community-account-shell.component';
 
-type ActivationState = 'form' | 'invalid' | 'unavailable';
+type ActivationState = 'checking' | 'form' | 'invalid' | 'unavailable';
 type ActivationForm = { password: FormControl<string>; confirm_password: FormControl<string>; };
 const numericOnly: ValidatorFn = (control): ValidationErrors | null => typeof control.value === 'string' && control.value.length > 0 && /^\d+$/.test(control.value) ? { numericOnly: true } : null;
 const passwordsMatch: ValidatorFn = (control): ValidationErrors | null => {
@@ -25,7 +25,7 @@ export class ActivatePageComponent implements OnInit {
     password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(8), numericOnly] }),
     confirm_password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   }, { validators: [passwordsMatch] });
-  readonly state = signal<ActivationState>('form'); readonly submitting = signal(false);
+  readonly state = signal<ActivationState>('checking'); readonly submitting = signal(false);
   readonly showPassword = signal(false); readonly showConfirmPassword = signal(false);
   readonly serverErrors = signal<Partial<Record<keyof ActivationForm, string>>>({});
   private invitationId = ''; private token = '';
@@ -33,7 +33,14 @@ export class ActivatePageComponent implements OnInit {
   ngOnInit(): void {
     this.invitationId = this.route.snapshot.paramMap.get('invitationId') ?? '';
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
-    if (!this.invitationId || !this.token) this.state.set('invalid');
+    if (!this.invitationId || !this.token) {
+      this.state.set('invalid');
+      return;
+    }
+    this.auth.checkActivation(this.invitationId, this.token).subscribe({
+      next: () => this.state.set('form'),
+      error: () => this.state.set('invalid'),
+    });
   }
 
   submit(): void {
