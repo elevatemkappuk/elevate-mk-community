@@ -14,7 +14,7 @@ import { CommunityApiService, IndustryOption } from '../api/community-api.servic
 import { CommunityJoinApiError, CommunityJoinRequest, CommunityJoinService } from '../api/community-join.service';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
 import { NotificationService } from '../shared/ui/notifications/notification.service';
-import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
+import { CommunityAccountShellComponent } from '../shared/ui/account-shell/community-account-shell.component';
 
 type JoinForm = {
   first_name: FormControl<string>;
@@ -40,7 +40,7 @@ const trimmedRequired: ValidatorFn = (control: AbstractControl): ValidationError
 
 @Component({
   selector: 'app-join-page',
-  imports: [ReactiveFormsModule, SelectComponent, CommunityHeaderComponent],
+  imports: [ReactiveFormsModule, SelectComponent, CommunityAccountShellComponent],
   templateUrl: './join-page.component.html',
   styleUrl: './join-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -10,4 +10,5 @@ import { RouterLink } from '@angular/router';
 })
 export class CommunityHeaderComponent {
   readonly showSignIn = input(true);
+  readonly layout = input<'default' | 'activation'>('default');
 }

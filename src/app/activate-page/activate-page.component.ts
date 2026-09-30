@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { CommunityApiError, CommunityAuthService } from '../api/community-auth.service';
 import { NotificationService } from '../shared/ui/notifications/notification.service';
-import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
+import { CommunityAccountShellComponent } from '../shared/ui/account-shell/community-account-shell.component';
 
 type ActivationState = 'form' | 'invalid' | 'unavailable';
 type ActivationForm = { password: FormControl<string>; confirm_password: FormControl<string>; };
@@ -15,7 +15,7 @@ const passwordsMatch: ValidatorFn = (control): ValidationErrors | null => {
 };
 
 @Component({
-  selector: 'app-activate-page', imports: [ReactiveFormsModule, CommunityHeaderComponent],
+  selector: 'app-activate-page', imports: [ReactiveFormsModule, CommunityAccountShellComponent],
   templateUrl: './activate-page.component.html', styleUrl: './activate-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActivatePageComponent implements OnInit {

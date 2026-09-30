@@ -1,0 +1,9 @@
+<div class="community-account-shell" [class.account-shell-image]="heroVariant() === 'image'">
+  <app-community-header [showSignIn]="showSignIn()" layout="activation" />
+  <main class="account-shell-grid">
+    <section class="account-shell-hero" aria-label="Community introduction">
+      <div class="account-shell-hero-inner"><ng-content select="[account-hero]"></ng-content></div>
+    </section>
+    <section class="account-shell-form-panel"><div class="account-shell-form-inner"><ng-content select="[account-form]"></ng-content></div></section>
+  </main>
+</div>

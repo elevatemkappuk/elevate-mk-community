@@ -10,9 +10,13 @@
   background: var(--elevate-gold);
 }
 
+.activation-header {
+  padding-inline: clamp(1.5rem, 6vw, 6rem);
+}
+
 .brand-logo {
   display: inline-flex;
-  width: clamp(12rem, 16vw, 16rem);
+  width: clamp(14rem, 17vw, 19rem);
   height: 3.8rem;
   align-items: center;
   overflow: hidden;

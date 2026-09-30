@@ -1,8 +1,5 @@
-<div class="page-shell">
-  <app-community-header />
-
-  <main class="page-content">
-    <section class="hero-panel" aria-labelledby="hero-title">
+<app-community-account-shell heroVariant="image" [showSignIn]="true">
+  <div account-hero>
       <div class="hero-content">
         <p class="eyebrow">Join the community</p>
         <h1 id="hero-title">Join the<br /><span>Elevate MK</span><br />Community</h1>
@@ -17,9 +14,9 @@
         </ul>
       </div>
       <p class="hero-footnote">Built for people shaping the future of MK.</p>
-    </section>
+  </div>
 
-    <section class="form-panel" aria-labelledby="form-title">
+  <div account-form>
       <div class="form-heading">
         <p class="eyebrow eyebrow-dark">Your next connection starts here</p>
         <h2 id="form-title">Join the Elevate MK Community</h2>
@@ -245,7 +242,5 @@
         </button>
         <p class="signin-prompt">Already a member? Use <span>Sign in</span> above.</p>
       </form>
-    </section>
-  </main>
-
-</div>
+  </div>
+</app-community-account-shell>
