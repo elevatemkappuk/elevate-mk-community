@@ -11,6 +11,7 @@ import { CommunityHeaderComponent } from '../community-header/community-header.c
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommunityAccountShellComponent {
-  readonly heroVariant = input<'image' | 'editorial'>('editorial');
+  readonly variant = input<'onboarding' | 'account-security'>('account-security');
   readonly showSignIn = input(false);
+  readonly formWidth = input<'standard' | 'wide'>('standard');
 }

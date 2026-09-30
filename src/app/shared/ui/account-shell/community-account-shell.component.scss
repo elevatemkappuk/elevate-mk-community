@@ -1,17 +1,27 @@
 .community-account-shell { min-height: 100svh; background: var(--elevate-page); color: var(--elevate-ink); }
+.account-shell-header { position: relative; z-index: 2; }
+.account-shell-security { position: relative; }
+.account-shell-security .account-shell-header { position: absolute; top: 0; left: 0; width: 50%; }
+.account-shell-security .account-shell-grid { min-height: 100svh; }
+.account-shell-onboarding .account-shell-header { width: 100%; }
 .account-shell-grid { display: grid; min-height: calc(100svh - 84px); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .account-shell-hero { position: relative; display: flex; min-height: 720px; flex-direction: column; justify-content: center; overflow: hidden; padding: clamp(4rem, 8vw, 8rem) clamp(2rem, 8vw, 8.5rem); background: var(--elevate-gold); }
 .account-shell-hero-inner, .account-shell-form-inner { width: min(100%, 740px); margin-inline: auto; }
 .account-shell-hero-inner { position: relative; z-index: 1; }
 .account-shell-form-panel { align-self: stretch; padding: clamp(3rem, 5vw, 5rem) clamp(2rem, 4vw, 5rem); background: var(--elevate-page); }
 .account-shell-form-inner { min-height: 100%; }
-.account-shell-image .account-shell-hero { justify-content: space-between; background: var(--elevate-black); }
-.account-shell-image .account-shell-hero::before, .account-shell-image .account-shell-hero::after { position: absolute; inset: 0; z-index: 0; content: ''; pointer-events: none; }
-.account-shell-image .account-shell-hero::before { background: url('/branding/background2.png') center / cover; opacity: .92; }
-.account-shell-image .account-shell-hero::after { background: linear-gradient(90deg, rgb(0 0 0 / 78%) 0%, rgb(0 0 0 / 56%) 58%, rgb(0 0 0 / 30%) 100%); }
-.account-shell-image .account-shell-hero-inner { width: min(100%, 650px); margin-inline: 0; }
-.account-shell-image .hero-content { margin-block: auto; }
-.account-shell-image .hero-footnote { position: relative; z-index: 1; width: min(100%, 650px); margin: 4rem 0 0; color: rgb(255 255 255 / 78%); font-size: .88rem; }
+.account-shell-wide-form .account-shell-form-inner { width: min(100%, 40rem); }
+.account-shell-security .account-shell-hero { background: var(--elevate-gold); }
+.account-shell-security .account-shell-hero .eyebrow { color: var(--elevate-gold-deep); }
+.account-shell-security .account-shell-hero h1 { color: var(--elevate-black); }
+.account-shell-security .account-shell-hero .hero-copy { color: var(--elevate-ink); }
+.account-shell-onboarding .account-shell-hero { justify-content: space-between; background: var(--elevate-black); }
+.account-shell-onboarding .account-shell-hero::before, .account-shell-onboarding .account-shell-hero::after { position: absolute; inset: 0; z-index: 0; content: ''; pointer-events: none; }
+.account-shell-onboarding .account-shell-hero::before { background: url('/branding/background2.png') center / cover; opacity: .92; }
+.account-shell-onboarding .account-shell-hero::after { background: linear-gradient(90deg, rgb(0 0 0 / 78%) 0%, rgb(0 0 0 / 56%) 58%, rgb(0 0 0 / 30%) 100%); }
+.account-shell-onboarding .account-shell-hero-inner { width: min(100%, 650px); margin-inline: 0; }
+.account-shell-onboarding .hero-content { margin-block: auto; }
+.account-shell-onboarding .hero-footnote { position: relative; z-index: 1; width: min(100%, 650px); margin: 4rem 0 0; color: rgb(255 255 255 / 78%); font-size: .88rem; }
 .account-shell-hero .hero-content { position: relative; z-index: 1; width: min(100%, 650px); }
 .account-shell-hero .eyebrow { margin: 0 0 1.4rem; color: var(--elevate-gold); font-size: .74rem; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
 .account-shell-hero h1 { max-width: 720px; margin: 0 0 2rem; color: var(--elevate-surface); font-size: clamp(3.8rem, 6.3vw, 7.4rem); font-weight: 900; letter-spacing: -.085em; line-height: .86; text-transform: uppercase; }
@@ -33,4 +43,4 @@
 .account-shell-form-inner .field-error { color: #8f2f25; font-size: .78rem; font-weight: 650; line-height: 1.4; }
 @media (max-width: 1100px) { .account-shell-hero { padding-inline: clamp(2rem, 5vw, 4rem); } .account-shell-form-panel { padding-inline: clamp(2rem, 3vw, 3.5rem); } }
 @media (max-width: 820px) { .account-shell-grid { grid-template-columns: .9fr 1.1fr; } .account-shell-hero { min-height: 760px; padding-block: 4rem; } .account-shell-form-panel { padding-inline: 2rem; } }
-@media (max-width: 760px) { .account-shell-grid { display: block; min-height: 0; } .account-shell-hero { min-height: clamp(500px, calc(100svh - 72px), 680px); padding: 4rem 1.5rem 3rem; } .account-shell-image .account-shell-hero h1 { font-size: clamp(3.1rem, 14vw, 5rem); } .account-shell-form-panel { padding: 3.5rem 1rem 4rem; } .account-shell-form-inner > * { width: min(100%, 520px); margin-inline: auto; } }
+@media (max-width: 760px) { .account-shell-header, .account-shell-security .account-shell-header { position: static; width: 100%; } .account-shell-grid { display: block; min-height: 0; } .account-shell-hero { min-height: clamp(440px, calc(100svh - 160px), 560px); padding: 4rem 1.5rem 3rem; } .account-shell-onboarding .account-shell-hero { min-height: clamp(500px, calc(100svh - 72px), 680px); } .account-shell-onboarding .account-shell-hero h1 { font-size: clamp(3.1rem, 14vw, 5rem); } .account-shell-form-panel { padding: 3.5rem 1rem 4rem; } .account-shell-form-inner > * { width: min(100%, 520px); margin-inline: auto; } }

@@ -6,16 +6,23 @@ import { CommunityAccountShellComponent } from './community-account-shell.compon
 @Component({
   standalone: true,
   imports: [CommunityAccountShellComponent],
-  template: `<app-community-account-shell heroVariant="editorial"><div account-hero>Hero content</div><div account-form>Form content</div></app-community-account-shell>`,
+  template: `<app-community-account-shell variant="onboarding"><div account-hero>Hero content</div><div account-form>Form content</div></app-community-account-shell>`,
 })
-class ShellHostComponent {}
+class OnboardingShellHostComponent {}
+
+@Component({
+  standalone: true,
+  imports: [CommunityAccountShellComponent],
+  template: `<app-community-account-shell variant="account-security"><div account-hero>Security hero</div><div account-form>Security form</div></app-community-account-shell>`,
+})
+class SecurityShellHostComponent {}
 
 describe('CommunityAccountShellComponent', () => {
-  let fixture: ComponentFixture<ShellHostComponent>;
+  let fixture: ComponentFixture<OnboardingShellHostComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ShellHostComponent] }).compileComponents();
-    fixture = TestBed.createComponent(ShellHostComponent);
+    await TestBed.configureTestingModule({ imports: [OnboardingShellHostComponent, SecurityShellHostComponent] }).compileComponents();
+    fixture = TestBed.createComponent(OnboardingShellHostComponent);
     fixture.detectChanges();
   });
 
@@ -24,5 +31,15 @@ describe('CommunityAccountShellComponent', () => {
     expect(element.querySelector('app-community-header')).toBeTruthy();
     expect(element.querySelector('.account-shell-hero')?.textContent).toContain('Hero content');
     expect(element.querySelector('.account-shell-form-panel')?.textContent).toContain('Form content');
+    expect(element.querySelector('.account-shell-onboarding')).toBeTruthy();
+  });
+
+  it('supports the account-security presentation', async () => {
+    const securityFixture = TestBed.createComponent(SecurityShellHostComponent);
+    securityFixture.detectChanges();
+    const element = securityFixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.account-shell-security')).toBeTruthy();
+    expect(element.querySelector('.account-shell-hero')?.textContent).toContain('Security hero');
+    expect(element.querySelector('.account-shell-form-panel')?.textContent).toContain('Security form');
   });
 });
