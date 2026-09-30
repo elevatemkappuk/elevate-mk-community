@@ -39,6 +39,13 @@ describe('ResetPasswordPageComponent', () => {
     expect(button().disabled).toBe(false);
   });
 
+  it('shows the complementary form-state hero copy with explicit lines', () => {
+    const hero = () => fixture.nativeElement.querySelector('.reset-password-hero') as HTMLElement;
+    expect(hero().querySelectorAll('.hero-line')[0].textContent).toBe('Secure your');
+    expect(hero().querySelectorAll('.hero-line')[1].textContent).toBe('Account');
+    expect(hero().textContent).toContain('Choose a strong new password for your Elevate MK account.');
+  });
+
   it('passes route values to the shared confirm endpoint and shows success', () => {
     component.form.setValue({ password: 'Secure-password-123!', confirm_password: 'Secure-password-123!' });
     component.submit();
@@ -46,6 +53,10 @@ describe('ResetPasswordPageComponent', () => {
     expect(auth.confirmPasswordReset).toHaveBeenCalledWith('uid-value', 'token-value', 'Secure-password-123!', 'Secure-password-123!');
     expect(fixture.nativeElement.textContent).toContain('Your Elevate MK account password has been updated.');
     expect(fixture.nativeElement.querySelector('a[href="/sign-in"]')).not.toBeNull();
+    const hero = fixture.nativeElement.querySelector('.reset-password-hero') as HTMLElement;
+    expect(hero.querySelectorAll('.hero-line')[0].textContent).toBe("You're");
+    expect(hero.querySelectorAll('.hero-line')[1].textContent).toBe('All set');
+    expect(hero.textContent).toContain('Your Elevate MK account is secure and ready to use.');
   });
 
   it('shows a generic terminal state for invalid or expired links', () => {
@@ -55,5 +66,9 @@ describe('ResetPasswordPageComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain("This link can't be used");
     expect(fixture.nativeElement.querySelector('a[href="/forgot-password"]')).not.toBeNull();
+    const hero = fixture.nativeElement.querySelector('.reset-password-hero') as HTMLElement;
+    expect(hero.querySelectorAll('.hero-line')[0].textContent).toBe("Let's try");
+    expect(hero.querySelectorAll('.hero-line')[1].textContent).toBe('Again');
+    expect(hero.textContent).toContain('Request a new link to securely reset your Elevate MK account password.');
   });
 });
