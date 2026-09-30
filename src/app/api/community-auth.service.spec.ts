@@ -44,4 +44,18 @@ describe('CommunityAuthService', () => {
     expect(check.request.method).toBe('GET');
     check.flush({ usable: true });
   });
+
+  it('posts Community login through CSRF bootstrap and stores the minimal user', () => {
+    service.login('member@example.com', 'Community-password-123!').subscribe((user) => {
+      expect(user.first_name).toBe('Amina');
+      expect(service.currentUser()).toEqual(user);
+    });
+    const csrf = http.expectOne('/api/v1/auth/csrf/');
+    csrf.flush({ csrf_token: 'csrf-token' });
+    const login = http.expectOne('/api/v1/community/login/');
+    expect(login.request.method).toBe('POST');
+    expect(login.request.body).toEqual({ email: 'member@example.com', password: 'Community-password-123!' });
+    expect(login.request.withCredentials).toBe(true);
+    login.flush({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
+  });
 });

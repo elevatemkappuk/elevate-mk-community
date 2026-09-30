@@ -57,6 +57,18 @@ export class CommunityAuthService {
     this.currentUserRequest$ = of(user);
   }
 
+  login(email: string, password: string): Observable<CommunityUser> {
+    return this.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityUser>(
+        `${this.apiConfig.apiBaseUrl}/community/login/`,
+        { email, password },
+        { withCredentials: true },
+      )),
+      tap((user) => this.setCurrentUser(user)),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
   checkActivation(invitationId: string, token: string): Observable<CommunityActivationCheckResponse> {
     return this.http.get<CommunityActivationCheckResponse>(
       `${this.apiConfig.apiBaseUrl}/community/activate/${encodeURIComponent(invitationId)}/${encodeURIComponent(token)}/`,

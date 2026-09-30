@@ -1,0 +1,46 @@
+<app-community-account-shell variant="onboarding" [showSignIn]="false">
+  <div account-hero>
+    <div class="hero-content">
+      <p class="eyebrow">Welcome back</p>
+      <h1>Sign in to the <span>Elevate MK</span> Community</h1>
+      <p class="hero-copy">Reconnect with the people, ideas and opportunities shaping Milton Keynes.</p>
+    </div>
+  </div>
+
+  <div account-form>
+    <div class="sign-in-form-content" aria-labelledby="sign-in-title">
+      <div class="form-heading">
+        <p class="eyebrow eyebrow-dark">Community account</p>
+        <h2 id="sign-in-title">Sign in</h2>
+        <p>Access your Elevate MK Community account.</p>
+      </div>
+
+      @if (credentialError()) {
+        <p class="sign-in-error" role="alert">Email or password is incorrect.</p>
+      } @else if (accessUnavailable()) {
+        <div class="sign-in-error" role="alert">
+          <p>Community access is not available for this account.</p>
+          <p>If you think this is a mistake, please contact Elevate MK.</p>
+        </div>
+      }
+
+      <form [formGroup]="signInForm" (ngSubmit)="submit()" novalidate>
+        <div class="sign-in-field">
+          <label for="sign-in-email">Email address</label>
+          <input id="sign-in-email" type="email" formControlName="email" autocomplete="email" [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched" />
+          @if (signInForm.controls.email.invalid && signInForm.controls.email.touched) { <p class="sign-in-field-error">Enter a valid email address.</p> }
+        </div>
+        <div class="sign-in-field">
+          <label for="sign-in-password">Password</label>
+          <div class="sign-in-password-control">
+            <input id="sign-in-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" [attr.aria-invalid]="signInForm.controls.password.invalid && signInForm.controls.password.touched" />
+            <button type="button" class="visibility-button" (click)="togglePassword()" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">{{ showPassword() ? 'Hide' : 'Show' }}</button>
+          </div>
+          @if (signInForm.controls.password.invalid && signInForm.controls.password.touched) { <p class="sign-in-field-error">Enter your password.</p> }
+        </div>
+        <button class="community-primary-action" type="submit" [disabled]="signInForm.invalid || submitting()" [attr.aria-busy]="submitting()">{{ submitting() ? 'Signing in…' : 'Sign in' }}</button>
+      </form>
+      <p class="join-prompt">Not a member yet? <a routerLink="/join">Join the Community</a></p>
+    </div>
+  </div>
+</app-community-account-shell>

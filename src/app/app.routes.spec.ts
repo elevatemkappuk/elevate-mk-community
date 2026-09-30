@@ -2,12 +2,15 @@ import { JoinPageComponent } from './join-page/join-page.component';
 import { JoinSuccessPageComponent } from './join-success/join-success-page.component';
 import { ActivatePageComponent } from './activate-page/activate-page.component';
 import { CommunityHomePageComponent } from './community-home/community-home-page.component';
+import { SignInPageComponent } from './sign-in-page/sign-in-page.component';
 import { routes } from './app.routes';
 
 describe('Community routes', () => {
   it('keeps Join and exposes the dedicated success route', () => {
     expect(routes.find((route) => route.path === 'join')?.component).toBe(JoinPageComponent);
     expect(routes.find((route) => route.path === 'join/success')?.component).toBe(JoinSuccessPageComponent);
+    expect(routes.find((route) => route.path === 'sign-in')?.component).toBe(SignInPageComponent);
+    expect(routes.find((route) => route.path === 'sign-in')?.canActivate?.length).toBe(1);
   });
 
   it('exposes activation and guarded Community routes', () => {
