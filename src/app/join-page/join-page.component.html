@@ -1,12 +1,5 @@
 <div class="page-shell">
-  <header class="site-header">
-    <a class="brand-logo" routerLink="/join" aria-label="Elevate MK home">
-      <img src="branding/logo.png" alt="Elevate MK" />
-    </a>
-    <button class="sign-in-button" type="button" aria-label="Sign in to your Elevate MK account">
-      Sign in
-    </button>
-  </header>
+  <app-community-header />
 
   <main class="page-content">
     <section class="hero-panel" aria-labelledby="hero-title">
@@ -33,13 +26,6 @@
         <p>Create your profile and become part of the Elevate MK professional community.</p>
       </div>
 
-      @if (submissionState() === 'success') {
-        <section class="success-panel" role="status" aria-live="polite" aria-labelledby="success-title" tabindex="-1">
-          <p class="eyebrow eyebrow-dark">Community membership</p>
-          <h2 id="success-title" tabindex="-1">You're in.</h2>
-          <p>Thanks for joining the Elevate MK professional community. We’ll be in touch with the next steps.</p>
-        </section>
-      } @else {
       <form [formGroup]="joinForm" novalidate (ngSubmit)="onSubmit()">
         @if (submissionState() === 'review') {
           <div class="submission-feedback" role="alert" aria-live="assertive">
@@ -259,7 +245,6 @@
         </button>
         <p class="signin-prompt">Already a member? Use <span>Sign in</span> above.</p>
       </form>
-      }
     </section>
   </main>
 

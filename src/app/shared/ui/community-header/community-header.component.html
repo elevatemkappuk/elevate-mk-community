@@ -1,0 +1,10 @@
+<header class="site-header">
+  <a class="brand-logo" routerLink="/join" aria-label="Elevate MK home">
+    <img src="branding/logo.png" alt="Elevate MK" />
+  </a>
+  @if (showSignIn()) {
+    <button class="sign-in-button" type="button" aria-label="Sign in to your Elevate MK account">
+      Sign in
+    </button>
+  }
+</header>

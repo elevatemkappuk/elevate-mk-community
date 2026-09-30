@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 
 import { CommunityApiService, IndustryOption } from '../api/community-api.service';
@@ -36,20 +37,32 @@ class StubCommunityJoinService {
   }
 }
 
+class StubRouter {
+  navigations: Array<{ url: string; extras: { replaceUrl?: boolean } }> = [];
+
+  navigateByUrl(url: string, extras: { replaceUrl?: boolean }): Promise<boolean> {
+    this.navigations.push({ url, extras });
+    return Promise.resolve(true);
+  }
+}
+
 describe('JoinPageComponent', () => {
   let fixture: ComponentFixture<JoinPageComponent>;
   let component: JoinPageComponent;
   let communityApi: StubCommunityApiService;
   let communityJoin: StubCommunityJoinService;
+  let router: StubRouter;
 
   beforeEach(async () => {
     communityApi = new StubCommunityApiService();
     communityJoin = new StubCommunityJoinService();
+    router = new StubRouter();
     await TestBed.configureTestingModule({
       imports: [JoinPageComponent],
       providers: [
         { provide: CommunityApiService, useValue: communityApi },
         { provide: CommunityJoinService, useValue: communityJoin },
+        { provide: Router, useValue: router },
       ],
     }).compileComponents();
 
@@ -123,6 +136,8 @@ describe('JoinPageComponent', () => {
     expect(compiled.querySelector('.sign-in-button')?.textContent).toContain('Sign in');
     expect(compiled.querySelector('#form-title')?.textContent).toContain('Join the Elevate MK Community');
     expect(compiled.querySelector('.submit-button')?.textContent).toContain('Join Elevate MK');
+    expect(compiled.querySelector('.success-panel')).toBeNull();
+    expect(compiled.textContent).not.toContain("You're in.");
   });
 
   it('renders the join experience as a hero and form split without a floating footer/card shell', () => {
@@ -187,6 +202,12 @@ describe('JoinPageComponent', () => {
 
     expect(form.valid).toBe(true);
     expect(button().disabled).toBe(false);
+    expect(button().getAttribute('aria-disabled')).toBeNull();
+
+    component.submissionState.set('submitting');
+    fixture.detectChanges();
+    expect(button().disabled).toBe(true);
+    expect(button().getAttribute('aria-busy')).toBe('true');
   });
 
   it('submits the backend contract with enum values, industry slug, and consent boolean', () => {
@@ -214,7 +235,7 @@ describe('JoinPageComponent', () => {
     component.onSubmit();
 
     expect(communityJoin.calls).toBe(1);
-    expect(component.submissionState()).toBe('success');
+    expect(router.navigations).toEqual([{ url: '/join/success', extras: { replaceUrl: true } }]);
   });
 
   it('maps known backend field errors without exposing a raw response', () => {
@@ -250,7 +271,7 @@ describe('JoinPageComponent', () => {
 
     expect(communityJoin.calls).toBe(2);
     expect(communityJoin.keys[1]).toBe(firstKey);
-    expect(component.submissionState()).toBe('success');
+    expect(router.navigations).toEqual([{ url: '/join/success', extras: { replaceUrl: true } }]);
   });
 
   it('keeps review responses as a persistent generic Join-page state', () => {

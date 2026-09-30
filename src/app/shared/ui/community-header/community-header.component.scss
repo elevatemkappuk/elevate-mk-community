@@ -1,0 +1,69 @@
+:host { display: block; }
+
+.site-header {
+  display: flex;
+  width: 100%;
+  min-height: 84px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem max(2rem, calc((100% - 1440px) / 2));
+  background: var(--elevate-gold);
+}
+
+.brand-logo {
+  display: inline-flex;
+  width: clamp(12rem, 16vw, 16rem);
+  height: 3.8rem;
+  align-items: center;
+  overflow: hidden;
+}
+
+.brand-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sign-in-button {
+  border: 1.5px solid var(--elevate-black);
+  border-radius: 999px;
+  padding: 0.8rem 1.4rem;
+  background: transparent;
+  color: var(--elevate-black);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sign-in-button:hover {
+  background: var(--elevate-black);
+  color: var(--elevate-gold);
+}
+
+.sign-in-button:active { transform: translateY(1px); }
+
+.sign-in-button:focus-visible,
+.brand-logo:focus-visible {
+  outline: 3px solid rgb(185 130 0 / 42%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 420px) {
+  .site-header {
+    min-height: 72px;
+    padding-inline: 1rem;
+  }
+
+  .brand-logo {
+    width: 9.5rem;
+    height: 3rem;
+  }
+
+  .brand-logo img { width: 100%; }
+
+  .sign-in-button {
+    padding: 0.65rem 1rem;
+    font-size: 0.8rem;
+  }
+}

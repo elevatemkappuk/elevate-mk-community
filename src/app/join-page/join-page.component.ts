@@ -8,12 +8,13 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { CommunityApiService, IndustryOption } from '../api/community-api.service';
 import { CommunityJoinApiError, CommunityJoinRequest, CommunityJoinService } from '../api/community-join.service';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
 import { NotificationService } from '../shared/ui/notifications/notification.service';
+import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 
 type JoinForm = {
   first_name: FormControl<string>;
@@ -30,7 +31,7 @@ type JoinForm = {
   email_marketing_opt_in: FormControl<boolean>;
 };
 
-type SubmissionState = 'idle' | 'submitting' | 'success' | 'review' | 'error';
+type SubmissionState = 'idle' | 'submitting' | 'review' | 'error';
 
 const SERVER_ERROR = 'server';
 
@@ -39,7 +40,7 @@ const trimmedRequired: ValidatorFn = (control: AbstractControl): ValidationError
 
 @Component({
   selector: 'app-join-page',
-  imports: [ReactiveFormsModule, RouterLink, SelectComponent],
+  imports: [ReactiveFormsModule, SelectComponent, CommunityHeaderComponent],
   templateUrl: './join-page.component.html',
   styleUrl: './join-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,7 @@ export class JoinPageComponent implements OnInit {
   private readonly communityApi = inject(CommunityApiService);
   private readonly communityJoin = inject(CommunityJoinService);
   private readonly notifications = inject(NotificationService);
+  private readonly router = inject(Router);
   private idempotencyKey: string | null = null;
   private payloadFingerprint: string | null = null;
 
@@ -192,10 +194,7 @@ export class JoinPageComponent implements OnInit {
     this.submissionState.set('submitting');
     this.submissionError.set('');
     this.communityJoin.submit(payload, this.idempotencyKey).subscribe({
-      next: () => {
-        this.submissionState.set('success');
-        setTimeout(() => document.getElementById('success-title')?.focus());
-      },
+      next: () => void this.router.navigateByUrl('/join/success', { replaceUrl: true }),
       error: (error: CommunityJoinApiError) => this.handleSubmitError(error),
     });
   }

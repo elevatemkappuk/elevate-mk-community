@@ -8,52 +8,6 @@
   color: var(--elevate-ink);
 }
 
-.site-header {
-  display: flex;
-  width: 100%;
-  min-height: 84px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem max(2rem, calc((100% - 1440px) / 2));
-  background: var(--elevate-gold);
-}
-
-.brand-logo {
-  display: inline-flex;
-  width: clamp(12rem, 16vw, 16rem);
-  height: 3.8rem;
-  align-items: center;
-  overflow: hidden;
-}
-
-.brand-logo img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.sign-in-button {
-  border: 1.5px solid var(--elevate-black);
-  border-radius: 999px;
-  padding: 0.8rem 1.4rem;
-  background: transparent;
-  color: var(--elevate-black);
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.sign-in-button:hover {
-  background: var(--elevate-black);
-  color: var(--elevate-gold);
-}
-
-.sign-in-button:active {
-  transform: translateY(1px);
-}
-
-.sign-in-button:focus-visible,
 .submit-button:focus-visible,
 input:focus-visible,
 select:focus-visible {
@@ -254,23 +208,6 @@ h1 span {
   margin: 0;
 }
 
-.success-panel {
-  max-width: 38rem;
-  padding: 3rem 0;
-}
-
-.success-panel h2 {
-  margin: 0.5rem 0 1rem;
-  font-size: clamp(2.5rem, 4vw, 4rem);
-}
-
-.success-panel p:last-child {
-  max-width: 32rem;
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
 label,
 legend {
   color: var(--elevate-black);
@@ -420,7 +357,7 @@ select:-webkit-autofill {
   color: var(--elevate-black);
   font: inherit;
   font-weight: 850;
-  cursor: not-allowed;
+  cursor: pointer;
   opacity: 0.52;
 }
 
@@ -506,28 +443,6 @@ select:-webkit-autofill {
   .form-panel > * {
     width: min(100%, 520px);
   }
-}
-
-@media (max-width: 420px) {
-  .site-header {
-    min-height: 72px;
-    padding-inline: 1rem;
-  }
-
-  .brand-logo img {
-    width: 100%;
-  }
-
-  .brand-logo {
-    width: 9.5rem;
-    height: 3rem;
-  }
-
-  .sign-in-button {
-    padding: 0.65rem 1rem;
-    font-size: 0.8rem;
-  }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
