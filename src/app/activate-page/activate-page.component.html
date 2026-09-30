@@ -1,0 +1,22 @@
+<div class="activation-shell">
+  <app-community-header [showSignIn]="false" />
+  @if (state() === 'form') {
+    <main class="activation-main" aria-labelledby="activation-title">
+      <section class="activation-intro"><p class="eyebrow">Community account</p><h1 id="activation-title">Set up your account</h1><p class="intro-copy">Create a password to access your Elevate MK Community account.</p></section>
+      <section class="activation-panel" aria-labelledby="password-heading"><div class="activation-form-wrap">
+        <h2 id="password-heading">Create a secure password</h2>
+        <ul class="password-guidance"><li>Use at least 8 characters.</li><li>Avoid common passwords.</li><li>Do not use only numbers.</li><li>Avoid using your email address or other account details.</li></ul>
+        <p class="match-guidance">Both password fields must match.</p>
+        <form [formGroup]="activationForm" (ngSubmit)="submit()" novalidate>
+          <div class="field-group"><label for="activation-password">Password</label><div class="password-control"><input id="activation-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" [attr.aria-invalid]="hasPasswordError()" aria-describedby="password-help password-error" /><button type="button" class="visibility-button" (click)="togglePassword('password')" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">{{ showPassword() ? 'Hide' : 'Show' }}</button></div><p id="password-help" class="field-help">Use at least 8 characters.</p>@if (hasPasswordError()) { <p id="password-error" class="field-error" role="alert">{{ passwordError() }}</p> }</div>
+          <div class="field-group"><label for="activation-confirm-password">Confirm password</label><div class="password-control"><input id="activation-confirm-password" [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirm_password" autocomplete="new-password" [attr.aria-invalid]="hasConfirmError()" aria-describedby="confirm-password-error" /><button type="button" class="visibility-button" (click)="togglePassword('confirm')" [attr.aria-label]="showConfirmPassword() ? 'Hide confirmation password' : 'Show confirmation password'">{{ showConfirmPassword() ? 'Hide' : 'Show' }}</button></div>@if (hasConfirmError()) { <p id="confirm-password-error" class="field-error" role="alert">{{ confirmError() }}</p> }</div>
+          <button class="primary-action" type="submit" [disabled]="submitting()" [attr.aria-busy]="submitting()">{{ submitting() ? 'Setting up account…' : 'Set up my account' }} <span aria-hidden="true">→</span></button>
+        </form>
+      </div></section>
+    </main>
+  } @else if (state() === 'invalid') {
+    <main class="terminal-state" aria-labelledby="invalid-title"><p class="eyebrow">Account setup</p><h1 id="invalid-title">This link can't be used.</h1><p>This account setup link is invalid or has expired.</p><button class="primary-action" type="button" (click)="backToElevate()">Back to Elevate MK <span aria-hidden="true">→</span></button></main>
+  } @else {
+    <main class="terminal-state" aria-labelledby="unavailable-title"><p class="eyebrow">Account setup</p><h1 id="unavailable-title">We couldn't complete setup.</h1><p>We couldn't complete your account setup right now. Please try the link again shortly. If the problem continues, contact Elevate MK.</p><button class="primary-action" type="button" (click)="state.set('form')">Try again <span aria-hidden="true">→</span></button></main>
+  }
+</div>

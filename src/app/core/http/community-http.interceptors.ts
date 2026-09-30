@@ -17,19 +17,10 @@ export const communityCredentialsInterceptor: HttpInterceptorFn = (request, next
     return next(request);
   }
 
-  const token = csrfToken ?? readCookie('csrftoken');
+  const token = csrfToken;
   const withCsrf = UNSAFE_METHODS.has(request.method) && token && !request.headers.has('X-CSRFToken')
     ? request.clone({ headers: request.headers.set('X-CSRFToken', token) })
     : request;
 
   return next(withCsrf.clone({ withCredentials: true }));
 };
-
-function readCookie(name: string): string | null {
-  const value = document.cookie
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`));
-
-  return value ? decodeURIComponent(value.slice(name.length + 1)) : null;
-}
