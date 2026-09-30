@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 
 import { CommunityAccountShellComponent } from './community-account-shell.component';
 
@@ -17,11 +18,18 @@ class OnboardingShellHostComponent {}
 })
 class SecurityShellHostComponent {}
 
+@Component({
+  standalone: true,
+  imports: [CommunityAccountShellComponent],
+  template: `<app-community-account-shell variant="account-security" formPosition="raised"><div account-hero>Hero</div><div account-form>Form</div></app-community-account-shell>`,
+})
+class RaisedSecurityShellHostComponent {}
+
 describe('CommunityAccountShellComponent', () => {
   let fixture: ComponentFixture<OnboardingShellHostComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [OnboardingShellHostComponent, SecurityShellHostComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [OnboardingShellHostComponent, SecurityShellHostComponent, RaisedSecurityShellHostComponent], providers: [{ provide: ActivatedRoute, useValue: {} }] }).compileComponents();
     fixture = TestBed.createComponent(OnboardingShellHostComponent);
     fixture.detectChanges();
   });
@@ -41,5 +49,11 @@ describe('CommunityAccountShellComponent', () => {
     expect(element.querySelector('.account-shell-security')).toBeTruthy();
     expect(element.querySelector('.account-shell-hero')?.textContent).toContain('Security hero');
     expect(element.querySelector('.account-shell-form-panel')?.textContent).toContain('Security form');
+  });
+
+  it('supports an opt-in raised form position without changing the security default', () => {
+    const raisedFixture = TestBed.createComponent(RaisedSecurityShellHostComponent);
+    raisedFixture.detectChanges();
+    expect(raisedFixture.nativeElement.querySelector('.account-shell-form-raised')).toBeTruthy();
   });
 });

@@ -1,4 +1,6 @@
 :host { display: block; }
+.forgot-password-prompt { margin: 1.25rem 0 0; text-align: right; }
+.forgot-password-prompt a { color: var(--elevate-muted); font-size: .9rem; font-weight: 750; text-decoration: underline; text-underline-offset: .2em; }
 .sign-in-form-content { width: 100%; }
 .sign-in-field { display: grid; gap: .5rem; margin-bottom: 1.35rem; }
 .sign-in-field label { color: var(--elevate-black); font-size: 1rem; font-weight: 800; }

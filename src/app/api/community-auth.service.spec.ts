@@ -105,4 +105,25 @@ describe('CommunityAuthService', () => {
     http.expectOne('/api/v1/community/activate/invitation-id/raw-token/').flush({ code: 'PASSWORD_VALIDATION_ERROR' }, { status: 400, statusText: 'Bad Request' });
     http.expectNone('/api/v1/auth/csrf/');
   });
+
+  it('requests a Community password reset through CSRF bootstrap without storing credentials', () => {
+    service.requestPasswordReset('member@example.com').subscribe((response) => expect(response.detail).toContain('eligible'));
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    const request = http.expectOne('/api/v1/community/password-reset/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ email: 'member@example.com' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
+    request.flush({ detail: "If an eligible Elevate MK account exists for that email address, we've sent password reset instructions." });
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('confirms a reset through the shared auth endpoint with route credentials only in the request', () => {
+    service.confirmPasswordReset('uid-value', 'token-value', 'New-password-123!', 'New-password-123!').subscribe();
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    const request = http.expectOne('/api/v1/auth/password-reset/confirm/');
+    expect(request.request.body).toEqual({ uid: 'uid-value', token: 'token-value', new_password: 'New-password-123!', confirm_password: 'New-password-123!' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
+    request.flush({ detail: 'Your password has been reset successfully.' });
+  });
 });

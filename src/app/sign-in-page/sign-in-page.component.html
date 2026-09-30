@@ -40,6 +40,7 @@
         </div>
         <button class="community-primary-action" type="submit" [disabled]="signInForm.invalid || submitting()" [attr.aria-busy]="submitting()">{{ submitting() ? 'Signing in…' : 'Sign in' }}</button>
       </form>
+      <p class="forgot-password-prompt"><a routerLink="/forgot-password">Forgot password?</a></p>
       <p class="join-prompt">Not a member yet? <a routerLink="/join">Join the Community</a></p>
     </div>
   </div>

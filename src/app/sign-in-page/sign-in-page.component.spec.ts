@@ -71,7 +71,7 @@ describe('SignInPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Email or password is incorrect.');
     expect(component.signInForm.controls.email.value).toBe('member@example.com');
     expect(fixture.nativeElement.querySelector('.join-prompt a')?.textContent).toContain('Join the Community');
-    expect(fixture.nativeElement.textContent).not.toContain('Forgot');
+    expect(fixture.nativeElement.querySelector('.forgot-password-prompt a')?.textContent).toContain('Forgot password?');
   });
 
   it('shows generic Community access guidance without exposing the eligibility reason', () => {

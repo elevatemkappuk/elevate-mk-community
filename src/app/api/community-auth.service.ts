@@ -10,6 +10,8 @@ export interface CommunityUser { id: number; first_name: string; last_name: stri
 export interface CommunityApiError { status: number; body: unknown; }
 export interface CommunityActivationResponse extends CommunityUser {}
 export interface CommunityActivationCheckResponse { usable: true; }
+export interface CommunityPasswordResetRequest { detail: string; }
+export interface CommunityPasswordResetConfirmRequest { detail: string; }
 interface CsrfBootstrapResponse { csrf_token: string; }
 
 @Injectable({ providedIn: 'root' })
@@ -90,6 +92,26 @@ export class CommunityAuthService {
       )),
       switchMap((user) => this.refreshCsrf().pipe(map(() => user))),
       tap((user) => this.setCurrentUser(user)),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  requestPasswordReset(email: string): Observable<CommunityPasswordResetRequest> {
+    return this.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityPasswordResetRequest>(
+        `${this.apiConfig.apiBaseUrl}/community/password-reset/`, { email }, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  confirmPasswordReset(uid: string, token: string, password: string, confirmPassword: string): Observable<CommunityPasswordResetConfirmRequest> {
+    return this.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityPasswordResetConfirmRequest>(
+        `${this.apiConfig.apiBaseUrl}/auth/password-reset/confirm/`,
+        { uid, token, new_password: password, confirm_password: confirmPassword },
+        { withCredentials: true },
+      )),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );
   }

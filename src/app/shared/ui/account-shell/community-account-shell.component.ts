@@ -14,4 +14,5 @@ export class CommunityAccountShellComponent {
   readonly variant = input<'onboarding' | 'account-security'>('account-security');
   readonly showSignIn = input(false);
   readonly formWidth = input<'standard' | 'wide'>('standard');
+  readonly formPosition = input<'standard' | 'raised'>('standard');
 }
