@@ -231,6 +231,13 @@ h1 span {
   margin-bottom: 1.1rem;
 }
 
+.field-message {
+  display: grid;
+  min-height: 1.15rem;
+  align-content: start;
+  gap: 0.2rem;
+}
+
 label,
 legend {
   color: var(--elevate-black);
@@ -272,6 +279,12 @@ select:hover {
   border-color: var(--elevate-muted);
 }
 
+select:disabled {
+  cursor: wait;
+  background: rgb(255 255 255 / 58%);
+  color: var(--elevate-muted);
+}
+
 input.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched {
   border-color: #a23a2d;
@@ -302,6 +315,29 @@ select:-webkit-autofill {
   font-size: 0.78rem;
   font-weight: 650;
   line-height: 1.4;
+}
+
+.retry-button {
+  width: fit-content;
+  border: 1px solid var(--elevate-black);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  background: transparent;
+  color: var(--elevate-black);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background: var(--elevate-black);
+  color: var(--elevate-gold);
+}
+
+.retry-button:focus-visible {
+  outline: 3px solid rgb(185 130 0 / 42%);
+  outline-offset: 2px;
 }
 
 .marketing-choice {

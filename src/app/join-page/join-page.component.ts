@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -9,6 +9,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+
+import { CommunityApiService, IndustryOption } from '../api/community-api.service';
+import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
 
 type JoinForm = {
   first_name: FormControl<string>;
@@ -30,12 +33,21 @@ const trimmedRequired: ValidatorFn = (control: AbstractControl): ValidationError
 
 @Component({
   selector: 'app-join-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, SelectComponent],
   templateUrl: './join-page.component.html',
   styleUrl: './join-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class JoinPageComponent {
+export class JoinPageComponent implements OnInit {
+  private readonly communityApi = inject(CommunityApiService);
+
+  protected readonly industries = signal<IndustryOption[]>([]);
+  protected readonly industryOptions = computed<SelectOption[]>(() =>
+    this.industries().map((industry) => ({ value: industry.slug, label: industry.label })),
+  );
+  protected readonly industriesLoading = signal(true);
+  protected readonly industriesError = signal('');
+
   protected readonly genders = [
     { value: 'MALE', label: 'Male' },
     { value: 'FEMALE', label: 'Female' },
@@ -73,6 +85,30 @@ export class JoinPageComponent {
     }),
     email_marketing_opt_in: new FormControl(false, { nonNullable: true }),
   });
+
+  ngOnInit(): void {
+    this.loadIndustries();
+  }
+
+  loadIndustries(): void {
+    this.industriesLoading.set(true);
+    this.industriesError.set('');
+    this.industries.set([]);
+
+    this.communityApi.getIndustries().subscribe({
+      next: (industries) => {
+        this.industries.set(industries);
+        this.industriesLoading.set(false);
+        if (industries.length === 0) {
+          this.industriesError.set('Industries are temporarily unavailable. Please try again.');
+        }
+      },
+      error: () => {
+        this.industriesLoading.set(false);
+        this.industriesError.set("We couldn't load industries. Please try again.");
+      },
+    });
+  }
 
   protected shouldShowError(controlName: keyof JoinForm): boolean {
     const control = this.joinForm.controls[controlName];

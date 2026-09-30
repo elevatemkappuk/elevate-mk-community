@@ -1,0 +1,65 @@
+<div class="select-root" [class.is-open]="isOpen()" [class.is-disabled]="isDisabled">
+  <button
+    #trigger
+    class="select-trigger"
+    type="button"
+    [id]="controlId"
+    role="combobox"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-controls]="controlId + '-listbox'"
+    [attr.aria-activedescendant]="isOpen() ? activeOptionId : null"
+    [attr.aria-describedby]="describedBy || null"
+    [attr.aria-required]="required ? 'true' : null"
+    [attr.aria-invalid]="invalid ? 'true' : null"
+    [attr.aria-disabled]="isDisabled ? 'true' : null"
+    [disabled]="isDisabled"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+  >
+    <span [class.placeholder]="!selectedOption">{{ selectedOption?.label || placeholder }}</span>
+    <span class="select-chevron" aria-hidden="true">⌄</span>
+  </button>
+
+  @if (isOpen()) {
+    <div
+      class="select-menu"
+      [class.opens-above]="placement() === 'above'"
+      [attr.id]="controlId + '-listbox'"
+      role="listbox"
+      [attr.aria-label]="placeholder"
+    >
+      @if (searchable) {
+        <div class="select-search-wrap">
+          <input
+            #searchInput
+            class="select-search"
+            type="search"
+            [placeholder]="searchPlaceholder"
+            [value]="searchTerm()"
+            aria-label="Search options"
+            (input)="searchTerm.set($any($event.target).value); activeIndex.set(0)"
+            (keydown)="onSearchKeydown($event)"
+          />
+        </div>
+      }
+
+      <div class="select-options">
+        @for (option of filteredOptions; track option.value; let index = $index) {
+          <div
+            class="select-option"
+            [class.is-active]="index === activeIndex()"
+            [class.is-selected]="option.value === selectedOption?.value"
+            [attr.id]="optionId(option.value)"
+            role="option"
+            [attr.aria-selected]="option.value === selectedOption?.value"
+            (click)="choose(option)"
+          >
+            {{ option.label }}
+          </div>
+        } @empty {
+          <p class="select-empty">{{ noResultsText }}</p>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -46,9 +46,11 @@
               [attr.aria-invalid]="shouldShowError('first_name') ? 'true' : null"
               [attr.aria-describedby]="shouldShowError('first_name') ? 'first-name-error' : null"
             />
-            @if (shouldShowError('first_name')) {
-              <span id="first-name-error" class="field-error">{{ errorMessage('first_name') }}</span>
-            }
+            <div class="field-message">
+              @if (shouldShowError('first_name')) {
+                <span id="first-name-error" class="field-error">{{ errorMessage('first_name') }}</span>
+              }
+            </div>
           </div>
           <div class="field">
             <label for="last-name">Last name <span aria-hidden="true">*</span></label>
@@ -61,48 +63,48 @@
               [attr.aria-invalid]="shouldShowError('last_name') ? 'true' : null"
               [attr.aria-describedby]="shouldShowError('last_name') ? 'last-name-error' : null"
             />
-            @if (shouldShowError('last_name')) {
-              <span id="last-name-error" class="field-error">{{ errorMessage('last_name') }}</span>
-            }
+            <div class="field-message">
+              @if (shouldShowError('last_name')) {
+                <span id="last-name-error" class="field-error">{{ errorMessage('last_name') }}</span>
+              }
+            </div>
           </div>
         </div>
 
         <div class="form-grid two-columns">
           <div class="field">
             <label for="gender">Gender <span aria-hidden="true">*</span></label>
-            <select
+            <app-select
               id="gender"
               formControlName="gender"
-              aria-required="true"
-              [attr.aria-invalid]="shouldShowError('gender') ? 'true' : null"
-              [attr.aria-describedby]="shouldShowError('gender') ? 'gender-error' : null"
-            >
-              <option value="">Select your gender</option>
-              @for (gender of genders; track gender.value) {
-                <option [value]="gender.value">{{ gender.label }}</option>
+              [options]="genders"
+              placeholder="Select your gender"
+              [required]="true"
+              [invalid]="shouldShowError('gender')"
+              [describedBy]="shouldShowError('gender') ? 'gender-error' : ''"
+            ></app-select>
+            <div class="field-message">
+              @if (shouldShowError('gender')) {
+                <span id="gender-error" class="field-error">{{ errorMessage('gender') }}</span>
               }
-            </select>
-            @if (shouldShowError('gender')) {
-              <span id="gender-error" class="field-error">{{ errorMessage('gender') }}</span>
-            }
+            </div>
           </div>
           <div class="field">
             <label for="age-range">Age range <span aria-hidden="true">*</span></label>
-            <select
+            <app-select
               id="age-range"
               formControlName="age_range"
-              aria-required="true"
-              [attr.aria-invalid]="shouldShowError('age_range') ? 'true' : null"
-              [attr.aria-describedby]="shouldShowError('age_range') ? 'age-range-error' : null"
-            >
-              <option value="">Select your age range</option>
-              @for (ageRange of ageRanges; track ageRange.value) {
-                <option [value]="ageRange.value">{{ ageRange.label }}</option>
+              [options]="ageRanges"
+              placeholder="Select your age range"
+              [required]="true"
+              [invalid]="shouldShowError('age_range')"
+              [describedBy]="shouldShowError('age_range') ? 'age-range-error' : ''"
+            ></app-select>
+            <div class="field-message">
+              @if (shouldShowError('age_range')) {
+                <span id="age-range-error" class="field-error">{{ errorMessage('age_range') }}</span>
               }
-            </select>
-            @if (shouldShowError('age_range')) {
-              <span id="age-range-error" class="field-error">{{ errorMessage('age_range') }}</span>
-            }
+            </div>
           </div>
         </div>
 
@@ -117,9 +119,11 @@
             [attr.aria-invalid]="shouldShowError('email') ? 'true' : null"
             [attr.aria-describedby]="shouldShowError('email') ? 'email-error' : null"
           />
-          @if (shouldShowError('email')) {
-            <span id="email-error" class="field-error">{{ errorMessage('email') }}</span>
-          }
+          <div class="field-message">
+            @if (shouldShowError('email')) {
+              <span id="email-error" class="field-error">{{ errorMessage('email') }}</span>
+            }
+          </div>
         </div>
 
         <div class="field phone-field">
@@ -137,7 +141,9 @@
               aria-describedby="phone-help"
             />
           </div>
-          <span id="phone-help" class="field-help">Choose your country code, then enter your number.</span>
+          <div class="field-message">
+            <span id="phone-help" class="field-help">Choose your country code, then enter your number.</span>
+          </div>
         </div>
 
         <div class="field">
@@ -151,26 +157,39 @@
             [attr.aria-invalid]="shouldShowError('location') ? 'true' : null"
             [attr.aria-describedby]="shouldShowError('location') ? 'location-error' : null"
           />
-          @if (shouldShowError('location')) {
-            <span id="location-error" class="field-error">{{ errorMessage('location') }}</span>
-          }
+          <div class="field-message">
+            @if (shouldShowError('location')) {
+              <span id="location-error" class="field-error">{{ errorMessage('location') }}</span>
+            }
+          </div>
         </div>
 
         <div class="field">
           <label for="industry">Industry <span aria-hidden="true">*</span></label>
-          <select
+          <app-select
             id="industry"
             formControlName="industry"
-            aria-required="true"
-            [attr.aria-invalid]="shouldShowError('industry') ? 'true' : null"
-            [attr.aria-describedby]="shouldShowError('industry') ? 'industry-error' : 'industry-help'"
-          >
-            <option value="">Select your industry</option>
-          </select>
-          <span id="industry-help" class="field-help">Industry options will be available when membership submission is connected.</span>
-          @if (shouldShowError('industry')) {
-            <span id="industry-error" class="field-error">{{ errorMessage('industry') }}</span>
-          }
+            [options]="industryOptions()"
+            placeholder="Select your industry"
+            searchPlaceholder="Search industries"
+            [searchable]="true"
+            noResultsText="No industries found"
+            [required]="true"
+            [disabled]="industriesLoading() || industries().length === 0"
+            [invalid]="shouldShowError('industry')"
+            [describedBy]="'industry-status industry-error'"
+          ></app-select>
+          <div class="field-message">
+            @if (industriesLoading()) {
+              <span id="industry-status" class="field-help" role="status">Loading industries...</span>
+            } @else if (industriesError()) {
+              <span id="industry-status" class="field-error" role="alert">{{ industriesError() }}</span>
+              <button class="retry-button" type="button" (click)="loadIndustries()">Try again</button>
+            }
+            @if (shouldShowError('industry')) {
+              <span id="industry-error" class="field-error">{{ errorMessage('industry') }}</span>
+            }
+          </div>
         </div>
 
         <div class="field">
@@ -184,9 +203,11 @@
             [attr.aria-invalid]="shouldShowError('job_title') ? 'true' : null"
             [attr.aria-describedby]="shouldShowError('job_title') ? 'job-title-error' : null"
           />
-          @if (shouldShowError('job_title')) {
-            <span id="job-title-error" class="field-error">{{ errorMessage('job_title') }}</span>
-          }
+          <div class="field-message">
+            @if (shouldShowError('job_title')) {
+              <span id="job-title-error" class="field-error">{{ errorMessage('job_title') }}</span>
+            }
+          </div>
         </div>
 
         <div class="field">
@@ -199,9 +220,11 @@
             [attr.aria-invalid]="shouldShowError('linkedin_url') ? 'true' : null"
             [attr.aria-describedby]="shouldShowError('linkedin_url') ? 'linkedin-error' : null"
           />
-          @if (shouldShowError('linkedin_url')) {
-            <span id="linkedin-error" class="field-error">{{ errorMessage('linkedin_url') }}</span>
-          }
+          <div class="field-message">
+            @if (shouldShowError('linkedin_url')) {
+              <span id="linkedin-error" class="field-error">{{ errorMessage('linkedin_url') }}</span>
+            }
+          </div>
         </div>
 
         <fieldset class="marketing-choice">
