@@ -13,6 +13,7 @@ import { CommunityAuthService } from '../api/community-auth.service';
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 import { NotificationService } from '../shared/ui/notifications/notification.service';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
+import { MultiSelectComponent } from '../shared/ui/multi-select/multi-select.component';
 
 type ProfileForm = FormGroup<{
   person: FormGroup<{
@@ -34,7 +35,7 @@ type ProfileForm = FormGroup<{
 
 @Component({
   selector: 'app-community-profile-edit-page',
-  imports: [ReactiveFormsModule, CommunityHeaderComponent, SelectComponent],
+  imports: [ReactiveFormsModule, CommunityHeaderComponent, SelectComponent, MultiSelectComponent],
   templateUrl: './community-profile-edit-page.component.html',
   styleUrl: './community-profile-edit-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,6 +101,8 @@ export class CommunityProfileEditPageComponent implements OnInit {
 
   get industryOptions(): SelectOption[] { return (this.options()?.industries ?? []).map(this.toSelectOption); }
   get careerStageOptions(): SelectOption[] { return (this.options()?.career_stages ?? []).map(this.toSelectOption); }
+  get skillOptions(): SelectOption[] { return (this.options()?.skills ?? []).map(this.toSelectOption); }
+  get interestOptions(): SelectOption[] { return (this.options()?.interests ?? []).map(this.toSelectOption); }
 
   isSelected(field: 'skills' | 'interests', slug: string): boolean { return this.form.controls[field].value.includes(slug); }
 

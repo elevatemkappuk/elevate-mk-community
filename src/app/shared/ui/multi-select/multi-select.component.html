@@ -1,0 +1,26 @@
+<div class="multi-select-root" [class.is-open]="isOpen()" [class.is-disabled]="isDisabled">
+  <div class="selected-list" aria-live="polite">
+    @for (option of selectedOptions; track option.value) {
+      <span class="selected-chip">
+        {{ option.label }}
+        <button type="button" class="remove-chip" [attr.aria-label]="removeLabel + ' ' + option.label" [disabled]="isDisabled" (click)="remove(option.value)">×</button>
+      </span>
+    }
+    @if (!selectedOptions.length) { <span class="empty-selection">No selections yet</span> }
+  </div>
+  <button class="multi-select-trigger" type="button" [attr.id]="controlId" [attr.aria-expanded]="isOpen()" [attr.aria-controls]="controlId + '-listbox'" [disabled]="isDisabled" (click)="toggle()">
+    <span>{{ placeholder }}</span><span class="trigger-plus" aria-hidden="true">+</span>
+  </button>
+  @if (isOpen()) {
+    <div class="multi-select-menu" [attr.id]="controlId + '-listbox'" role="listbox" aria-multiselectable="true" [attr.aria-label]="placeholder">
+      <div class="multi-select-search-wrap">
+        <input #searchInput class="multi-select-search" type="search" [placeholder]="searchPlaceholder" [value]="searchTerm()" aria-label="Search options" (input)="searchTerm.set($any($event.target).value)" (keydown.escape)="close()" />
+      </div>
+      <div class="multi-select-options">
+        @for (option of filteredOptions; track option.value) {
+          <button class="multi-select-option" type="button" role="option" [attr.aria-selected]="isSelected(option.value)" (click)="choose(option)" (keydown)="onOptionKeydown($event, option)">{{ option.label }}</button>
+        } @empty { <p class="multi-select-empty">{{ noResultsText }}</p> }
+      </div>
+    </div>
+  }
+</div>

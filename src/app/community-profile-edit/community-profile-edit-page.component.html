@@ -26,7 +26,7 @@
             <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" />@if (form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched) { <span class="field-error">First name is required.</span> }</label>
             <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" />@if (form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched) { <span class="field-error">Last name is required.</span> }</label>
           </div>
-          <label>Location <input formControlName="location" autocomplete="address-level2" /></label>
+          <label><span>Location <span class="optional-label">(optional)</span></span><input formControlName="location" autocomplete="address-level2" /></label>
         </fieldset>
 
         <fieldset formGroupName="community">
@@ -38,26 +38,26 @@
         <fieldset formGroupName="professional">
           <legend>Professional</legend>
           <div class="field-grid">
-            <label>Job title <input formControlName="job_title" autocomplete="organization-title" /></label>
-            <label>Company <input formControlName="company" autocomplete="organization" /></label>
+            <label><span>Job title <span class="optional-label">(optional)</span></span><input formControlName="job_title" autocomplete="organization-title" /></label>
+            <label><span>Company <span class="optional-label">(optional)</span></span><input formControlName="company" autocomplete="organization" /></label>
           </div>
           <div class="field-grid">
             <label>Industry <app-select id="profile-industry" formControlName="industry" [options]="industryOptions" placeholder="Select an industry" [describedBy]="'industry-help'"></app-select></label>
             <label>Career stage <app-select id="profile-career-stage" formControlName="career_stage" [options]="careerStageOptions" placeholder="Select a career stage"></app-select></label>
           </div>
-          <label>LinkedIn profile <input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" />@if (form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched) { <span class="field-error">Enter a valid http or https URL.</span> }</label>
+          <label><span>LinkedIn profile <span class="optional-label">(optional)</span></span><input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" />@if (form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched) { <span class="field-error">Enter a valid http or https URL.</span> }</label>
         </fieldset>
 
         <fieldset>
           <legend>Skills</legend>
-          <p class="field-help">Choose the skills you want associated with your profile.</p>
-          <div class="taxonomy-list">@for (option of options()?.skills ?? []; track option.slug) { <label class="taxonomy-option" [class.selected]="isSelected('skills', option.slug)"><input type="checkbox" [checked]="isSelected('skills', option.slug)" (change)="toggleSelection('skills', option.slug)" /> <span>{{ option.label }}</span><strong aria-hidden="true">{{ isSelected('skills', option.slug) ? 'Selected' : 'Add' }}</strong></label> }</div>
+          <p class="field-help">Add the skills you want associated with your profile. You can remove them before saving.</p>
+          <app-multi-select formControlName="skills" [options]="skillOptions" placeholder="Add skills" searchPlaceholder="Search skills" noResultsText="No matching skills" removeLabel="Remove skill" />
         </fieldset>
 
         <fieldset>
           <legend>Interests</legend>
-          <p class="field-help">Choose the interests you want associated with your profile.</p>
-          <div class="taxonomy-list">@for (option of options()?.interests ?? []; track option.slug) { <label class="taxonomy-option" [class.selected]="isSelected('interests', option.slug)"><input type="checkbox" [checked]="isSelected('interests', option.slug)" (change)="toggleSelection('interests', option.slug)" /> <span>{{ option.label }}</span><strong aria-hidden="true">{{ isSelected('interests', option.slug) ? 'Selected' : 'Add' }}</strong></label> }</div>
+          <p class="field-help">Add the interests you want associated with your profile. You can remove them before saving.</p>
+          <app-multi-select formControlName="interests" [options]="interestOptions" placeholder="Add interests" searchPlaceholder="Search interests" noResultsText="No matching interests" removeLabel="Remove interest" />
         </fieldset>
 
         @if (profile()?.community?.review_required) {
