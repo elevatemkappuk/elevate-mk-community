@@ -8,6 +8,7 @@ import { communityGuestGuard } from './core/auth/community-guest.guard';
 import { SignInPageComponent } from './sign-in-page/sign-in-page.component';
 import { ForgotPasswordPageComponent } from './forgot-password-page/forgot-password-page.component';
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component';
+import { CommunityProfilePageComponent } from './community-profile/community-profile-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'join' },
@@ -19,4 +20,5 @@ export const routes: Routes = [
   { path: 'activate/invalid', component: ActivatePageComponent },
   { path: 'activate/:invitationId/:token', component: ActivatePageComponent },
   { path: 'community', component: CommunityHomePageComponent, canActivate: [communityAuthGuard] },
+  { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
 ];

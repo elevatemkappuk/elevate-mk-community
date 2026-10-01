@@ -47,8 +47,34 @@
 
 .sign-in-button:active { transform: translateY(1px); }
 
+.authenticated-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+.authenticated-nav a,
+.authenticated-nav button {
+  border: 0;
+  background: transparent;
+  color: var(--elevate-black);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.authenticated-nav a:hover,
+.authenticated-nav a.active,
+.authenticated-nav button:hover { color: var(--elevate-ink); text-decoration: underline; text-underline-offset: .3rem; }
+
+.authenticated-nav button:disabled { cursor: not-allowed; opacity: .55; }
+
 .sign-in-button:focus-visible,
-.brand-logo:focus-visible {
+.brand-logo:focus-visible,
+.authenticated-nav a:focus-visible,
+.authenticated-nav button:focus-visible {
   outline: 3px solid rgb(185 130 0 / 42%);
   outline-offset: 2px;
 }
@@ -70,4 +96,7 @@
     padding: 0.65rem 1rem;
     font-size: 0.8rem;
   }
+
+  .authenticated-nav { gap: .75rem; }
+  .authenticated-nav a, .authenticated-nav button { font-size: .72rem; }
 }
