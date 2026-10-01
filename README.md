@@ -1,5 +1,10 @@
 # ElevateMkCommunity
 
+This is the Angular 21 member-facing Community application. Its current routes
+and implemented account, Join, activation, password recovery, and deferred
+Profile V1 boundaries are documented in the backend repository's
+[`docs/community-platform.md`](../elevate-mk-api/docs/community-platform.md).
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.24.
 
 ## Development server
