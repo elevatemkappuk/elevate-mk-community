@@ -1,0 +1,35 @@
+:host { display: block; min-height: 100svh; background: var(--elevate-page); color: var(--elevate-ink); }
+.edit-main { width: 100%; max-width: 1320px; margin: 0 auto; padding: clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3.5vw, 3rem) 5rem; }
+.edit-heading { border-bottom: 1px solid var(--elevate-border); padding-bottom: 2.5rem; }
+.edit-heading h1, .edit-state h1 { margin: 0 0 1rem; color: var(--elevate-black); font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 900; letter-spacing: -.08em; line-height: .88; text-transform: uppercase; }
+.edit-heading > p:last-child { max-width: 42rem; margin: 0; color: var(--elevate-muted); font-size: 1.1rem; line-height: 1.55; }
+.review-context { margin: 2rem 0 0; border-top: 3px solid var(--elevate-gold-deep); border-bottom: 1px solid rgb(205 153 23 / 42%); padding: 1.5rem 1.75rem; background: rgb(205 153 23 / 12%); }
+.review-context p:last-child { max-width: 700px; margin: 0; line-height: 1.6; }
+.profile-form { display: grid; gap: 3rem; margin-top: clamp(2.5rem, 5vw, 4.5rem); }
+fieldset { min-width: 0; margin: 0; border: 0; border-top: 1px solid var(--elevate-border); padding: 1.5rem 0 0; }
+legend { margin-bottom: 1.25rem; color: var(--elevate-black); font-size: clamp(1.65rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -.06em; line-height: .95; }
+.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+label { display: grid; gap: .5rem; margin-bottom: 1.25rem; color: var(--elevate-black); font-size: .88rem; font-weight: 750; }
+input, textarea { width: 100%; border: 1px solid var(--elevate-border); border-radius: .25rem; padding: .85rem 1.05rem; background: var(--elevate-surface); color: var(--elevate-ink); font: inherit; }
+input { min-height: 3.35rem; }
+textarea { min-height: 9rem; resize: vertical; line-height: 1.5; }
+input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 2px; }
+input.invalid { border-color: #8f2f25; }
+.field-error, .form-error { color: #8f2f25; font-size: .78rem; font-weight: 650; line-height: 1.4; }
+.field-help, .character-count { color: var(--elevate-muted); font-size: .82rem; line-height: 1.45; }
+.character-count { margin: -.8rem 0 0; text-align: right; }
+.taxonomy-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.taxonomy-option { display: flex; min-height: 3rem; align-items: center; gap: .65rem; margin: 0; border: 1px solid var(--elevate-border); padding: .7rem .8rem; background: var(--elevate-surface); cursor: pointer; }
+.taxonomy-option.selected { border-color: var(--elevate-gold-deep); background: var(--elevate-gold-wash); }
+.taxonomy-option input { width: 1.1rem; min-height: 1.1rem; accent-color: var(--elevate-gold-deep); }
+.taxonomy-option span { flex: 1; }
+.taxonomy-option strong { color: var(--elevate-gold-deep); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+.review-checkbox { display: flex; grid-template-columns: none; align-items: flex-start; gap: .7rem; border: 1px solid var(--elevate-gold-border); padding: 1rem; background: var(--elevate-gold-wash); }
+.review-checkbox input { flex: 0 0 auto; width: 1.2rem; min-height: 1.2rem; margin-top: .1rem; accent-color: var(--elevate-gold-deep); }
+.form-actions { display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--elevate-border); padding-top: 1.5rem; }
+.profile-button { display: inline-flex; min-height: 3.4rem; align-items: center; justify-content: center; border: 0; padding: .9rem 1.3rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; text-decoration: none; cursor: pointer; }
+.profile-button:hover:not(:disabled) { background: var(--elevate-gold-deep); color: var(--elevate-black); }
+.profile-button:disabled { cursor: not-allowed; opacity: .58; }
+.secondary-action { border: 1px solid var(--elevate-black); background: transparent; color: var(--elevate-black); }
+.secondary-action:hover:not(:disabled) { background: var(--elevate-black); color: var(--elevate-surface); }
+@media (max-width: 760px) { .edit-main { padding: 2.5rem 1rem 4rem; } .field-grid, .taxonomy-list { grid-template-columns: 1fr; } .form-actions { flex-direction: column-reverse; } .form-actions .profile-button { width: 100%; } }

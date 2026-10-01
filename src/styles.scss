@@ -67,3 +67,15 @@ body {
 @media (max-width: 760px) {
   .community-primary-action { min-height: 3.75rem; padding-inline: 1.25rem; }
 }
+
+.profile-edit-link { flex: 0 0 auto; }
+.review-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+.review-confirm { border: 1px solid var(--elevate-black); background: transparent; color: var(--elevate-black); }
+.review-confirm:hover:not(:disabled) { background: var(--elevate-black); color: var(--elevate-surface); }
+.review-error { margin: 1rem 0 0; color: #8f2f25; font-size: .82rem; font-weight: 650; }
+
+@media (max-width: 700px) {
+  .profile-edit-link { width: 100%; }
+  .review-actions { flex-direction: column; }
+  .review-actions .profile-button { width: 100%; }
+}

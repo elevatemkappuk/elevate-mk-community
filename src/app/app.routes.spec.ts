@@ -3,6 +3,7 @@ import { JoinSuccessPageComponent } from './join-success/join-success-page.compo
 import { ActivatePageComponent } from './activate-page/activate-page.component';
 import { CommunityHomePageComponent } from './community-home/community-home-page.component';
 import { CommunityProfilePageComponent } from './community-profile/community-profile-page.component';
+import { CommunityProfileEditPageComponent } from './community-profile-edit/community-profile-edit-page.component';
 import { SignInPageComponent } from './sign-in-page/sign-in-page.component';
 import { routes } from './app.routes';
 
@@ -20,5 +21,7 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'community')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/profile')?.component).toBe(CommunityProfilePageComponent);
     expect(routes.find((route) => route.path === 'community/profile')?.canActivate?.length).toBe(1);
+    expect(routes.find((route) => route.path === 'community/profile/edit')?.component).toBe(CommunityProfileEditPageComponent);
+    expect(routes.find((route) => route.path === 'community/profile/edit')?.canActivate?.length).toBe(1);
   });
 });

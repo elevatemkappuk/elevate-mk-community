@@ -1,0 +1,71 @@
+<div class="community-profile-edit-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="edit-main" aria-labelledby="edit-profile-title">
+    @if (loading()) {
+      <section class="edit-state" aria-live="polite"><p class="eyebrow">My profile</p><h1 id="edit-profile-title">Loading your profile</h1></section>
+    } @else if (loadError()) {
+      <section class="edit-state" role="alert"><p class="eyebrow">My profile</p><h1 id="edit-profile-title">We couldn’t load your profile</h1><button class="profile-button" type="button" (click)="retry()">Try again</button></section>
+    } @else {
+      <header class="edit-heading">
+        <p class="eyebrow">My profile</p>
+        <h1 id="edit-profile-title">Edit your profile</h1>
+        <p>Keep your Community profile current and make it easier for the right opportunities to find you.</p>
+      </header>
+
+      @if (profile()?.community?.review_required) {
+        <aside class="review-context" aria-labelledby="review-context-title">
+          <p class="eyebrow" id="review-context-title">Review your details</p>
+          <p>Some of this information was already associated with your Elevate MK membership. Update anything that’s changed and confirm when you’ve reviewed your profile.</p>
+        </aside>
+      }
+
+      <form class="profile-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <fieldset formGroupName="person">
+          <legend>Your details</legend>
+          <div class="field-grid">
+            <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" />@if (form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched) { <span class="field-error">First name is required.</span> }</label>
+            <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" />@if (form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched) { <span class="field-error">Last name is required.</span> }</label>
+          </div>
+          <label>Location <input formControlName="location" autocomplete="address-level2" /></label>
+        </fieldset>
+
+        <fieldset formGroupName="community">
+          <legend>Your Community story</legend>
+          <label>Bio <textarea formControlName="bio" maxlength="400" rows="6" aria-describedby="bio-count"></textarea></label>
+          <p class="character-count" id="bio-count">{{ form.controls.community.controls.bio.value.length }}/400</p>
+        </fieldset>
+
+        <fieldset formGroupName="professional">
+          <legend>Professional</legend>
+          <div class="field-grid">
+            <label>Job title <input formControlName="job_title" autocomplete="organization-title" /></label>
+            <label>Company <input formControlName="company" autocomplete="organization" /></label>
+          </div>
+          <div class="field-grid">
+            <label>Industry <app-select id="profile-industry" formControlName="industry" [options]="industryOptions" placeholder="Select an industry" [describedBy]="'industry-help'"></app-select></label>
+            <label>Career stage <app-select id="profile-career-stage" formControlName="career_stage" [options]="careerStageOptions" placeholder="Select a career stage"></app-select></label>
+          </div>
+          <label>LinkedIn profile <input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" />@if (form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched) { <span class="field-error">Enter a valid http or https URL.</span> }</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Skills</legend>
+          <p class="field-help">Choose the skills you want associated with your profile.</p>
+          <div class="taxonomy-list">@for (option of options()?.skills ?? []; track option.slug) { <label class="taxonomy-option" [class.selected]="isSelected('skills', option.slug)"><input type="checkbox" [checked]="isSelected('skills', option.slug)" (change)="toggleSelection('skills', option.slug)" /> <span>{{ option.label }}</span><strong aria-hidden="true">{{ isSelected('skills', option.slug) ? 'Selected' : 'Add' }}</strong></label> }</div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Interests</legend>
+          <p class="field-help">Choose the interests you want associated with your profile.</p>
+          <div class="taxonomy-list">@for (option of options()?.interests ?? []; track option.slug) { <label class="taxonomy-option" [class.selected]="isSelected('interests', option.slug)"><input type="checkbox" [checked]="isSelected('interests', option.slug)" (change)="toggleSelection('interests', option.slug)" /> <span>{{ option.label }}</span><strong aria-hidden="true">{{ isSelected('interests', option.slug) ? 'Selected' : 'Add' }}</strong></label> }</div>
+        </fieldset>
+
+        @if (profile()?.community?.review_required) {
+          <label class="review-checkbox"><input type="checkbox" [checked]="reviewAcknowledgement()" (change)="reviewAcknowledgement.set($any($event.target).checked)" /> <span>I’ve reviewed my profile and the information is up to date.</span></label>
+        }
+        @if (saveError()) { <p class="form-error" role="alert">{{ saveError() }}</p> }
+        <div class="form-actions"><button class="profile-button secondary-action" type="button" [disabled]="saving()" (click)="cancel()">Cancel</button><button class="profile-button" type="submit" [disabled]="saving() || loading()">{{ saving() ? 'Saving...' : 'Save changes' }}</button></div>
+      </form>
+    }
+  </main>
+</div>
