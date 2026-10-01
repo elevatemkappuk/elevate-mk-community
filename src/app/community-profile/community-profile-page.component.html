@@ -15,9 +15,13 @@
     } @else if (profile(); as data) {
       <section class="profile-intro" aria-labelledby="profile-title">
         <div class="profile-heading">
-          <div class="photo-placeholder" aria-label="Profile photo placeholder">{{ data.person.first_name.charAt(0) }}{{ data.person.last_name.charAt(0) }}</div>
+          <div class="photo-placeholder" role="img" aria-label="Profile photo placeholder">{{ data.person.first_name.charAt(0) }}{{ data.person.last_name.charAt(0) }}</div>
           <div>
             <p class="eyebrow">My profile</p><h1 id="profile-title">{{ data.person.first_name }} {{ data.person.last_name }}</h1>
+            @if (data.professional.job_title || data.professional.industry) {
+              <p class="identity-role">{{ data.professional.job_title }}@if (data.professional.job_title && data.professional.industry) { <span aria-hidden="true"> · </span> }{{ data.professional.industry?.label }}</p>
+            }
+            @if (data.person.location) { <p class="identity-location">{{ data.person.location }}</p> }
             <p class="member-context">Active Elevate MK Community member · Member since {{ data.membership.joined_at | date: 'd MMM y' }}</p>
           </div>
         </div>
