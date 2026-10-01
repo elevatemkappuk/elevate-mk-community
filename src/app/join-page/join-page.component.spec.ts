@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 
 import { CommunityApiService, IndustryOption } from '../api/community-api.service';
@@ -63,6 +63,7 @@ describe('JoinPageComponent', () => {
         { provide: CommunityApiService, useValue: communityApi },
         { provide: CommunityJoinService, useValue: communityJoin },
         { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: {} },
       ],
     }).compileComponents();
 
@@ -143,8 +144,9 @@ describe('JoinPageComponent', () => {
   it('renders the join experience as a hero and form split without a floating footer/card shell', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelectorAll('.page-content > .hero-panel').length).toBe(1);
-    expect(compiled.querySelectorAll('.page-content > .form-panel').length).toBe(1);
+    expect(compiled.querySelector('app-community-account-shell')).not.toBeNull();
+    expect(compiled.querySelector('[account-hero] .hero-content')).not.toBeNull();
+    expect(compiled.querySelector('[account-form] form')).not.toBeNull();
     expect(compiled.querySelector('.site-footer')).toBeNull();
   });
 
@@ -266,8 +268,9 @@ describe('JoinPageComponent', () => {
 
     const firstKey = communityJoin.keys[0];
     communityJoin.response = of({ status: 'accepted', message: 'Accepted.' });
-    const action = fixture.nativeElement.querySelector('.notification-action') as HTMLButtonElement;
-    action.click();
+    const action = notifications.notifications().find((item) => item.type === 'error')?.action;
+    expect(action?.label).toBe('Try again');
+    action?.callback();
 
     expect(communityJoin.calls).toBe(2);
     expect(communityJoin.keys[1]).toBe(firstKey);

@@ -36,6 +36,7 @@ describe('NotificationContainerComponent', () => {
 
     (fixture.nativeElement.querySelector('.notification-action') as HTMLButtonElement).click();
     expect(called).toBe(true);
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.notification')).toBeNull();
 
     service.info('Close me.');
@@ -43,6 +44,7 @@ describe('NotificationContainerComponent', () => {
     const close = fixture.nativeElement.querySelector('.notification-dismiss') as HTMLButtonElement;
     expect(close.getAttribute('aria-label')).toBe('Dismiss notification');
     close.click();
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.notification')).toBeNull();
   });
 });

@@ -48,7 +48,7 @@ describe('SelectComponent', () => {
     search.value = 'unknown';
     search.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(element.querySelector('.select-empty')?.textContent).toContain('No industries found');
+    expect(element.querySelector('.select-empty')?.textContent).toContain('No options found');
   });
 
   it('writes the selected value, displays its label, and marks itself touched', () => {
@@ -98,7 +98,7 @@ describe('SelectComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('.select-menu')).toBeNull();
 
-    component.setDisabledState(true);
+    fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
     expect(trigger.disabled).toBe(true);
   });

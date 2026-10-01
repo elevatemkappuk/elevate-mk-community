@@ -108,7 +108,7 @@ export class CommunityAuthService {
   confirmPasswordReset(uid: string, token: string, password: string, confirmPassword: string): Observable<CommunityPasswordResetConfirmRequest> {
     return this.bootstrapCsrf().pipe(
       switchMap(() => this.http.post<CommunityPasswordResetConfirmRequest>(
-        `${this.apiConfig.apiBaseUrl}/auth/password-reset/confirm/`,
+        `${this.apiConfig.apiBaseUrl}/community/password-reset/confirm/`,
         { uid, token, new_password: password, confirm_password: confirmPassword },
         { withCredentials: true },
       )),

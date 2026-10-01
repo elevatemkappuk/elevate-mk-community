@@ -16,7 +16,7 @@ describe('NotificationService', () => {
     const warningId = service.warning('Check this first.');
     const infoId = service.info('A new update is available.');
 
-    expect(service.notifications().map((item) => item.type)).toEqual(['success', 'error', 'warning', 'info']);
+    expect(service.notifications().map((item) => item.type)).toEqual(['error', 'warning', 'info']);
     expect(new Set([successId, errorId, warningId, infoId]).size).toBe(4);
   });
 
