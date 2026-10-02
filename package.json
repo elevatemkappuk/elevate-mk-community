@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:railway": "node scripts/write-environment.mjs && ng build --configuration production",
+    "test:config": "node --test scripts/write-environment.test.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
