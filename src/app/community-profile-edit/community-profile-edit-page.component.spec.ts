@@ -8,7 +8,7 @@ import { CommunityProfileEditPageComponent } from './community-profile-edit-page
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: '', review_required: true },
+  community: { bio: '', review_required: true, photo_url: null },
   professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
   skills: [{ id: 1, name: 'Strategy', slug: 'strategy' }],
   interests: [],
@@ -30,6 +30,8 @@ describe('CommunityProfileEditPageComponent', () => {
     getProfileOptions: ReturnType<typeof vi.fn>;
     updateProfile: ReturnType<typeof vi.fn>;
     acknowledgeProfileReview: ReturnType<typeof vi.fn>;
+    uploadProfilePhoto: ReturnType<typeof vi.fn>;
+    removeProfilePhoto: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -38,6 +40,8 @@ describe('CommunityProfileEditPageComponent', () => {
       getProfileOptions: vi.fn(() => of(options)),
       updateProfile: vi.fn(() => of(profile)),
       acknowledgeProfileReview: vi.fn(() => of({ review_required: false })),
+      uploadProfilePhoto: vi.fn(() => of(profile)),
+      removeProfilePhoto: vi.fn(() => of(profile)),
     };
     await TestBed.configureTestingModule({
       imports: [CommunityProfileEditPageComponent],
@@ -77,5 +81,60 @@ describe('CommunityProfileEditPageComponent', () => {
     fixture.componentInstance.save();
     expect(profileService.acknowledgeProfileReview).not.toHaveBeenCalled();
     expect(fixture.componentInstance.saveError()).toContain('Invalid profile');
+  });
+
+  it('shows Upload photo without Remove photo when no photo exists', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Upload photo');
+    expect(element.textContent).not.toContain('Remove photo');
+  });
+
+  it('validates client file type and exact 5 MiB boundary before upload', () => {
+    const component = fixture.componentInstance;
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const invalid = new File(['x'], 'avatar.gif', { type: 'image/gif' });
+    Object.defineProperty(input, 'files', { value: [invalid], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.photoError()).toContain('JPEG, PNG or WebP');
+    expect(profileService.uploadProfilePhoto).not.toHaveBeenCalled();
+
+    const boundary = new File(['x'], 'avatar.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(boundary, 'size', { value: 5 * 1024 * 1024 });
+    Object.defineProperty(input, 'files', { value: [boundary], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(profileService.uploadProfilePhoto).toHaveBeenCalledWith(boundary);
+  });
+
+  it('updates the profile after upload and removes it through the dedicated API', () => {
+    const component = fixture.componentInstance;
+    const uploaded = { ...profile, community: { ...profile.community, photo_url: 'https://example.test/photo.jpg?signature=temporary' } };
+    profileService.uploadProfilePhoto.mockReturnValue(of(uploaded));
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const file = new File(['photo'], 'avatar.webp', { type: 'image/webp' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.profile()?.community.photo_url).toContain('signature=temporary');
+
+    profileService.removeProfilePhoto.mockReturnValue(of({ ...profile, community: { ...profile.community, photo_url: null } }));
+    component.removePhoto();
+    expect(profileService.removeProfilePhoto).toHaveBeenCalledOnce();
+    expect(component.profile()?.community.photo_url).toBeNull();
+  });
+
+  it('shows Change and Remove for an existing photo and preserves it when upload fails', () => {
+    const component = fixture.componentInstance;
+    const currentPhoto = 'https://example.test/current.jpg?signature=temporary';
+    component.profile.set({ ...profile, community: { ...profile.community, photo_url: currentPhoto } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Change photo');
+    expect(fixture.nativeElement.textContent).toContain('Remove photo');
+
+    profileService.uploadProfilePhoto.mockReturnValue(throwError(() => ({ status: 400, body: { photo: ['Upload a valid image.'] } })));
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const file = new File(['photo'], 'avatar.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.profile()?.community.photo_url).toBe(currentPhoto);
+    expect(component.photoError()).toBe('Upload a valid image.');
   });
 });

@@ -6,11 +6,12 @@ import { RouterLink } from '@angular/router';
 import { CommunityAuthService } from '../api/community-auth.service';
 import { CommunityProfileResponse, CommunityProfileService } from '../api/community-profile.service';
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
+import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avatar.component';
 import { NotificationService } from '../shared/ui/notifications/notification.service';
 
 @Component({
   selector: 'app-community-profile-page',
-  imports: [CommunityHeaderComponent, DatePipe, RouterLink],
+  imports: [CommunityHeaderComponent, DatePipe, RouterLink, ProfileAvatarComponent],
   templateUrl: './community-profile-page.component.html',
   styleUrl: './community-profile-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

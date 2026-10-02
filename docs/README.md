@@ -22,7 +22,7 @@ These areas are not yet covered by the current Community frontend
 documentation:
 
 - Directory and Directory Profile
-- Profile photos and QR sharing
+- QR sharing
 - Connections and networking
 - CRM staff workflows
 - Brevo marketing architecture

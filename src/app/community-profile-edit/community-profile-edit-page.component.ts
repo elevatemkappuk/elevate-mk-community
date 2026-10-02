@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -14,6 +14,7 @@ import { CommunityHeaderComponent } from '../shared/ui/community-header/communit
 import { NotificationService } from '../shared/ui/notifications/notification.service';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
 import { MultiSelectComponent } from '../shared/ui/multi-select/multi-select.component';
+import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avatar.component';
 
 type ProfileForm = FormGroup<{
   person: FormGroup<{
@@ -35,7 +36,7 @@ type ProfileForm = FormGroup<{
 
 @Component({
   selector: 'app-community-profile-edit-page',
-  imports: [ReactiveFormsModule, CommunityHeaderComponent, SelectComponent, MultiSelectComponent],
+  imports: [ReactiveFormsModule, CommunityHeaderComponent, SelectComponent, MultiSelectComponent, ProfileAvatarComponent],
   templateUrl: './community-profile-edit-page.component.html',
   styleUrl: './community-profile-edit-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,6 +74,11 @@ export class CommunityProfileEditPageComponent implements OnInit {
   readonly reviewAcknowledgement = signal(false);
   readonly reviewContext = signal(false);
   readonly signingOut = signal(false);
+  readonly uploadingPhoto = signal(false);
+  readonly removingPhoto = signal(false);
+  readonly photoError = signal<string | null>(null);
+
+  @ViewChild('photoInput') private photoInput?: ElementRef<HTMLInputElement>;
 
   ngOnInit(): void {
     this.reviewContext.set(history.state?.review === true);
@@ -166,10 +172,53 @@ export class CommunityProfileEditPageComponent implements OnInit {
 
   retry(): void { this.loading.set(true); this.loadError.set(false); this.ngOnInit(); }
 
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const photo = input.files?.[0];
+    input.value = '';
+    if (!photo || this.uploadingPhoto() || this.removingPhoto()) return;
+
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (photo.type && !allowedTypes.has(photo.type.toLowerCase())) {
+      this.photoError.set('Please choose a JPEG, PNG or WebP image.');
+      return;
+    }
+    if (photo.size > 5 * 1024 * 1024) {
+      this.photoError.set('Profile photos must be 5 MB or smaller.');
+      return;
+    }
+
+    this.uploadingPhoto.set(true);
+    this.photoError.set(null);
+    this.profileService.uploadProfilePhoto(photo).subscribe({
+      next: (profile) => { this.profile.set(profile); this.uploadingPhoto.set(false); this.resetPhotoInput(); },
+      error: (error) => { this.uploadingPhoto.set(false); this.photoError.set(this.photoMessage(error)); },
+    });
+  }
+
+  removePhoto(): void {
+    if (this.uploadingPhoto() || this.removingPhoto() || !this.profile()?.community.photo_url) return;
+    this.removingPhoto.set(true);
+    this.photoError.set(null);
+    this.profileService.removeProfilePhoto().subscribe({
+      next: (profile) => { this.profile.set(profile); this.removingPhoto.set(false); },
+      error: (error) => { this.removingPhoto.set(false); this.photoError.set(this.photoMessage(error)); },
+    });
+  }
+
   private readonly toSelectOption = (item: { slug: string; label: string }): SelectOption => ({ value: item.slug, label: item.label });
 
   private apiMessage(error: { body?: unknown }): string {
     const body = error?.body as { detail?: string } | null;
     return body?.detail || 'We could not save your profile. Please check the highlighted fields and try again.';
+  }
+
+  private photoMessage(error: { body?: unknown }): string {
+    const body = error?.body as { photo?: string[]; detail?: string } | null;
+    return body?.photo?.[0] || body?.detail || 'We could not update your profile photo. Please try again.';
+  }
+
+  private resetPhotoInput(): void {
+    if (this.photoInput) this.photoInput.nativeElement.value = '';
   }
 }

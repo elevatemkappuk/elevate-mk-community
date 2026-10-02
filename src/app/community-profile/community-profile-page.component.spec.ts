@@ -8,7 +8,7 @@ import { CommunityProfilePageComponent } from './community-profile-page.componen
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: 'Community builder', review_required: true },
+  community: { bio: 'Community builder', review_required: true, photo_url: null },
   professional: {
     job_title: 'Designer', company: 'Elevate MK', industry: { id: 1, slug: 'technology', label: 'Technology' },
     career_stage: 'MID_CAREER', linkedin_url: 'https://www.linkedin.com/in/amina',
@@ -50,6 +50,16 @@ describe('CommunityProfilePageComponent', () => {
     expect(element.textContent).toContain('To add');
     expect(element.textContent).not.toContain('private@example.com');
     expect(element.textContent).not.toContain('mobile');
+  });
+
+  it('renders the returned profile photo while keeping Profile Progress backend-driven', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, photo_url: 'https://example.test/photo.jpg?signature=temporary' } }));
+    fixture = TestBed.createComponent(CommunityProfilePageComponent);
+    fixture.detectChanges();
+    const image = fixture.nativeElement.querySelector('app-profile-avatar img') as HTMLImageElement;
+    expect(image).not.toBeNull();
+    expect(image.alt).toContain('Amina Zulu');
+    expect(fixture.nativeElement.textContent).toContain('Complete your profile');
   });
 
   it('does not render the review banner when review is not required', () => {

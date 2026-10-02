@@ -15,7 +15,12 @@
     } @else if (profile(); as data) {
       <section class="profile-intro" aria-labelledby="profile-title">
         <div class="profile-heading">
-          <div class="photo-placeholder" role="img" aria-label="Profile photo placeholder">{{ data.person.first_name.charAt(0) }}{{ data.person.last_name.charAt(0) }}</div>
+          <app-profile-avatar
+            [photoUrl]="data.community.photo_url"
+            [initials]="data.person.first_name.charAt(0) + data.person.last_name.charAt(0)"
+            [altText]="data.person.first_name + ' ' + data.person.last_name + ' profile photo'"
+            size="hero"
+          />
           <div>
             <p class="eyebrow">My profile</p><h1 id="profile-title">{{ data.person.first_name }} {{ data.person.last_name }}</h1>
             @if (data.professional.job_title || data.professional.industry) {
