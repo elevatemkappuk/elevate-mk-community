@@ -22,7 +22,12 @@ type ProfileForm = FormGroup<{
     last_name: FormControl<string>;
     location: FormControl<string>;
   }>;
-  community: FormGroup<{ bio: FormControl<string> }>;
+  community: FormGroup<{
+    bio: FormControl<string>;
+    directory_visible: FormControl<boolean>;
+    email_visible: FormControl<boolean>;
+    mobile_visible: FormControl<boolean>;
+  }>;
   professional: FormGroup<{
     job_title: FormControl<string>;
     company: FormControl<string>;
@@ -53,7 +58,12 @@ export class CommunityProfileEditPageComponent implements OnInit {
       last_name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(150)] }),
       location: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
     }),
-    community: new FormGroup({ bio: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(400)] }) }),
+    community: new FormGroup({
+      bio: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(400)] }),
+      directory_visible: new FormControl(false, { nonNullable: true }),
+      email_visible: new FormControl(false, { nonNullable: true }),
+      mobile_visible: new FormControl(false, { nonNullable: true }),
+    }),
     professional: new FormGroup({
       job_title: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
       company: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
@@ -88,7 +98,12 @@ export class CommunityProfileEditPageComponent implements OnInit {
         this.options.set(options);
         this.form.patchValue({
           person: profile.person,
-          community: { bio: profile.community.bio },
+          community: {
+            bio: profile.community.bio,
+            directory_visible: profile.community.directory_visible,
+            email_visible: profile.community.email_visible,
+            mobile_visible: profile.community.mobile_visible,
+          },
           professional: {
             job_title: profile.professional.job_title,
             company: profile.professional.company,

@@ -29,7 +29,7 @@ h2 { margin-bottom: 1.25rem; color: var(--elevate-black); font-size: clamp(1.65r
 .completion-list li.complete { color: var(--elevate-surface); }
 .completion-list li > span:first-child { color: var(--elevate-gold); font-size: 1.2rem; font-weight: 900; }
 .completion-list strong { color: var(--elevate-gold); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
-.profile-button { border: 0; padding: .9rem 1.3rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; cursor: pointer; }
+.profile-button { border: 0; padding: .9rem 1.3rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; cursor: pointer; text-decoration: none; }
 .profile-button:hover { background: var(--elevate-gold-deep); color: var(--elevate-black); }
 .profile-button:focus-visible, .text-link:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 3px; }
 @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }

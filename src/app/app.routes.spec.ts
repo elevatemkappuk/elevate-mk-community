@@ -5,7 +5,7 @@ import { CommunityHomePageComponent } from './community-home/community-home-page
 import { CommunityProfilePageComponent } from './community-profile/community-profile-page.component';
 import { CommunityProfileEditPageComponent } from './community-profile-edit/community-profile-edit-page.component';
 import { CommunityDirectoryPageComponent } from './community-directory/community-directory-page.component';
-import { CommunityDirectoryProfilePlaceholderComponent } from './community-directory/community-directory-profile-placeholder.component';
+import { CommunityDirectoryProfilePageComponent } from './community-directory/community-directory-profile-page.component';
 import { SignInPageComponent } from './sign-in-page/sign-in-page.component';
 import { routes } from './app.routes';
 
@@ -27,7 +27,7 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'community/profile/edit')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/directory')?.component).toBe(CommunityDirectoryPageComponent);
     expect(routes.find((route) => route.path === 'community/directory')?.canActivate?.length).toBe(1);
-    expect(routes.find((route) => route.path === 'community/directory/:directoryId')?.component).toBe(CommunityDirectoryProfilePlaceholderComponent);
+    expect(routes.find((route) => route.path === 'community/directory/:directoryId')?.component).toBe(CommunityDirectoryProfilePageComponent);
     expect(routes.find((route) => route.path === 'community/directory/:directoryId')?.canActivate?.length).toBe(1);
   });
 });

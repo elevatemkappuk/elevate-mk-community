@@ -43,6 +43,23 @@
           </aside>
         }
       </section>
+      <section class="connect-status" aria-labelledby="connect-status-title">
+        <div>
+          <p class="eyebrow" id="connect-status-title">Connect profile</p>
+          @if (data.community.directory_visible) {
+            <h2>Visible to Community members</h2>
+            <p>Your profile is discoverable in Connect.</p>
+          } @else {
+            <h2>Your profile isn't currently discoverable in Connect.</h2>
+            <p>Choose whether Community members can find you from Edit profile.</p>
+          }
+        </div>
+        @if (data.community.directory_visible) {
+          <a class="profile-button" [routerLink]="['/community/directory', data.community.directory_id]">View my Connect profile <span aria-hidden="true"> →</span></a>
+        } @else {
+          <a class="profile-button" routerLink="/community/profile/edit">Edit visibility <span aria-hidden="true"> →</span></a>
+        }
+      </section>
       <div class="profile-grid">
         <section class="profile-card profile-about" aria-labelledby="about-title">
           <p class="eyebrow">About you</p><h2 id="about-title">Your Community story</h2>

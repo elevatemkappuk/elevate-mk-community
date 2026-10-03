@@ -114,6 +114,18 @@ export class CommunityDirectoryPageComponent implements OnInit {
     return Boolean(this.searchControl.value.trim() || this.filterForm.controls.industry.value || this.filterForm.controls.skill.value || this.filterForm.controls.interest.value);
   }
 
+  connectQueryParams(): Record<string, string> {
+    const params: Record<string, string> = {};
+    const q = this.searchControl.value.trim();
+    if (q) params['q'] = q;
+    for (const key of ['industry', 'skill', 'interest'] as const) {
+      const value = this.filterForm.controls[key].value;
+      if (value) params[key] = value;
+    }
+    if (this.page() > 1) params['page'] = String(this.page());
+    return params;
+  }
+
   private loadDirectory(): void {
     this.loading.set(true);
     this.errorMessage.set(null);

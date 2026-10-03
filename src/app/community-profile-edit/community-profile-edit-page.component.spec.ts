@@ -8,7 +8,7 @@ import { CommunityProfileEditPageComponent } from './community-profile-edit-page
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: '', review_required: true, photo_url: null },
+  community: { bio: '', review_required: true, photo_url: null, directory_id: 'member-1', directory_visible: false, email_visible: false, mobile_visible: false },
   professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
   skills: [{ id: 1, name: 'Strategy', slug: 'strategy' }],
   interests: [],
@@ -69,11 +69,25 @@ describe('CommunityProfileEditPageComponent', () => {
     component.form.controls.community.controls.bio.setValue('A short bio');
     component.save();
     expect(profileService.updateProfile).toHaveBeenCalledWith(expect.objectContaining({
-      community: { bio: 'A short bio' },
+      community: { bio: 'A short bio', directory_visible: false, email_visible: false, mobile_visible: false },
       skills: [],
       interests: [],
     }));
     expect(profileService.updateProfile.mock.calls[0][0]).not.toHaveProperty('membership');
+  });
+
+  it('keeps Connect privacy flags independent and presents discoverability context', () => {
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    component.form.controls.community.controls.directory_visible.setValue(true);
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(element.textContent).toContain('Make my profile discoverable');
+    expect(element.textContent).toContain('Before you save');
+    component.form.controls.community.controls.email_visible.setValue(true);
+    component.form.controls.community.controls.mobile_visible.setValue(true);
+    component.form.controls.community.controls.directory_visible.setValue(false);
+    expect(component.form.controls.community.value).toEqual(expect.objectContaining({ directory_visible: false, email_visible: true, mobile_visible: true }));
   });
 
   it('does not acknowledge when PATCH fails', () => {

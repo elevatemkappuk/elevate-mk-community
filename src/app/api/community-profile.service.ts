@@ -13,7 +13,15 @@ export interface CommunityProfileIndustry {
 
 export interface CommunityProfileResponse {
   person: { first_name: string; last_name: string; location: string };
-  community: { bio: string; review_required: boolean; photo_url: string | null };
+  community: {
+    bio: string;
+    review_required: boolean;
+    photo_url: string | null;
+    directory_id: string;
+    directory_visible: boolean;
+    email_visible: boolean;
+    mobile_visible: boolean;
+  };
   professional: {
     job_title: string;
     company: string;
@@ -43,7 +51,7 @@ export interface CommunityProfileOptions {
 
 export interface CommunityProfilePatch {
   person: { first_name: string; last_name: string; location: string };
-  community: { bio: string };
+  community: { bio: string; directory_visible: boolean; email_visible: boolean; mobile_visible: boolean };
   professional: {
     job_title: string;
     company: string;

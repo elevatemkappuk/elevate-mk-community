@@ -74,7 +74,19 @@ body {
 .review-confirm:hover:not(:disabled) { background: var(--elevate-black); color: var(--elevate-surface); }
 .review-error { margin: 1rem 0 0; color: #8f2f25; font-size: .82rem; font-weight: 650; }
 
+.connect-status { display: flex; align-items: center; justify-content: space-between; gap: 2rem; border-bottom: 1px solid var(--elevate-border); padding: 2rem 0; }
+.connect-status h2 { margin-bottom: .5rem; font-size: clamp(1.35rem, 2.5vw, 2rem); }
+.connect-status p:last-child { margin: 0; color: var(--elevate-muted); }
+.connect-status .profile-button { flex: 0 0 auto; text-align: center; }
+.privacy-controls { display: grid; gap: .75rem; }
+.privacy-control { display: flex; align-items: center; gap: .75rem; margin: 0; font-weight: 700; }
+.privacy-control input { flex: 0 0 auto; width: 1.2rem; min-height: 1.2rem; accent-color: var(--elevate-gold-deep); }
+.privacy-explanation { margin-top: 1.25rem; border-left: 3px solid var(--elevate-gold-deep); padding: 1rem 1.25rem; background: var(--elevate-gold-wash); }
+.privacy-explanation p { margin: .35rem 0 0; color: var(--elevate-muted); line-height: 1.5; }
+
 @media (max-width: 700px) {
+  .connect-status { align-items: flex-start; flex-direction: column; }
+  .connect-status .profile-button { width: 100%; }
   .profile-edit-link { width: 100%; }
   .review-actions { flex-direction: column; }
   .review-actions .profile-button { width: 100%; }

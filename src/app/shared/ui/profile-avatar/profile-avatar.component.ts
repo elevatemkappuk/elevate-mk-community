@@ -10,7 +10,7 @@ export class ProfileAvatarComponent implements OnChanges {
   @Input() photoUrl: string | null = null;
   @Input() initials = '';
   @Input() altText = 'Profile photo';
-  @Input() size: 'default' | 'hero' | 'compact' = 'default';
+  @Input() size: 'default' | 'hero' | 'compact' | 'detail' = 'default';
 
   @HostBinding('class.profile-avatar--hero')
   get isHero(): boolean {
@@ -20,6 +20,11 @@ export class ProfileAvatarComponent implements OnChanges {
   @HostBinding('class.profile-avatar--compact')
   get isCompact(): boolean {
     return this.size === 'compact';
+  }
+
+  @HostBinding('class.profile-avatar--detail')
+  get isDetail(): boolean {
+    return this.size === 'detail';
   }
 
   readonly imageFailed = signal(false);

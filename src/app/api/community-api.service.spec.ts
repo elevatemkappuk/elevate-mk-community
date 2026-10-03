@@ -43,4 +43,12 @@ describe('CommunityApiService', () => {
     expect(request.request.params.keys()).toEqual([]);
     request.flush({ count: 0, next: null, previous: null, results: [] });
   });
+
+  it('loads a directory profile by encoded id with credentials', () => {
+    service.getDirectoryProfile('member/one').subscribe();
+    const request = http.expectOne('/api/v1/community/directory/member%2Fone/');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({});
+  });
 });

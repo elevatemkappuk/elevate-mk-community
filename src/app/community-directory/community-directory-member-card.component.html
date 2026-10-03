@@ -35,7 +35,7 @@
     </div>
   }
 
-  <a class="member-card-link" [routerLink]="['/community/directory', member().directory_id]">
+  <a class="member-card-link" [routerLink]="['/community/directory', member().directory_id]" [queryParams]="queryParams()">
     View profile <span aria-hidden="true">→</span>
   </a>
 </article>

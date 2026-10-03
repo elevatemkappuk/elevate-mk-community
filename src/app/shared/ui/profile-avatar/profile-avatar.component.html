@@ -1,4 +1,4 @@
-<div class="profile-avatar" [class.has-photo]="showPhoto" [class.profile-avatar--hero]="size === 'hero'" [class.profile-avatar--compact]="size === 'compact'" [attr.role]="showPhoto ? null : 'img'" [attr.aria-label]="showPhoto ? null : altText + ' placeholder'">
+<div class="profile-avatar" [class.has-photo]="showPhoto" [class.profile-avatar--hero]="size === 'hero'" [class.profile-avatar--compact]="size === 'compact'" [class.profile-avatar--detail]="size === 'detail'" [attr.role]="showPhoto ? null : 'img'" [attr.aria-label]="showPhoto ? null : altText + ' placeholder'">
   @if (showPhoto) {
     <img [src]="photoUrl" [alt]="altText" (error)="onImageError()" />
   } @else {

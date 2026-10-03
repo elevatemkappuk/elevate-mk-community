@@ -13,6 +13,7 @@ import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avat
 })
 export class CommunityDirectoryMemberCardComponent {
   readonly member = input.required<DirectoryMember>();
+  readonly queryParams = input<Record<string, string>>({});
 
   initials(): string {
     const member = this.member();

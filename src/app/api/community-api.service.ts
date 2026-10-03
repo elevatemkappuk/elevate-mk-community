@@ -29,6 +29,25 @@ export interface DirectoryMember {
   interests: DirectoryTaxonomyOption[];
 }
 
+export interface DirectoryDetail {
+  directory_id: string;
+  photo_url: string | null;
+  first_name: string;
+  last_name: string;
+  location: string;
+  bio: string;
+  professional: {
+    job_title: string;
+    company: string;
+    industry: DirectoryTaxonomyOption | null;
+    career_stage: string | null;
+    linkedin_url: string | null;
+  };
+  skills: DirectoryTaxonomyOption[];
+  interests: DirectoryTaxonomyOption[];
+  contact: { email: string | null; mobile: string | null };
+}
+
 export interface DirectoryPage {
   count: number;
   next: string | null;
@@ -67,5 +86,12 @@ export class CommunityApiService {
       params,
       withCredentials: true,
     });
+  }
+
+  getDirectoryProfile(directoryId: string): Observable<DirectoryDetail> {
+    return this.http.get<DirectoryDetail>(
+      `${this.apiConfig.apiBaseUrl}/community/directory/${encodeURIComponent(directoryId)}/`,
+      { withCredentials: true },
+    );
   }
 }

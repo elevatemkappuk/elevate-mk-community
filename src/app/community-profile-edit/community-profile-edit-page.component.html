@@ -81,6 +81,20 @@
           <app-multi-select formControlName="interests" [options]="interestOptions" placeholder="Add interests" searchPlaceholder="Search interests" noResultsText="No matching interests" removeLabel="Remove interest" />
         </fieldset>
 
+        <fieldset formGroupName="community" class="connect-privacy-section" aria-labelledby="connect-privacy-title">
+          <legend id="connect-privacy-title">Connect profile</legend>
+          <p class="field-help">Choose whether your profile can be discovered by other Community members. Contact details are shared separately.</p>
+          <div class="privacy-controls">
+            <label class="privacy-control"><input type="checkbox" formControlName="directory_visible" /> <span>Make my profile discoverable</span></label>
+            <label class="privacy-control"><input type="checkbox" formControlName="email_visible" /> <span>Share my email address</span></label>
+            <label class="privacy-control"><input type="checkbox" formControlName="mobile_visible" /> <span>Share my mobile number</span></label>
+          </div>
+          <aside class="privacy-explanation">
+            <strong>Before you save</strong>
+            <p>Your name, photo, location, bio, professional information, skills and interests will be visible to Community members. Email and mobile are only shown when separately enabled.</p>
+          </aside>
+        </fieldset>
+
         @if (profile()?.community?.review_required) {
           <label class="review-checkbox"><input type="checkbox" [checked]="reviewAcknowledgement()" (change)="reviewAcknowledgement.set($any($event.target).checked)" /> <span>I’ve reviewed my profile and the information is up to date.</span></label>
         }
