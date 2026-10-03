@@ -83,16 +83,27 @@
 
         <fieldset formGroupName="community" class="connect-privacy-section" aria-labelledby="connect-privacy-title">
           <legend id="connect-privacy-title">Connect profile</legend>
-          <p class="field-help">Choose whether your profile can be discovered by other Community members. Contact details are shared separately.</p>
+          <p class="field-help">Choose how other Community members can discover and contact you.</p>
           <div class="privacy-controls">
-            <label class="privacy-control"><input type="checkbox" formControlName="directory_visible" /> <span>Make my profile discoverable</span></label>
-            <label class="privacy-control"><input type="checkbox" formControlName="email_visible" /> <span>Share my email address</span></label>
-            <label class="privacy-control"><input type="checkbox" formControlName="mobile_visible" /> <span>Share my mobile number</span></label>
+            <label class="privacy-control" for="directory-visible">
+              <span class="privacy-copy"><strong>Make my profile discoverable</strong><small id="directory-visible-help">Allow other Elevate MK Community members to find and view your profile in Connect.</small></span>
+              <span class="privacy-switch"><input id="directory-visible" type="checkbox" formControlName="directory_visible" aria-describedby="directory-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.directory_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
+            <h3 class="privacy-subheading">Contact sharing</h3>
+            <label class="privacy-control" for="email-visible">
+              <span class="privacy-copy"><strong>Share my email address</strong><small id="email-visible-help">Allow Community members to see your email address.</small></span>
+              <span class="privacy-switch"><input id="email-visible" type="checkbox" formControlName="email_visible" aria-describedby="email-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.email_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
+            <label class="privacy-control" for="mobile-visible">
+              <span class="privacy-copy"><strong>Share my mobile number</strong><small id="mobile-visible-help">Allow Community members to see your mobile number.</small></span>
+              <span class="privacy-switch"><input id="mobile-visible" type="checkbox" formControlName="mobile_visible" aria-describedby="mobile-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.mobile_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
           </div>
           <aside class="privacy-explanation">
-            <strong>Before you save</strong>
-            <p>Your name, photo, location, bio, professional information, skills and interests will be visible to Community members. Email and mobile are only shown when separately enabled.</p>
+            <strong>What other members can see</strong>
+            <p>When your Connect profile is discoverable, your name, photo, location, bio, professional information, skills and interests can be viewed by other Community members. Email and mobile are only shown when you choose to share them.</p>
           </aside>
+          <p class="privacy-note">Contact details are only shown while your Connect profile is discoverable.</p>
         </fieldset>
 
         @if (profile()?.community?.review_required) {

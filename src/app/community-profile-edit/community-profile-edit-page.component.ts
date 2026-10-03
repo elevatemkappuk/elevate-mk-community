@@ -24,9 +24,9 @@ type ProfileForm = FormGroup<{
   }>;
   community: FormGroup<{
     bio: FormControl<string>;
-    directory_visible: FormControl<boolean>;
-    email_visible: FormControl<boolean>;
-    mobile_visible: FormControl<boolean>;
+    directory_visible: FormControl<boolean | null>;
+    email_visible: FormControl<boolean | null>;
+    mobile_visible: FormControl<boolean | null>;
   }>;
   professional: FormGroup<{
     job_title: FormControl<string>;
@@ -60,9 +60,9 @@ export class CommunityProfileEditPageComponent implements OnInit {
     }),
     community: new FormGroup({
       bio: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(400)] }),
-      directory_visible: new FormControl(false, { nonNullable: true }),
-      email_visible: new FormControl(false, { nonNullable: true }),
-      mobile_visible: new FormControl(false, { nonNullable: true }),
+      directory_visible: new FormControl<boolean | null>(null),
+      email_visible: new FormControl<boolean | null>(null),
+      mobile_visible: new FormControl<boolean | null>(null),
     }),
     professional: new FormGroup({
       job_title: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
@@ -94,6 +94,11 @@ export class CommunityProfileEditPageComponent implements OnInit {
     this.reviewContext.set(history.state?.review === true);
     forkJoin({ profile: this.profileService.getProfile(), options: this.profileService.getProfileOptions() }).subscribe({
       next: ({ profile, options }) => {
+        if (!this.hasPrivacyValues(profile)) {
+          this.loadError.set(true);
+          this.loading.set(false);
+          return;
+        }
         this.profile.set(profile);
         this.options.set(options);
         this.form.patchValue({
@@ -120,6 +125,11 @@ export class CommunityProfileEditPageComponent implements OnInit {
     });
   }
 
+  private hasPrivacyValues(profile: CommunityProfileResponse): boolean {
+    return [profile.community.directory_visible, profile.community.email_visible, profile.community.mobile_visible]
+      .every((value) => typeof value === 'boolean');
+  }
+
   get industryOptions(): SelectOption[] { return (this.options()?.industries ?? []).map(this.toSelectOption); }
   get careerStageOptions(): SelectOption[] { return (this.options()?.career_stages ?? []).map(this.toSelectOption); }
   get skillOptions(): SelectOption[] { return (this.options()?.skills ?? []).map(this.toSelectOption); }
@@ -138,12 +148,17 @@ export class CommunityProfileEditPageComponent implements OnInit {
     if (this.saving() || this.loading()) return;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+    const value = this.form.getRawValue();
+    const { directory_visible, email_visible, mobile_visible } = value.community;
+    if (directory_visible === null || email_visible === null || mobile_visible === null) {
+      this.saveError.set('We could not confirm your Connect privacy settings. Please reload your profile and try again.');
+      return;
+    }
     this.saving.set(true);
     this.saveError.set(null);
-    const value = this.form.getRawValue();
     const payload: CommunityProfilePatch = {
       person: value.person,
-      community: value.community,
+      community: { bio: value.community.bio, directory_visible, email_visible, mobile_visible },
       professional: {
         ...value.professional,
         industry: value.professional.industry || null,
