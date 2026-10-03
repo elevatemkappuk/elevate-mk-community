@@ -59,4 +59,23 @@ describe('CommunityProfileService', () => {
     expect(request.request.method).toBe('POST');
     request.flush({ review_required: false });
   });
+
+  it('uploads a photo as FormData without forcing the multipart Content-Type', () => {
+    const photo = new File(['photo'], 'avatar.webp', { type: 'image/webp' });
+    service.uploadProfilePhoto(photo).subscribe();
+    const request = http.expectOne('/api/v1/community/profile/photo/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBeInstanceOf(FormData);
+    expect((request.request.body as FormData).get('photo')).toBe(photo);
+    expect(request.request.headers.has('Content-Type')).toBe(false);
+    request.flush({});
+  });
+
+  it('removes a photo through the authenticated unsafe-request path', () => {
+    service.removeProfilePhoto().subscribe();
+    const request = http.expectOne('/api/v1/community/profile/photo/');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({});
+  });
 });

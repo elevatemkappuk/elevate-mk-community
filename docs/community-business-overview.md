@@ -139,7 +139,8 @@ includes:
 - professional information;
 - Community bio;
 - skills and interests;
-- membership context; and
+- membership context;
+- optional private profile photo; and
 - profile completion progress.
 
 It is intended to become the member's place for maintaining their Elevate MK
@@ -168,6 +169,11 @@ Members can currently update:
 - bio;
 - skills; and
 - interests.
+
+Members can also upload, change, or remove a private profile photo. JPEG, PNG,
+and WebP files up to 5 MiB are accepted for client-side feedback; backend
+validation remains authoritative. There is no cropper in V1, initials are used
+as a fallback, and profile photos do not affect Profile Progress.
 
 Skills and Interests use Elevate MK's managed choices rather than unrestricted
 free-text entries. This keeps information consistent and creates a stronger
@@ -338,7 +344,7 @@ are future possibilities or planned areas, not current capabilities.
 | Skills and interests | Available |
 | Existing-details review | Available |
 | Profile completion | Available |
-| Profile photo | Not yet available |
+| Profile photo | Available |
 | Member directory | Not yet available |
 | QR profile sharing | Not yet available |
 | Connections and networking | Not yet available |

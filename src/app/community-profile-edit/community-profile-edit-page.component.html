@@ -20,6 +20,27 @@
       }
 
       <form class="profile-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <fieldset class="photo-section">
+          <legend>Profile photo</legend>
+          <div class="photo-controls">
+            <app-profile-avatar
+              [photoUrl]="profile()?.community?.photo_url ?? null"
+              [initials]="(profile()?.person?.first_name?.charAt(0) ?? '') + (profile()?.person?.last_name?.charAt(0) ?? '')"
+              [altText]="(profile()?.person?.first_name ?? 'Your') + ' ' + (profile()?.person?.last_name ?? '') + ' profile photo'"
+            />
+            <div class="photo-actions">
+              <p class="field-help">Use a clear image that represents you. The Community keeps your photo private.</p>
+              <label class="profile-button photo-file-label" [class.disabled]="uploadingPhoto() || removingPhoto()">
+                <span>{{ uploadingPhoto() ? 'Uploading...' : (profile()?.community?.photo_url ? 'Change photo' : 'Upload photo') }}</span>
+                <input #photoInput id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" [disabled]="uploadingPhoto() || removingPhoto()" (change)="onPhotoSelected($event)" />
+              </label>
+              @if (profile()?.community?.photo_url) {
+                <button class="profile-button secondary-action" type="button" [disabled]="uploadingPhoto() || removingPhoto()" (click)="removePhoto()">{{ removingPhoto() ? 'Removing...' : 'Remove photo' }}</button>
+              }
+              @if (photoError()) { <p class="form-error" role="alert">{{ photoError() }}</p> }
+            </div>
+          </div>
+        </fieldset>
         <fieldset formGroupName="person">
           <legend>Your details</legend>
           <div class="field-grid">
