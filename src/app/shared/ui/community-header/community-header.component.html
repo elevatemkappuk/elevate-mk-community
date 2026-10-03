@@ -1,10 +1,11 @@
 <header class="site-header" [class.activation-header]="layout() === 'activation'">
-  <a class="brand-logo" routerLink="/join" aria-label="Elevate MK home">
+  <a class="brand-logo" [routerLink]="authenticated() ? '/community' : '/join'" aria-label="Elevate MK home">
     <img src="branding/logo.png" alt="Elevate MK" />
   </a>
   @if (authenticated()) {
     <nav class="authenticated-nav" aria-label="Community navigation">
       <a routerLink="/community">Home</a>
+      <a routerLink="/community/directory" routerLinkActive="active">Connect</a>
       <a routerLink="/community/profile" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">My Profile</a>
       <button type="button" [disabled]="signingOut()" (click)="signOut.emit()">
         {{ signingOut() ? 'Signing out…' : 'Sign out' }}

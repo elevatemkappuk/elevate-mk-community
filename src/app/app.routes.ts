@@ -10,6 +10,8 @@ import { ForgotPasswordPageComponent } from './forgot-password-page/forgot-passw
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component';
 import { CommunityProfilePageComponent } from './community-profile/community-profile-page.component';
 import { CommunityProfileEditPageComponent } from './community-profile-edit/community-profile-edit-page.component';
+import { CommunityDirectoryPageComponent } from './community-directory/community-directory-page.component';
+import { CommunityDirectoryProfilePlaceholderComponent } from './community-directory/community-directory-profile-placeholder.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'join' },
@@ -23,4 +25,6 @@ export const routes: Routes = [
   { path: 'community', component: CommunityHomePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile/edit', component: CommunityProfileEditPageComponent, canActivate: [communityAuthGuard] },
+  { path: 'community/directory', component: CommunityDirectoryPageComponent, canActivate: [communityAuthGuard] },
+  { path: 'community/directory/:directoryId', component: CommunityDirectoryProfilePlaceholderComponent, canActivate: [communityAuthGuard] },
 ];

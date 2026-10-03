@@ -34,6 +34,14 @@ describe('ProfileAvatarComponent', () => {
     expect(fixture.nativeElement.querySelector('.profile-avatar').classList.contains('profile-avatar--hero')).toBe(true);
   });
 
+  it('supports a compact card variant without changing the hero footprint', () => {
+    fixture.componentRef.setInput('size', 'compact');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.classList.contains('profile-avatar--compact')).toBe(true);
+    expect(fixture.nativeElement.querySelector('.profile-avatar').classList.contains('profile-avatar--compact')).toBe(true);
+  });
+
   it('falls back to initials when the signed image fails without clearing the URL', () => {
     fixture.componentInstance.photoUrl = 'https://example.test/photo.jpg?signature=temporary';
     fixture.detectChanges();
