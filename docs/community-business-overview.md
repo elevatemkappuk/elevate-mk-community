@@ -19,6 +19,12 @@ connection requests. Community Home also surfaces a compact preview of
 incoming requests with direct actions and a link to the full Requests
 workspace.
 
+Connections are mutual and require an explicit recipient decision. Directory
+visibility, current Community eligibility, accepted-connection contact access
+and the removal of access after disconnect are enforced by the backend.
+Connections do not include messaging, recommendations, or a broader social
+graph.
+
 ## The member journey today
 
 ```text
@@ -313,11 +319,9 @@ engagement or conversion.
 
 The following are not part of the current Community product:
 
-- profile photo;
 - QR profile sharing;
 - messaging;
 - an events or community event participation experience;
-- member-to-member contact features;
 - self-service email changes;
 - self-service mobile changes; and
 - a full Account Settings area.

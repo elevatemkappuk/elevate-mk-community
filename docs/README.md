@@ -18,6 +18,9 @@ uses the shared Elevate MK Django API.
 
 ## Documentation areas still to be expanded
 
+- [Connections V1](./connections.md) — Connect discovery, relationship
+  lifecycle, privacy rules and frontend workspace behavior.
+
 These areas are not yet covered by the current Community frontend
 documentation:
 
@@ -27,5 +30,5 @@ documentation:
 
 Connect discovery, member profiles, My Connections, connection requests and
 the Home incoming-request preview are implemented in the current Community
-frontend. Home does not provide polling, unread state or notification
-infrastructure.
+frontend. Their behavior is documented in [Connections V1](./connections.md).
+Home does not provide polling, unread state or notification infrastructure.
