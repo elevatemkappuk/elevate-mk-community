@@ -39,7 +39,25 @@ describe('CommunityDirectoryProfilePageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Community builder');
     expect(fixture.nativeElement.textContent).toContain('Strategy');
     expect(fixture.nativeElement.querySelector('a[href="mailto:amina@example.test"]')).not.toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Back to Connect');
+    const backLink = fixture.nativeElement.querySelector('.back-link') as HTMLAnchorElement;
+    expect(backLink.textContent).toContain('Back to Connect');
+    expect(backLink.href).toContain('q=Amina');
+    expect(backLink.href).toContain('page=2');
+    expect(fixture.nativeElement.textContent).not.toContain('directory_visible');
+    expect(fixture.nativeElement.textContent).not.toContain('email_visible');
+    expect(fixture.nativeElement.textContent).not.toContain('member-1');
+  });
+
+  it('renders mobile contact when returned and omits contact when both values are null', () => {
+    api.getDirectoryProfile.mockReturnValueOnce(of({ ...detail, contact: { email: 'amina@example.test', mobile: '+447700900123' } }));
+    fixture.componentInstance.retry();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('a[href="tel:+447700900123"]')).not.toBeNull();
+
+    api.getDirectoryProfile.mockReturnValueOnce(of({ ...detail, contact: { email: null, mobile: null } }));
+    fixture.componentInstance.retry();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Connect directly');
   });
 
   it('shows a generic unavailable state for a missing profile', () => {
@@ -48,5 +66,19 @@ describe('CommunityDirectoryProfilePageComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain("This member profile isn't available.");
     expect(fixture.nativeElement.textContent).not.toContain('member-1');
+  });
+
+  it('keeps retry errors generic and handles throttling safely', () => {
+    api.getDirectoryProfile.mockReturnValue(throwError(() => ({ status: 429, body: { detail: 'technical detail' } })));
+    fixture.componentInstance.retry();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('taking a short pause');
+    expect(fixture.nativeElement.textContent).not.toContain('technical detail');
+
+    api.getDirectoryProfile.mockReturnValue(throwError(() => ({ status: 500, body: { detail: 'internal detail' } })));
+    fixture.componentInstance.retry();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('couldn’t load this profile');
+    expect(fixture.nativeElement.textContent).not.toContain('internal detail');
   });
 });

@@ -41,7 +41,7 @@ export interface DirectoryDetail {
     company: string;
     industry: DirectoryTaxonomyOption | null;
     career_stage: string | null;
-    linkedin_url: string | null;
+    linkedin_url: string;
   };
   skills: DirectoryTaxonomyOption[];
   interests: DirectoryTaxonomyOption[];
