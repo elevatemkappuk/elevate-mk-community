@@ -16,6 +16,23 @@
           <h1 id="connect-profile-title">{{ data.first_name }} {{ data.last_name }}</h1>
           @if (professionalSummary()) { <p class="profile-lead">{{ professionalSummary() }}</p> }
           @if (data.location) { <p class="profile-location">{{ data.location }}</p> }
+          <div class="profile-actions" aria-live="polite" [attr.aria-busy]="mutationLoading()">
+            @if (data.relationship.can_connect) {
+              <button class="profile-button connection-action" type="button" [disabled]="mutationLoading()" (click)="sendConnectionRequest()">{{ mutationLoading() ? 'Sending...' : 'Connect' }}</button>
+            }
+            @if (data.relationship.can_accept) {
+              <button class="profile-button connection-action" type="button" [disabled]="mutationLoading()" (click)="acceptConnection()">{{ mutationLoading() ? 'Accepting...' : 'Accept' }}</button>
+            }
+            @if (data.relationship.can_decline) {
+              <button class="profile-button connection-action secondary-action" type="button" [disabled]="mutationLoading()" (click)="declineConnection()">{{ mutationLoading() ? 'Updating...' : 'Decline' }}</button>
+            }
+            @if (data.relationship.state === 'OUTGOING_PENDING' && !data.relationship.can_connect) { <p class="connection-status" role="status">Request sent</p> }
+            @if (data.relationship.state === 'CONNECTED') {
+              <p class="connection-status" role="status">Connected</p>
+              @if (data.relationship.can_remove) { <button class="profile-button connection-action secondary-action" type="button" [disabled]="mutationLoading()" (click)="removeConnection()">{{ mutationLoading() ? 'Removing...' : 'Remove connection' }}</button> }
+            }
+            @if (mutationError(); as message) { <p class="action-error" role="alert">{{ message }}</p> }
+          </div>
         </div>
       </section>
       <div class="profile-sections">

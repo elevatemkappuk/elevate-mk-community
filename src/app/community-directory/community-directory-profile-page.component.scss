@@ -19,4 +19,10 @@ h2 { margin-bottom: 1rem; color: var(--elevate-black); font-size: clamp(1.5rem, 
 .tag-list li { border: 1px solid var(--elevate-border); padding: .55rem .8rem; color: var(--elevate-black); font-weight: 700; }
 .contact-link { display: block; margin-bottom: .75rem; }
 .profile-button { border: 0; padding: .9rem 1.3rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; cursor: pointer; }
+.profile-button:disabled { cursor: not-allowed; opacity: .55; }
+.profile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-top: 1.5rem; }
+.connection-action.secondary-action { border: 1px solid var(--elevate-black); background: transparent; color: var(--elevate-black); }
+.connection-status { margin: 0; font-weight: 800; }
+.action-error { flex-basis: 100%; margin: 0; color: var(--elevate-black); font-weight: 700; }
 @media (max-width: 700px) { .profile-hero { align-items: flex-start; flex-direction: column; margin-top: 2.5rem; } .profile-sections { display: block; margin-top: 2.5rem; } .profile-section + .profile-section { margin-top: 2.5rem; } h1 { font-size: clamp(2.8rem, 15vw, 5rem); } }
+@media (max-width: 700px) { .profile-actions { align-items: stretch; width: 100%; } .profile-actions .profile-button { width: 100%; } }

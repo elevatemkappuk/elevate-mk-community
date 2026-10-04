@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 import { API_CONFIG } from '../core/http/api-config';
+import { CommunityAuthService } from './community-auth.service';
 
 export interface IndustryOption {
   slug: string;
@@ -29,6 +30,22 @@ export interface DirectoryMember {
   interests: DirectoryTaxonomyOption[];
 }
 
+export type DirectoryRelationshipState = 'NO_RELATIONSHIP' | 'OUTGOING_PENDING' | 'INCOMING_PENDING' | 'CONNECTED';
+
+export interface DirectoryRelationship {
+  state: DirectoryRelationshipState;
+  connection_id: string | null;
+  can_connect: boolean;
+  can_accept: boolean;
+  can_decline: boolean;
+  can_remove: boolean;
+}
+
+export interface ConnectionMutationResponse {
+  connection_id: string;
+  member: DirectoryMember;
+}
+
 export interface DirectoryDetail {
   directory_id: string;
   photo_url: string | null;
@@ -46,6 +63,7 @@ export interface DirectoryDetail {
   skills: DirectoryTaxonomyOption[];
   interests: DirectoryTaxonomyOption[];
   contact: { email: string | null; mobile: string | null };
+  relationship: DirectoryRelationship;
 }
 
 export interface DirectoryPage {
@@ -68,6 +86,7 @@ export interface DirectoryQuery {
 export class CommunityApiService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(API_CONFIG);
+  private readonly auth = inject(CommunityAuthService);
 
   getIndustries(): Observable<IndustryOption[]> {
     return this.http.get<IndustryOption[]>(`${this.apiConfig.apiBaseUrl}/community/industries/`);
@@ -92,6 +111,45 @@ export class CommunityApiService {
     return this.http.get<DirectoryDetail>(
       `${this.apiConfig.apiBaseUrl}/community/directory/${encodeURIComponent(directoryId)}/`,
       { withCredentials: true },
+    );
+  }
+
+  sendConnectionRequest(directoryId: string): Observable<ConnectionMutationResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<ConnectionMutationResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/connections/requests/`,
+        { directory_id: directoryId },
+        { withCredentials: true },
+      )),
+    );
+  }
+
+  acceptConnection(connectionId: string): Observable<ConnectionMutationResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<ConnectionMutationResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/connections/${encodeURIComponent(connectionId)}/accept/`,
+        {},
+        { withCredentials: true },
+      )),
+    );
+  }
+
+  declineConnection(connectionId: string): Observable<ConnectionMutationResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<ConnectionMutationResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/connections/${encodeURIComponent(connectionId)}/decline/`,
+        {},
+        { withCredentials: true },
+      )),
+    );
+  }
+
+  removeConnection(connectionId: string): Observable<void> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.delete<void>(
+        `${this.apiConfig.apiBaseUrl}/community/connections/${encodeURIComponent(connectionId)}/`,
+        { withCredentials: true },
+      )),
     );
   }
 }

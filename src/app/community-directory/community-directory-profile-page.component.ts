@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { take } from 'rxjs';
+import { Observable, finalize, take } from 'rxjs';
 
 import { CommunityApiError, CommunityAuthService } from '../api/community-auth.service';
 import { CommunityApiService, DirectoryDetail } from '../api/community-api.service';
@@ -26,6 +26,8 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly signingOut = signal(false);
   readonly backQueryParams = signal<Record<string, string>>({});
+  readonly mutationLoading = signal(false);
+  readonly mutationError = signal<string | null>(null);
 
   ngOnInit(): void {
     this.route.queryParamMap.pipe(take(1)).subscribe((params) => {
@@ -40,6 +42,30 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
   }
 
   retry(): void { this.load(); }
+
+  sendConnectionRequest(): void {
+    const profile = this.profile();
+    if (!profile?.relationship.can_connect) return;
+    this.runMutation(this.api.sendConnectionRequest(profile.directory_id));
+  }
+
+  acceptConnection(): void {
+    const connectionId = this.profile()?.relationship.connection_id;
+    if (!connectionId || !this.profile()?.relationship.can_accept) return;
+    this.runMutation(this.api.acceptConnection(connectionId));
+  }
+
+  declineConnection(): void {
+    const connectionId = this.profile()?.relationship.connection_id;
+    if (!connectionId || !this.profile()?.relationship.can_decline) return;
+    this.runMutation(this.api.declineConnection(connectionId));
+  }
+
+  removeConnection(): void {
+    const connectionId = this.profile()?.relationship.connection_id;
+    if (!connectionId || !this.profile()?.relationship.can_remove || !window.confirm('Remove this connection?')) return;
+    this.runMutation(this.api.removeConnection(connectionId));
+  }
 
   signOut(): void {
     if (this.signingOut()) return;
@@ -67,7 +93,7 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
     return professional.job_title || professional.company || '';
   }
 
-  private load(): void {
+  private load(preserveMutationError = false): void {
     const directoryId = this.route.snapshot.paramMap.get('directoryId');
     if (!directoryId) {
       this.unavailable.set(true);
@@ -78,6 +104,7 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
     this.profile.set(null);
     this.unavailable.set(false);
     this.errorMessage.set(null);
+    if (!preserveMutationError) this.mutationError.set(null);
     this.api.getDirectoryProfile(directoryId).subscribe({
       next: (profile) => { this.profile.set(profile); this.loading.set(false); },
       error: (error: CommunityApiError) => {
@@ -89,6 +116,32 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
         } else {
           this.errorMessage.set('We couldn’t load this Connect profile right now. Please try again.');
         }
+      },
+    });
+  }
+
+  private runMutation(request$: Observable<unknown>): void {
+    if (this.mutationLoading()) return;
+    this.mutationLoading.set(true);
+    this.mutationError.set(null);
+    request$.pipe(finalize(() => this.mutationLoading.set(false))).subscribe({
+      next: () => this.load(),
+      error: (error: CommunityApiError) => {
+        if (error.status === 404) {
+          this.profile.set(null);
+          this.unavailable.set(true);
+          return;
+        }
+        if (error.status === 409) {
+          this.load(true);
+          this.mutationError.set('This connection changed while you were viewing it. The profile has been refreshed.');
+          return;
+        }
+        if (error.status === 429) {
+          this.mutationError.set('Connect is taking a short pause. Please wait a moment and try again.');
+          return;
+        }
+        this.mutationError.set('We couldn’t update this connection. Please check and try again.');
       },
     });
   }

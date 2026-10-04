@@ -90,6 +90,8 @@ describe('CommunityProfileEditPageComponent', () => {
     component.form.controls.community.controls.mobile_visible.setValue(true);
     component.form.controls.community.controls.directory_visible.setValue(false);
     expect(component.form.controls.community.value).toEqual(expect.objectContaining({ directory_visible: false, email_visible: true, mobile_visible: true }));
+    expect(element.textContent).toContain('Non-connected members follow this setting. Accepted connections can see it automatically.');
+    expect(element.textContent).toContain('Accepted connections can see available contact details automatically while the connection is active.');
   });
 
   it('uses API privacy values without inventing a visible default', () => {

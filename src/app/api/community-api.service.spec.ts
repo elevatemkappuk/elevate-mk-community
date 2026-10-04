@@ -1,25 +1,31 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 
 import { API_CONFIG } from '../core/http/api-config';
+import { communityCredentialsInterceptor, setCommunityCsrfToken } from '../core/http/community-http.interceptors';
+import { CommunityAuthService } from './community-auth.service';
 import { CommunityApiService } from './community-api.service';
 
 describe('CommunityApiService', () => {
   let service: CommunityApiService;
   let http: HttpTestingController;
+  let auth: { bootstrapCsrf: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         CommunityApiService,
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([communityCredentialsInterceptor])),
         provideHttpClientTesting(),
         { provide: API_CONFIG, useValue: { apiBaseUrl: '/api/v1' } },
+        { provide: CommunityAuthService, useValue: auth = { bootstrapCsrf: vi.fn(() => of(void 0)) } },
       ],
     });
     service = TestBed.inject(CommunityApiService);
     http = TestBed.inject(HttpTestingController);
+    setCommunityCsrfToken('csrf-token');
   });
 
   afterEach(() => http.verify());
@@ -50,5 +56,38 @@ describe('CommunityApiService', () => {
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(true);
     request.flush({});
+  });
+
+  it('sends connection mutations with credentials and the C2 contract', () => {
+    service.sendConnectionRequest('member-1').subscribe();
+    let request = http.expectOne('/api/v1/community/connections/requests/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ directory_id: 'member-1' });
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush({ connection_id: 'connection-1', member: {} });
+
+    service.acceptConnection('connection/1').subscribe();
+    request = http.expectOne('/api/v1/community/connections/connection%2F1/accept/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({});
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush({ connection_id: 'connection-1', member: {} });
+
+    service.declineConnection('connection-1').subscribe();
+    request = http.expectOne('/api/v1/community/connections/connection-1/decline/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush({ connection_id: 'connection-1', member: {} });
+
+    service.removeConnection('connection-1').subscribe();
+    request = http.expectOne('/api/v1/community/connections/connection-1/');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush(null);
+    expect(auth.bootstrapCsrf).toHaveBeenCalledTimes(4);
   });
 });
