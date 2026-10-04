@@ -26,5 +26,7 @@ export const routes: Routes = [
   { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile/edit', component: CommunityProfileEditPageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/directory', component: CommunityDirectoryPageComponent, canActivate: [communityAuthGuard] },
+  { path: 'community/directory/connections', loadComponent: () => import('./community-directory/community-connections-page.component').then((module) => module.CommunityConnectionsPageComponent), data: { section: 'connections' }, canActivate: [communityAuthGuard] },
+  { path: 'community/directory/requests', loadComponent: () => import('./community-directory/community-connections-page.component').then((module) => module.CommunityConnectionsPageComponent), data: { section: 'requests' }, canActivate: [communityAuthGuard] },
   { path: 'community/directory/:directoryId', component: CommunityDirectoryProfilePageComponent, canActivate: [communityAuthGuard] },
 ];

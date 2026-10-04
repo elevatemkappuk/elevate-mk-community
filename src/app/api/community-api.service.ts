@@ -73,6 +73,25 @@ export interface DirectoryPage {
   results: DirectoryMember[];
 }
 
+export interface ConnectionRecord {
+  connection_id: string;
+  member: DirectoryMember;
+}
+
+export interface ConnectionRequestRecord {
+  connection_id: string;
+  state: 'INCOMING_PENDING' | 'OUTGOING_PENDING';
+  requested_at: string;
+  member: DirectoryMember;
+}
+
+export interface ConnectionPage<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export interface DirectoryQuery {
   q?: string;
   industry?: string;
@@ -112,6 +131,24 @@ export class CommunityApiService {
       `${this.apiConfig.apiBaseUrl}/community/directory/${encodeURIComponent(directoryId)}/`,
       { withCredentials: true },
     );
+  }
+
+  getConnections(page = 1): Observable<ConnectionPage<ConnectionRecord>> {
+    let params = new HttpParams();
+    if (page > 1) params = params.set('page', page);
+    return this.http.get<ConnectionPage<ConnectionRecord>>(`${this.apiConfig.apiBaseUrl}/community/connections/`, {
+      params,
+      withCredentials: true,
+    });
+  }
+
+  getConnectionRequests(direction: 'incoming' | 'outgoing', page = 1): Observable<ConnectionPage<ConnectionRequestRecord>> {
+    let params = new HttpParams().set('direction', direction);
+    if (page > 1) params = params.set('page', page);
+    return this.http.get<ConnectionPage<ConnectionRequestRecord>>(`${this.apiConfig.apiBaseUrl}/community/connections/requests/`, {
+      params,
+      withCredentials: true,
+    });
   }
 
   sendConnectionRequest(directoryId: string): Observable<ConnectionMutationResponse> {

@@ -1,0 +1,26 @@
+<article class="connection-card" [attr.aria-labelledby]="'connection-member-' + member().directory_id">
+  <div class="connection-card-topline">
+    <app-profile-avatar size="compact" [photoUrl]="member().photo_url" [initials]="initials()" [altText]="member().first_name + ' ' + member().last_name + ' profile photo'" />
+    <div class="connection-card-identity">
+      <h2 [id]="'connection-member-' + member().directory_id">{{ member().first_name }} {{ member().last_name }}</h2>
+      @if (member().location) { <p>{{ member().location }}</p> }
+    </div>
+  </div>
+  @if (member().professional.job_title || member().professional.company || member().professional.industry) {
+    <div class="connection-professional">
+      @if (member().professional.job_title) { <p class="primary-detail">{{ member().professional.job_title }}</p> }
+      @if (member().professional.company) { <p>{{ member().professional.company }}</p> }
+      @if (member().professional.industry; as industry) { <p>{{ industry.label }}</p> }
+    </div>
+  }
+  @if (mode() === 'outgoing') { <p class="connection-status" role="status">Request sent</p> }
+  <div class="connection-card-actions">
+    <a class="view-profile" [routerLink]="['/community/directory', member().directory_id]" [queryParams]="profileQueryParams()">View profile <span aria-hidden="true">→</span></a>
+    @if (mode() === 'incoming') {
+      <div class="request-actions" [attr.aria-busy]="loadingAction() !== null">
+        <button type="button" [disabled]="loadingAction() !== null" (click)="accept.emit(connectionId())">{{ loadingAction() === 'accept' ? 'Accepting...' : 'Accept' }}</button>
+        <button type="button" class="secondary-action" [disabled]="loadingAction() !== null" (click)="decline.emit(connectionId())">{{ loadingAction() === 'decline' ? 'Declining...' : 'Decline' }}</button>
+      </div>
+    }
+  </div>
+</article>

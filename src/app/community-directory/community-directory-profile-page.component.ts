@@ -6,10 +6,11 @@ import { CommunityApiError, CommunityAuthService } from '../api/community-auth.s
 import { CommunityApiService, DirectoryDetail } from '../api/community-api.service';
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avatar.component';
+import { CommunityConnectNavComponent } from './community-connect-nav.component';
 
 @Component({
   selector: 'app-community-directory-profile-page',
-  imports: [CommunityHeaderComponent, ProfileAvatarComponent, RouterLink],
+  imports: [CommunityHeaderComponent, ProfileAvatarComponent, CommunityConnectNavComponent, RouterLink],
   templateUrl: './community-directory-profile-page.component.html',
   styleUrl: './community-directory-profile-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +27,7 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly signingOut = signal(false);
   readonly backQueryParams = signal<Record<string, string>>({});
+  readonly backRoute = signal('/community/directory');
   readonly mutationLoading = signal(false);
   readonly mutationError = signal<string | null>(null);
 
@@ -35,6 +37,13 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
       for (const key of ['q', 'industry', 'skill', 'interest', 'page'] as const) {
         const value = params.get(key);
         if (value) query[key] = value;
+      }
+      const from = params.get('from');
+      if (from === 'connections') this.backRoute.set('/community/directory/connections');
+      if (from === 'requests') {
+        this.backRoute.set('/community/directory/requests');
+        const direction = params.get('direction');
+        if (direction === 'incoming' || direction === 'outgoing') query['direction'] = direction;
       }
       this.backQueryParams.set(query);
     });

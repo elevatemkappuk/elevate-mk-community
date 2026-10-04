@@ -90,4 +90,23 @@ describe('CommunityApiService', () => {
     request.flush(null);
     expect(auth.bootstrapCsrf).toHaveBeenCalledTimes(4);
   });
+
+  it('loads paginated connections and request directions from query parameters', () => {
+    service.getConnections(2).subscribe();
+    let request = http.expectOne('/api/v1/community/connections/?page=2');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ count: 25, next: null, previous: 'previous', results: [] });
+
+    service.getConnectionRequests('incoming').subscribe();
+    request = http.expectOne('/api/v1/community/connections/requests/?direction=incoming');
+    expect(request.request.params.get('direction')).toBe('incoming');
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+
+    service.getConnectionRequests('outgoing', 3).subscribe();
+    request = http.expectOne('/api/v1/community/connections/requests/?direction=outgoing&page=3');
+    expect(request.request.params.get('direction')).toBe('outgoing');
+    expect(request.request.params.get('page')).toBe('3');
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+  });
 });

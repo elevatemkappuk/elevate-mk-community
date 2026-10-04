@@ -1,7 +1,8 @@
 <div class="connect-profile-shell">
   <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
   <main class="connect-profile-main" aria-labelledby="connect-profile-title">
-    <a class="back-link" routerLink="/community/directory" [queryParams]="backQueryParams()">← Back to Connect</a>
+    <a class="back-link" [routerLink]="backRoute()" [queryParams]="backQueryParams()">← Back to Connect</a>
+    <app-community-connect-nav />
     @if (loading()) {
       <section class="profile-state" aria-live="polite"><p class="eyebrow">Connect</p><h1 id="connect-profile-title">Loading profile</h1></section>
     } @else if (unavailable()) {

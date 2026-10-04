@@ -12,9 +12,11 @@ skills and interests. The experience is connected to the existing Elevate MK
 membership and CRM information, so Community is designed to strengthen one
 shared member record rather than create a competing one.
 
-This is the current foundation for a broader member Community experience. A
-member directory, networking and connections are not available in the
-current release.
+This is the current foundation for a broader member Community experience.
+Members can now discover eligible profiles through Connect, view member
+profiles, manage established connections and process incoming or sent
+connection requests. Home request attention integration remains future C4B
+scope.
 
 ## The member journey today
 
@@ -176,9 +178,8 @@ validation remains authoritative. There is no cropper in V1, initials are used
 as a fallback, and profile photos do not affect Profile Progress.
 
 Skills and Interests use Elevate MK's managed choices rather than unrestricted
-free-text entries. This keeps information consistent and creates a stronger
-foundation for future member discovery and networking capabilities, without
-claiming that those capabilities exist today.
+free-text entries. This keeps information consistent for the current Connect
+discovery and networking experience.
 
 ## Information members cannot currently change
 
@@ -312,11 +313,7 @@ engagement or conversion.
 The following are not part of the current Community product:
 
 - profile photo;
-- member Directory;
-- member-facing Directory Profile;
-- directory search or discovery;
 - QR profile sharing;
-- member connections or networking;
 - messaging;
 - an events or community event participation experience;
 - member-to-member contact features;
@@ -327,9 +324,9 @@ The following are not part of the current Community product:
 ## Where the product is heading
 
 The current release establishes the foundation for a richer Community
-product. Potential future areas include profile photos, a member directory,
-member discovery, QR profile sharing and networking or connections. These
-are future possibilities or planned areas, not current capabilities.
+product. Potential future areas include QR profile sharing, messaging,
+events and Home request attention integration. These are future possibilities
+or planned areas, not current capabilities.
 
 ## Current business capability summary
 
@@ -345,9 +342,9 @@ are future possibilities or planned areas, not current capabilities.
 | Existing-details review | Available |
 | Profile completion | Available |
 | Profile photo | Available |
-| Member directory | Not yet available |
+| Member directory and Connect discovery | Available |
 | QR profile sharing | Not yet available |
-| Connections and networking | Not yet available |
+| Connections and connection requests | Available |
 | Messaging | Not yet available |
 | Events/community event participation | Not yet available |
 | Self-service email or mobile change | Not yet available |

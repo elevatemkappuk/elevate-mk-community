@@ -16,13 +16,15 @@ uses the shared Elevate MK Django API.
   non-technical overview of the product, member journey, current
   capabilities and future scope.
 
-## Future documentation areas
+## Documentation areas still to be expanded
 
 These areas are not yet covered by the current Community frontend
 documentation:
 
-- Directory and Directory Profile
 - QR sharing
-- Connections and networking
 - CRM staff workflows
 - Brevo marketing architecture
+
+Connect discovery, member profiles, My Connections and connection requests
+are implemented in the current Community frontend. Home request attention
+integration remains part of the next C4B step.

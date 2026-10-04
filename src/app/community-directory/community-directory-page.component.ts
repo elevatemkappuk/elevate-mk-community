@@ -10,10 +10,11 @@ import { CommunityProfileOptions, CommunityProfileService } from '../api/communi
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 import { SelectComponent, SelectOption } from '../shared/ui/select/select.component';
 import { CommunityDirectoryMemberCardComponent } from './community-directory-member-card.component';
+import { CommunityConnectNavComponent } from './community-connect-nav.component';
 
 @Component({
   selector: 'app-community-directory-page',
-  imports: [CommunityHeaderComponent, CommunityDirectoryMemberCardComponent, ReactiveFormsModule, SelectComponent],
+  imports: [CommunityHeaderComponent, CommunityDirectoryMemberCardComponent, CommunityConnectNavComponent, ReactiveFormsModule, SelectComponent],
   templateUrl: './community-directory-page.component.html',
   styleUrl: './community-directory-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

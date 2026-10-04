@@ -1,0 +1,6 @@
+:host { display: block; margin-top: 1.5rem; }
+.connect-secondary-nav { display: flex; flex-wrap: wrap; gap: .35rem .5rem; border-bottom: 1px solid var(--elevate-border); }
+.connect-secondary-nav a { border-bottom: 3px solid transparent; padding: .7rem .8rem .8rem; color: var(--elevate-muted); font: inherit; font-weight: 800; text-decoration: none; }
+.connect-secondary-nav a:hover, .connect-secondary-nav a.active { border-bottom-color: var(--elevate-gold-deep); color: var(--elevate-black); }
+.connect-secondary-nav a:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 2px; }
+@media (max-width: 520px) { .connect-secondary-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .connect-secondary-nav a { padding-inline: .35rem; text-align: center; font-size: .82rem; } }

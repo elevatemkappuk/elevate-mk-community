@@ -13,8 +13,9 @@ Three concepts are deliberately distinct:
   self-service editing experience.
 - **CommunityProfile** is a backend Community-owned one-to-one extension
   attached to `Person`. It stores Community-specific state only.
-- **Directory Profile** is a future privacy-safe projection intended for
-  other Community members. It is not implemented in Profile V1.
+- **Directory Profile** is a separate privacy-safe member-facing projection
+  used by the implemented Connect experience. It is not part of the My
+  Profile editing contract.
 
 The frontend is separate from the Staff CRM frontend. The shared Django API
 owns authorization, canonical data, completion rules and profile mutation.
@@ -456,21 +457,18 @@ These are checkpoint figures, not a permanent test-count guarantee.
 
 The following are not part of Profile V1:
 
-- Directory and Directory Profile;
-- directory visibility/privacy settings;
-- stable public/community profile identifiers;
 - QR profile sharing;
-- connections and networking;
 - email or mobile self-service editing;
 - Account Settings.
 
 
-## Relationship to future Directory Profile
+## Relationship to Connect Directory Profile
 
-My Profile is the owner-facing composed profile. A future Directory Profile
-will be a privacy-safe member-facing projection of selected data.
+My Profile is the owner-facing composed profile. Connect uses a privacy-safe
+member-facing projection of selected data for discovery and connection
+workflows.
 
-Both should ultimately derive from the same canonical data and
+Both derive from the same canonical data and
 `CommunityProfile`; neither requires another duplicate identity/profile
-database. This document does not define future Directory fields or privacy
-defaults.
+database. Connect owns its member-facing privacy projection and relationship
+actions separately from My Profile editing.

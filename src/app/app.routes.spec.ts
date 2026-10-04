@@ -17,7 +17,7 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'sign-in')?.canActivate?.length).toBe(1);
   });
 
-  it('exposes activation and guarded Community routes', () => {
+  it('exposes activation and guarded Community routes', async () => {
     expect(routes.find((route) => route.path === 'activate/:invitationId/:token')?.component).toBe(ActivatePageComponent);
     expect(routes.find((route) => route.path === 'community')?.component).toBe(CommunityHomePageComponent);
     expect(routes.find((route) => route.path === 'community')?.canActivate?.length).toBe(1);
@@ -27,6 +27,13 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'community/profile/edit')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/directory')?.component).toBe(CommunityDirectoryPageComponent);
     expect(routes.find((route) => route.path === 'community/directory')?.canActivate?.length).toBe(1);
+    const connectionsRoute = routes.find((route) => route.path === 'community/directory/connections');
+    expect(await connectionsRoute?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/directory/connections')?.canActivate?.length).toBe(1);
+    const requestsRoute = routes.find((route) => route.path === 'community/directory/requests');
+    expect(await requestsRoute?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/directory/requests')?.canActivate?.length).toBe(1);
+    expect(routes.findIndex((route) => route.path === 'community/directory/requests')).toBeLessThan(routes.findIndex((route) => route.path === 'community/directory/:directoryId'));
     expect(routes.find((route) => route.path === 'community/directory/:directoryId')?.component).toBe(CommunityDirectoryProfilePageComponent);
     expect(routes.find((route) => route.path === 'community/directory/:directoryId')?.canActivate?.length).toBe(1);
   });
