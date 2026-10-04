@@ -15,8 +15,9 @@ shared member record rather than create a competing one.
 This is the current foundation for a broader member Community experience.
 Members can now discover eligible profiles through Connect, view member
 profiles, manage established connections and process incoming or sent
-connection requests. Home request attention integration remains future C4B
-scope.
+connection requests. Community Home also surfaces a compact preview of
+incoming requests with direct actions and a link to the full Requests
+workspace.
 
 ## The member journey today
 
@@ -324,9 +325,9 @@ The following are not part of the current Community product:
 ## Where the product is heading
 
 The current release establishes the foundation for a richer Community
-product. Potential future areas include QR profile sharing, messaging,
-events and Home request attention integration. These are future possibilities
-or planned areas, not current capabilities.
+product. Potential future areas include QR profile sharing, messaging and
+events. These are future possibilities or planned areas, not current
+capabilities.
 
 ## Current business capability summary
 

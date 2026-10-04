@@ -1,11 +1,76 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { CommunityAuthService, CommunityUser } from '../api/community-auth.service';
-import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
+import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 
-@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
+import { CommunityApiError, CommunityAuthService, CommunityUser } from '../api/community-auth.service';
+import { CommunityApiService, ConnectionRequestRecord } from '../api/community-api.service';
+import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
+import { CommunityConnectionCardComponent } from '../community-directory/community-connection-card.component';
+
+@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent, CommunityConnectionCardComponent, RouterLink], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
 export class CommunityHomePageComponent implements OnInit {
-  private readonly auth = inject(CommunityAuthService); private readonly router = inject(Router); readonly user = signal<CommunityUser | null>(null); readonly signingOut = signal(false);
-  ngOnInit(): void { this.user.set(this.auth.currentUser()); }
+  private readonly auth = inject(CommunityAuthService);
+  private readonly api = inject(CommunityApiService);
+  private readonly router = inject(Router);
+
+  readonly user = signal<CommunityUser | null>(null);
+  readonly signingOut = signal(false);
+  readonly requests = signal<ConnectionRequestRecord[]>([]);
+  readonly requestsLoading = signal(true);
+  readonly requestsError = signal<string | null>(null);
+  readonly activeAction = signal<{ id: string; action: 'accept' | 'decline' } | null>(null);
+
+  ngOnInit(): void {
+    this.user.set(this.auth.currentUser());
+    this.loadRequests();
+  }
+
   signOut(): void { if (this.signingOut()) return; this.signingOut.set(true); this.auth.logout().subscribe({ next: () => this.router.navigateByUrl('/join'), error: () => this.signingOut.set(false) }); }
+
+  accept(connectionId: string): void { this.mutate(connectionId, 'accept'); }
+  decline(connectionId: string): void { this.mutate(connectionId, 'decline'); }
+
+  cardLoadingAction(connectionId: string): 'accept' | 'decline' | null {
+    const action = this.activeAction();
+    return action?.id === connectionId ? action.action : null;
+  }
+
+  retryRequests(): void { this.loadRequests(); }
+
+  private loadRequests(): void {
+    this.requestsLoading.set(true);
+    this.requestsError.set(null);
+    this.api.getConnectionRequests('incoming', 1, 3).subscribe({
+      next: (response) => {
+        this.requests.set(response.results.slice(0, 3));
+        this.requestsLoading.set(false);
+      },
+      error: (error: CommunityApiError) => {
+        this.requestsLoading.set(false);
+        this.requestsError.set(error.status === 429
+          ? 'Requests are taking a short pause. Please try again.'
+          : 'Connection requests are temporarily unavailable.');
+      },
+    });
+  }
+
+  private mutate(connectionId: string, action: 'accept' | 'decline'): void {
+    if (this.activeAction()) return;
+    this.activeAction.set({ id: connectionId, action });
+    this.requestsError.set(null);
+    const request$ = action === 'accept' ? this.api.acceptConnection(connectionId) : this.api.declineConnection(connectionId);
+    request$.pipe(finalize(() => this.activeAction.set(null))).subscribe({
+      next: () => this.loadRequests(),
+      error: (error: CommunityApiError) => {
+        if (error.status === 409 || error.status === 404) {
+          this.loadRequests();
+          this.requestsError.set('This request changed. The list has been refreshed.');
+        } else if (error.status === 429) {
+          this.requestsError.set('Requests are taking a short pause. Please try again.');
+        } else {
+          this.requestsError.set('We couldn’t update this request. Please try again.');
+        }
+      },
+    });
+  }
 }

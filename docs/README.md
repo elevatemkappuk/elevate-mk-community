@@ -25,6 +25,7 @@ documentation:
 - CRM staff workflows
 - Brevo marketing architecture
 
-Connect discovery, member profiles, My Connections and connection requests
-are implemented in the current Community frontend. Home request attention
-integration remains part of the next C4B step.
+Connect discovery, member profiles, My Connections, connection requests and
+the Home incoming-request preview are implemented in the current Community
+frontend. Home does not provide polling, unread state or notification
+infrastructure.

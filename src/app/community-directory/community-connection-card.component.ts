@@ -18,6 +18,8 @@ export class CommunityConnectionCardComponent {
   readonly mode = input.required<ConnectionCardMode>();
   readonly connectionId = input.required<string>();
   readonly loadingAction = input<'accept' | 'decline' | null>(null);
+  readonly compact = input(false);
+  readonly returnQueryParams = input<Record<string, string> | null>(null);
   readonly accept = output<string>();
   readonly decline = output<string>();
 
@@ -27,6 +29,7 @@ export class CommunityConnectionCardComponent {
   }
 
   profileQueryParams(): Record<string, string> {
+    if (this.returnQueryParams()) return this.returnQueryParams()!;
     return this.mode() === 'connection'
       ? { from: 'connections' }
       : { from: 'requests', direction: this.mode() === 'incoming' ? 'incoming' : 'outgoing' };

@@ -103,6 +103,11 @@ describe('CommunityApiService', () => {
     expect(request.request.params.get('direction')).toBe('incoming');
     request.flush({ count: 0, next: null, previous: null, results: [] });
 
+    service.getConnectionRequests('incoming', 1, 3).subscribe();
+    request = http.expectOne('/api/v1/community/connections/requests/?direction=incoming&page_size=3');
+    expect(request.request.params.get('page_size')).toBe('3');
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+
     service.getConnectionRequests('outgoing', 3).subscribe();
     request = http.expectOne('/api/v1/community/connections/requests/?direction=outgoing&page=3');
     expect(request.request.params.get('direction')).toBe('outgoing');

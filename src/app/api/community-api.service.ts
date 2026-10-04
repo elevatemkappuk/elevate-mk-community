@@ -142,9 +142,10 @@ export class CommunityApiService {
     });
   }
 
-  getConnectionRequests(direction: 'incoming' | 'outgoing', page = 1): Observable<ConnectionPage<ConnectionRequestRecord>> {
+  getConnectionRequests(direction: 'incoming' | 'outgoing', page = 1, pageSize?: number): Observable<ConnectionPage<ConnectionRequestRecord>> {
     let params = new HttpParams().set('direction', direction);
     if (page > 1) params = params.set('page', page);
+    if (pageSize) params = params.set('page_size', pageSize);
     return this.http.get<ConnectionPage<ConnectionRequestRecord>>(`${this.apiConfig.apiBaseUrl}/community/connections/requests/`, {
       params,
       withCredentials: true,

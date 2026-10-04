@@ -1,5 +1,6 @@
 :host { display: block; min-width: 0; }
 .connection-card { display: flex; min-height: 100%; flex-direction: column; border-top: 3px solid var(--elevate-gold-deep); padding: 1.35rem; background: var(--elevate-surface); box-shadow: var(--elevate-shadow); }
+.connection-card.compact { min-height: 0; padding: 1rem; box-shadow: none; }
 .connection-card-topline { display: flex; align-items: center; gap: 1rem; }
 .connection-card-identity { min-width: 0; }
 .connection-card h2 { margin: 0; color: var(--elevate-black); font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.055em; line-height: .95; overflow-wrap: anywhere; }

@@ -40,6 +40,7 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
       }
       const from = params.get('from');
       if (from === 'connections') this.backRoute.set('/community/directory/connections');
+      if (from === 'home') this.backRoute.set('/community');
       if (from === 'requests') {
         this.backRoute.set('/community/directory/requests');
         const direction = params.get('direction');

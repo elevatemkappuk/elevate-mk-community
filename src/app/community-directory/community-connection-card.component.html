@@ -1,4 +1,4 @@
-<article class="connection-card" [attr.aria-labelledby]="'connection-member-' + member().directory_id">
+<article class="connection-card" [class.compact]="compact()" [attr.aria-labelledby]="'connection-member-' + member().directory_id">
   <div class="connection-card-topline">
     <app-profile-avatar size="compact" [photoUrl]="member().photo_url" [initials]="initials()" [altText]="member().first_name + ' ' + member().last_name + ' profile photo'" />
     <div class="connection-card-identity">
