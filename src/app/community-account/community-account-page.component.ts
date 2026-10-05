@@ -48,6 +48,9 @@ export class CommunityAccountPageComponent implements OnInit {
   readonly passwordEditorOpen = signal(false);
   readonly passwordSuccess = signal(false);
   readonly passwordSubmitError = signal(false);
+  readonly showCurrentPassword = signal(false);
+  readonly showNewPassword = signal(false);
+  readonly showPasswordConfirmation = signal(false);
   readonly mobileEditorOpen = signal(false);
   readonly mobileRemoveConfirmationOpen = signal(false);
   readonly savingMobile = signal(false);
@@ -86,6 +89,7 @@ export class CommunityAccountPageComponent implements OnInit {
     this.passwordSubmitError.set(false);
     this.passwordServerErrors.set({});
     this.passwordSubmitError.set(false);
+    this.resetPasswordVisibility();
     this.passwordForm.reset();
     this.passwordEditorOpen.set(true);
   }
@@ -93,6 +97,7 @@ export class CommunityAccountPageComponent implements OnInit {
   cancelPasswordChange(): void {
     if (this.changingPassword()) return;
     this.passwordForm.reset();
+    this.resetPasswordVisibility();
     this.passwordServerErrors.set({});
     this.passwordEditorOpen.set(false);
   }
@@ -188,6 +193,7 @@ export class CommunityAccountPageComponent implements OnInit {
       next: () => {
         this.changingPassword.set(false);
         this.passwordForm.reset();
+        this.resetPasswordVisibility();
         this.passwordEditorOpen.set(false);
         this.passwordSuccess.set(true);
       },
@@ -216,6 +222,12 @@ export class CommunityAccountPageComponent implements OnInit {
     return (control.invalid && control.touched) || !!this.passwordServerErrors()[field] || (field === 'confirm_password' && this.hasPasswordMismatch());
   }
 
+  togglePassword(field: 'current' | 'new' | 'confirmation'): void {
+    if (field === 'current') this.showCurrentPassword.update((visible) => !visible);
+    if (field === 'new') this.showNewPassword.update((visible) => !visible);
+    if (field === 'confirmation') this.showPasswordConfirmation.update((visible) => !visible);
+  }
+
   marketingLabel(state: CommunityAccountResponse['email_marketing']['state']): string {
     return state === 'OPTED_IN' ? 'Subscribed' : state === 'OPTED_OUT' ? 'Unsubscribed' : 'No preference set';
   }
@@ -231,6 +243,12 @@ export class CommunityAccountPageComponent implements OnInit {
   private hasPasswordMismatch(): boolean {
     const { new_password, confirm_password } = this.passwordForm.getRawValue();
     return !!new_password && !!confirm_password && this.passwordForm.hasError('mismatch');
+  }
+
+  private resetPasswordVisibility(): void {
+    this.showCurrentPassword.set(false);
+    this.showNewPassword.set(false);
+    this.showPasswordConfirmation.set(false);
   }
 
   private applyPasswordServerErrors(body: unknown): void {

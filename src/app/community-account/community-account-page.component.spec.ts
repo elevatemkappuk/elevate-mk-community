@@ -76,6 +76,54 @@ describe('CommunityAccountPageComponent', () => {
     expect(element.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
   });
 
+  it('renders three independent hidden password controls with dynamic accessible labels', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.detectChanges();
+    const controls = Array.from(fixture.nativeElement.querySelectorAll('.password-visibility-button')) as HTMLButtonElement[];
+    expect(controls).toHaveLength(3);
+    expect(controls.map((control) => control.type)).toEqual(['button', 'button', 'button']);
+    expect(controls.map((control) => control.getAttribute('aria-label'))).toEqual(['Show current password', 'Show new password', 'Show password confirmation']);
+    expect(controls.every((control) => control.getAttribute('aria-pressed') === 'false')).toBe(true);
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.password-form input')).map((input) => (input as HTMLInputElement).type)).toEqual(['password', 'password', 'password']);
+  });
+
+  it('toggles each password independently without changing its value', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.detectChanges();
+    const inputs = Array.from(fixture.nativeElement.querySelectorAll('.password-form input')) as HTMLInputElement[];
+    const controls = Array.from(fixture.nativeElement.querySelectorAll('.password-visibility-button')) as HTMLButtonElement[];
+    controls[0].click();
+    fixture.detectChanges();
+    expect(inputs.map((input) => input.type)).toEqual(['text', 'password', 'password']);
+    expect(inputs.map((input) => input.value)).toEqual(['Current-password-123!', 'New-password-456!', 'New-password-456!']);
+    expect(controls[0].getAttribute('aria-label')).toBe('Hide current password');
+    expect(controls[1].getAttribute('aria-label')).toBe('Show new password');
+    controls[1].click();
+    controls[2].click();
+    fixture.detectChanges();
+    expect(inputs.map((input) => input.type)).toEqual(['text', 'text', 'text']);
+    expect(controls.map((control) => control.getAttribute('aria-label'))).toEqual(['Hide current password', 'Hide new password', 'Hide password confirmation']);
+    expect(controls.every((control) => control.getAttribute('aria-pressed') === 'true')).toBe(true);
+  });
+
+  it('resets all password visibility after cancel and successful change', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.password-visibility-button') as HTMLButtonElement).click();
+    fixture.componentInstance.cancelPasswordChange();
+    fixture.componentInstance.beginPasswordChange();
+    fixture.detectChanges();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.password-form input')).every((input) => (input as HTMLInputElement).type === 'password')).toBe(true);
+    (fixture.nativeElement.querySelector('.password-visibility-button') as HTMLButtonElement).click();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    fixture.componentInstance.beginPasswordChange();
+    fixture.detectChanges();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.password-form input')).every((input) => (input as HTMLInputElement).type === 'password')).toBe(true);
+  });
+
   it('keeps the password action disabled for mismatch and enables it for a valid form', () => {
     fixture.componentInstance.beginPasswordChange();
     fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'Different-password-789!' });
