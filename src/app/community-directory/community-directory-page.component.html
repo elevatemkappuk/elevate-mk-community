@@ -9,7 +9,7 @@
     </header>
 
     <section class="connect-filters" aria-labelledby="discover-title">
-      <div class="filters-heading">
+      <div class="section-heading">
         <div>
           <p class="eyebrow">Discover</p>
           <h2 id="discover-title">Find your people</h2>
@@ -54,7 +54,7 @@
       </section>
     } @else {
       <section class="connect-results" aria-labelledby="results-title">
-        <div class="results-heading"><h2 id="results-title">Community members</h2><p>{{ totalCount() }} {{ totalCount() === 1 ? 'member' : 'members' }}</p></div>
+        <div class="section-heading results-heading"><h2 id="results-title">Community members</h2><p>{{ totalCount() }} {{ totalCount() === 1 ? 'member' : 'members' }}</p></div>
         <div class="member-grid">
           @for (member of members(); track member.directory_id) { <app-community-directory-member-card [member]="member" [queryParams]="connectQueryParams()" /> }
         </div>
