@@ -28,7 +28,7 @@ export interface DirectoryMember {
   };
   skills: DirectoryTaxonomyOption[];
   interests: DirectoryTaxonomyOption[];
-  relationship: DirectoryRelationship;
+  relationship?: DirectoryRelationship;
 }
 
 export type DirectoryRelationshipState = 'NO_RELATIONSHIP' | 'OUTGOING_PENDING' | 'INCOMING_PENDING' | 'CONNECTED';

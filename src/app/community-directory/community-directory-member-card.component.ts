@@ -22,6 +22,7 @@ export class CommunityDirectoryMemberCardComponent {
 
   relationshipLabel(): string {
     const relationship = this.member().relationship;
+    if (!relationship) return '';
     if (relationship.state === 'CONNECTED') return 'Connected';
     if (relationship.state === 'OUTGOING_PENDING') return 'Request sent';
     if (relationship.state === 'INCOMING_PENDING') return 'Respond to request';

@@ -40,4 +40,11 @@ describe('CommunityDirectoryMemberCardComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.member-relationship')).toBeNull();
   });
+
+  it('does not require an optional relationship on compact connection-member projections', () => {
+    const memberWithoutRelationship: DirectoryMember = { ...member, relationship: undefined };
+    fixture.componentRef.setInput('member', memberWithoutRelationship);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.member-relationship')).toBeNull();
+  });
 });
