@@ -15,10 +15,10 @@ const account: CommunityAccountResponse = {
 
 describe('CommunityAccountPageComponent', () => {
   let fixture: ComponentFixture<CommunityAccountPageComponent>;
-  let accountService: { getAccount: ReturnType<typeof vi.fn> };
+  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    accountService = { getAccount: vi.fn(() => of(account)) };
+    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })) };
     await TestBed.configureTestingModule({
       imports: [CommunityAccountPageComponent],
       providers: [
@@ -54,7 +54,7 @@ describe('CommunityAccountPageComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Unsubscribed');
     expect(fixture.nativeElement.textContent).not.toContain('Opted out');
-    expect(fixture.nativeElement.querySelectorAll('.account-main button').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('.account-main button').length).toBe(1);
   });
 
   it('shows a safe loading error and retry control', () => {
@@ -64,5 +64,44 @@ describe('CommunityAccountPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('We couldn’t load your account');
     expect(fixture.nativeElement.textContent).not.toContain('internal');
     expect(fixture.nativeElement.querySelector('.account-state button')?.textContent).toContain('Try again');
+  });
+
+  it('opens an accessible change-password form with semantic autocomplete fields', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('.security-card > button[type="button"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('#current-password')?.getAttribute('autocomplete')).toBe('current-password');
+    expect(element.querySelector('#new-password')?.getAttribute('autocomplete')).toBe('new-password');
+    expect(element.querySelector('#confirm-new-password')?.getAttribute('autocomplete')).toBe('new-password');
+    expect(element.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('keeps the password action disabled for mismatch and enables it for a valid form', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'Different-password-789!' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+    fixture.componentInstance.passwordForm.controls.confirm_password.setValue('New-password-456!');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(false);
+  });
+
+  it('submits the expected values, clears the form and shows success', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    expect(accountService.changePassword).toHaveBeenCalledWith({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    expect(fixture.nativeElement.textContent).toContain('Your password has been changed successfully.');
+    expect(fixture.componentInstance.passwordForm.getRawValue()).toEqual({ current_password: '', new_password: '', confirm_password: '' });
+  });
+
+  it('keeps current-password API errors member-safe and visible inline', () => {
+    accountService.changePassword.mockReturnValue(throwError(() => ({ body: { fields: { current_password: ['The current password is incorrect.'] } } })));
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'wrong-password', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('The current password is incorrect.');
   });
 });

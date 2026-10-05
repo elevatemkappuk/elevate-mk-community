@@ -17,6 +17,17 @@ h1 { margin-bottom: 1rem; color: var(--elevate-black); font-size: clamp(3rem, 7v
 .status-label { color: var(--elevate-black); font-size: 1.15rem; font-weight: 850; }
 .future-note { border-left: 3px solid var(--elevate-gold-deep); padding-left: 1rem; }
 .security-card { grid-column: 1 / -1; max-width: 700px; }
+.password-form { max-width: 620px; margin-top: 1.75rem; }
+.field-group { margin-bottom: 1.25rem; }
+.field-group label { display: block; margin-bottom: .55rem; color: var(--elevate-black); font-size: .9rem; font-weight: 800; }
+.field-group input { width: 100%; min-height: 3.25rem; border: 1px solid var(--elevate-border); padding: .75rem 1rem; background: var(--elevate-surface); color: var(--elevate-ink); font: inherit; box-sizing: border-box; }
+.field-group input:focus { border-color: var(--elevate-focus); outline: 3px solid rgb(205 153 23 / 18%); outline-offset: 1px; }
+.field-group input[aria-invalid="true"] { border-color: var(--elevate-error, #9a2f24); }
+.field-error { margin: .45rem 0 0; color: var(--elevate-error, #9a2f24); font-size: .85rem; line-height: 1.4; }
+.password-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1.75rem; }
+.password-actions .secondary-button { margin-top: 0; }
+.account-button:disabled { opacity: .55; cursor: not-allowed; }
+.success-message { border-left: 3px solid var(--elevate-gold-deep); padding-left: 1rem; color: var(--elevate-black); font-weight: 750; }
 .account-button { display: inline-block; border: 0; padding: .9rem 1.3rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; cursor: pointer; text-decoration: none; }
 .account-button:hover { background: var(--elevate-gold-deep); color: var(--elevate-black); }
 .account-button:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 3px; }

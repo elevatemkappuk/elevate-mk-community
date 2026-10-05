@@ -11,7 +11,6 @@ import { CommunityProfilePageComponent } from './community-profile/community-pro
 import { CommunityProfileEditPageComponent } from './community-profile-edit/community-profile-edit-page.component';
 import { CommunityDirectoryPageComponent } from './community-directory/community-directory-page.component';
 import { CommunityDirectoryProfilePageComponent } from './community-directory/community-directory-profile-page.component';
-import { CommunityAccountPageComponent } from './community-account/community-account-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'join' },
@@ -25,7 +24,7 @@ export const routes: Routes = [
   { path: 'community', loadComponent: () => import('./community-home/community-home-page.component').then((module) => module.CommunityHomePageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile/edit', component: CommunityProfileEditPageComponent, canActivate: [communityAuthGuard] },
-  { path: 'community/account', component: CommunityAccountPageComponent, canActivate: [communityAuthGuard] },
+  { path: 'community/account', loadComponent: () => import('./community-account/community-account-page.component').then((module) => module.CommunityAccountPageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/directory', component: CommunityDirectoryPageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/directory/connections', loadComponent: () => import('./community-directory/community-connections-page.component').then((module) => module.CommunityConnectionsPageComponent), data: { section: 'connections' }, canActivate: [communityAuthGuard] },
   { path: 'community/directory/requests', loadComponent: () => import('./community-directory/community-connections-page.component').then((module) => module.CommunityConnectionsPageComponent), data: { section: 'requests' }, canActivate: [communityAuthGuard] },
