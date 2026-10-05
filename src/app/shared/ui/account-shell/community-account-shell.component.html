@@ -3,13 +3,13 @@
   [class.account-shell-security]="variant() === 'account-security'"
   [class.account-shell-wide-form]="formWidth() === 'wide'"
   [class.account-shell-form-raised]="formPosition() === 'raised'">
-  <div class="account-shell-header">
+  <div class="shell-header">
     <app-community-header [showSignIn]="showSignIn()" layout="activation" />
   </div>
-  <main class="account-shell-grid">
-    <section class="account-shell-hero" aria-label="Community introduction">
-      <div class="account-shell-hero-inner"><ng-content select="[account-hero]"></ng-content></div>
+  <main class="shell-grid">
+    <section class="shell-hero" aria-label="Community introduction">
+      <div class="shell-hero-inner"><ng-content select="[account-hero]"></ng-content></div>
     </section>
-    <section class="account-shell-form-panel"><div class="account-shell-form-inner"><ng-content select="[account-form]"></ng-content></div></section>
+    <section class="shell-form-panel"><div class="shell-form-inner"><ng-content select="[account-form]"></ng-content></div></section>
   </main>
 </div>
