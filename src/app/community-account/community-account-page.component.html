@@ -1,0 +1,18 @@
+<div class="community-account-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="account-main" aria-labelledby="account-title">
+    @if (loading()) {
+      <section class="account-state" aria-live="polite"><p class="eyebrow">Account &amp; preferences</p><h1 id="account-title">Loading your account</h1><p>We’re bringing your account details together.</p></section>
+    } @else if (loadError()) {
+      <section class="account-state" role="alert" aria-labelledby="account-error-title"><p class="eyebrow">Account &amp; preferences</p><h1 id="account-error-title">We couldn’t load your account</h1><p>Please try again. Your account is still safe.</p><button class="account-button" type="button" (click)="retry()">Try again</button></section>
+    } @else if (account(); as data) {
+      <header class="account-heading"><p class="eyebrow">Account &amp; preferences</p><h1 id="account-title">Your account</h1><p>Manage the account details that keep you connected to Elevate MK Community.</p></header>
+      <div class="account-grid">
+        <section class="account-card" aria-labelledby="contact-title"><p class="eyebrow">Account &amp; contact</p><h2 id="contact-title">Your contact details</h2><dl class="detail-list"><div><dt>Email address</dt><dd>{{ data.email || 'Not available' }}</dd></div><div><dt>Mobile number</dt><dd>{{ data.mobile.present ? data.mobile.masked : 'Not added' }}</dd></div></dl><p class="card-note">Email and mobile are stored as your canonical contact details. Changes will be available in a future release.</p></section>
+        <section class="account-card" aria-labelledby="marketing-title"><p class="eyebrow">Communication preferences</p><h2 id="marketing-title">Email updates</h2><p class="status-label">{{ marketingLabel(data.email_marketing.state) }}</p><p>{{ marketingCopy(data.email_marketing.state) }}</p><p class="card-note">This preference is separate from whether other Community members can see your contact details in Connect.</p><p class="future-note">Preference controls will be available in a future release.</p></section>
+        <section class="account-card security-card" aria-labelledby="security-title"><p class="eyebrow">Security</p><h2 id="security-title">Password &amp; sign-in</h2><p>{{ data.password.configured ? 'Your Community account has a password.' : 'Your Community account does not have a password configured.' }}</p><p class="future-note">Password management will be available in a future release.</p></section>
+      </div>
+      <a class="account-button secondary-button" routerLink="/community/profile">Back to My Profile</a>
+    }
+  </main>
+</div>

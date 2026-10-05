@@ -29,7 +29,7 @@
             @if (data.person.location) { <p class="identity-location">{{ data.person.location }}</p> }
             <p class="member-context">Active Elevate MK Community member · Member since {{ data.membership.joined_at | date: 'd MMM y' }}</p>
           </div>
-          <a class="profile-button profile-edit-link" routerLink="/community/profile/edit">Edit profile</a>
+          <div class="profile-actions"><a class="profile-button" routerLink="/community/profile/edit">Edit profile</a><a class="profile-button secondary-action" routerLink="/community/account">Account &amp; preferences</a></div>
         </div>
         @if (data.community.review_required) {
           <aside class="review-banner" aria-labelledby="review-title">

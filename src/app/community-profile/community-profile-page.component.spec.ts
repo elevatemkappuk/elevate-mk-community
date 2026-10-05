@@ -76,6 +76,10 @@ describe('CommunityProfilePageComponent', () => {
     expect(element.querySelector('a[href="/community/directory/member-1"]')).not.toBeNull();
   });
 
+  it('links the member to the read-only Account and preferences page', () => {
+    expect(fixture.nativeElement.querySelector('a[href="/community/account"]')?.textContent).toContain('Account & preferences');
+  });
+
   it('shows Edit visibility without exposing the directory id when hidden', () => {
     profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: false } }));
     fixture = TestBed.createComponent(CommunityProfilePageComponent);
