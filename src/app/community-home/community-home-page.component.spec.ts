@@ -9,6 +9,7 @@ import { CommunityHomePageComponent } from './community-home-page.component';
 const member: DirectoryMember = {
   directory_id: 'member-1', photo_url: null, first_name: 'Helen', last_name: 'Amoako', location: 'Milton Keynes',
   professional: { job_title: 'CEO', company: 'Example', industry: null }, skills: [], interests: [],
+  relationship: { state: 'CONNECTED', connection_id: 'connection-1', can_connect: false, can_accept: false, can_decline: false, can_remove: true },
 };
 
 const request = (id: string): ConnectionRequestRecord => ({

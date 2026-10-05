@@ -28,6 +28,7 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
   readonly signingOut = signal(false);
   readonly backQueryParams = signal<Record<string, string>>({});
   readonly backRoute = signal('/community/directory');
+  readonly backLabel = signal('Back to Connect');
   readonly mutationLoading = signal(false);
   readonly mutationError = signal<string | null>(null);
 
@@ -39,10 +40,18 @@ export class CommunityDirectoryProfilePageComponent implements OnInit {
         if (value) query[key] = value;
       }
       const from = params.get('from');
-      if (from === 'connections') this.backRoute.set('/community/directory/connections');
-      if (from === 'home') this.backRoute.set('/community');
+      if (from === 'discover') this.backLabel.set('Back to Discover');
+      if (from === 'connections') {
+        this.backRoute.set('/community/directory/connections');
+        this.backLabel.set('Back to My connections');
+      }
+      if (from === 'home') {
+        this.backRoute.set('/community');
+        this.backLabel.set('Back to Home');
+      }
       if (from === 'requests') {
         this.backRoute.set('/community/directory/requests');
+        this.backLabel.set('Back to Requests');
         const direction = params.get('direction');
         if (direction === 'incoming' || direction === 'outgoing') query['direction'] = direction;
       }

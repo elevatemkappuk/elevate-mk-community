@@ -39,7 +39,7 @@ describe('CommunityDirectoryProfilePageComponent', () => {
         { provide: CommunityAuthService, useValue: { logout: vi.fn().mockReturnValue(of({})) } },
         { provide: ActivatedRoute, useValue: {
           snapshot: { paramMap: convertToParamMap({ directoryId: 'member-1' }) },
-          queryParamMap: of(convertToParamMap({ q: 'Amina', page: '2' })),
+          queryParamMap: of(convertToParamMap({ q: 'Amina', page: '2', from: 'discover' })),
         } },
       ],
     }).compileComponents();
@@ -53,7 +53,7 @@ describe('CommunityDirectoryProfilePageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Strategy');
     expect(fixture.nativeElement.querySelector('a[href="mailto:amina@example.test"]')).not.toBeNull();
     const backLink = fixture.nativeElement.querySelector('.back-link') as HTMLAnchorElement;
-    expect(backLink.textContent).toContain('Back to Connect');
+    expect(backLink.textContent).toContain('Back to Discover');
     expect(backLink.href).toContain('q=Amina');
     expect(backLink.href).toContain('page=2');
     expect(fixture.nativeElement.textContent).not.toContain('directory_visible');

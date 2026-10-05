@@ -18,17 +18,27 @@
       </div>
       <div class="filter-grid" [formGroup]="filterForm">
         <div class="search-field">
-          <label for="connect-search">Search by name</label>
+          <label for="connect-search">Search by name or location</label>
           <div class="search-control">
-            <input id="connect-search" type="search" [formControl]="searchControl" placeholder="Search by name" autocomplete="off" />
-            @if (searchControl.value) { <button type="button" class="clear-search" aria-label="Clear name search" (click)="clearSearch()">×</button> }
+            <input id="connect-search" type="search" [formControl]="searchControl" placeholder="Search by name or location" autocomplete="off" />
+            @if (searchControl.value) { <button type="button" class="clear-search" aria-label="Clear name or location search" (click)="clearSearch()">×</button> }
           </div>
         </div>
         <app-select id="connect-industry" formControlName="industry" placeholder="Industry" [options]="industryOptions()" />
         <app-select id="connect-skill" formControlName="skill" placeholder="Skills" [options]="skillOptions()" />
         <app-select id="connect-interest" formControlName="interest" placeholder="Interests" [options]="interestOptions()" />
       </div>
-      @if (optionsError()) { <p class="options-note" role="status">Some filters are temporarily unavailable. You can still search by name.</p> }
+      @if (optionsError()) { <p class="options-note" role="status">Some filters are temporarily unavailable. You can still search by name or location.</p> }
+      @if (activeStructuredFilters().length) {
+        <div class="active-filters" role="region" aria-labelledby="active-filters-title">
+          <span id="active-filters-title" class="active-filters-label">Active filters</span>
+          <ul>
+            @for (filter of activeStructuredFilters(); track filter.key) {
+              <li><button type="button" (click)="clearFilter(filter.key)" [attr.aria-label]="'Remove ' + filter.label + ' filter: ' + filter.valueLabel">{{ filter.label }}: {{ filter.valueLabel }} <span aria-hidden="true">×</span></button></li>
+            }
+          </ul>
+        </div>
+      }
     </section>
 
     @if (loading()) {

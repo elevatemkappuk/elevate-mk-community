@@ -27,6 +27,7 @@ const page: DirectoryPage = {
     professional: { job_title: 'Designer', company: 'Elevate MK', industry: { slug: 'technology', label: 'Technology' } },
     skills: [{ slug: 'strategy', label: 'Strategy' }],
     interests: [{ slug: 'networking', label: 'Networking' }],
+    relationship: { state: 'NO_RELATIONSHIP', connection_id: null, can_connect: true, can_accept: false, can_decline: false, can_remove: false },
   }],
 };
 
@@ -57,8 +58,20 @@ describe('CommunityDirectoryPageComponent', () => {
     expect(fixture.componentInstance.page()).toBe(2);
     expect(element.textContent).toContain('Amina Zulu');
     expect(element.textContent).toContain('Strategy');
+    expect(element.textContent).toContain('Active filters');
+    expect(element.textContent).toContain('Industry: Technology');
+    expect(element.querySelector('.clear-search')?.getAttribute('aria-label')).toBe('Clear name or location search');
+    expect(element.querySelector('.active-filters')?.getAttribute('role')).toBe('region');
     expect(element.textContent).not.toContain('ada@example.com');
     expect(element.querySelector('app-profile-avatar')).not.toBeNull();
+  });
+
+  it('derives removable structured filters from the selected taxonomy options', () => {
+    expect(fixture.componentInstance.activeStructuredFilters()).toEqual([
+      { key: 'industry', label: 'Industry', valueLabel: 'Technology' },
+    ]);
+    fixture.componentInstance.clearFilter('industry');
+    expect(fixture.componentInstance.filterForm.controls.industry.value).toBe('');
   });
 
   it('shows a safe empty state and member-friendly throttling error', () => {

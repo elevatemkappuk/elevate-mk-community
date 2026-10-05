@@ -19,4 +19,12 @@ export class CommunityDirectoryMemberCardComponent {
     const member = this.member();
     return `${member.first_name.charAt(0)}${member.last_name.charAt(0)}`.toUpperCase();
   }
+
+  relationshipLabel(): string {
+    const relationship = this.member().relationship;
+    if (relationship.state === 'CONNECTED') return 'Connected';
+    if (relationship.state === 'OUTGOING_PENDING') return 'Request sent';
+    if (relationship.state === 'INCOMING_PENDING') return 'Respond to request';
+    return relationship.can_connect ? 'Available to connect' : '';
+  }
 }

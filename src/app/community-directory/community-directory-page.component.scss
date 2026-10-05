@@ -9,7 +9,7 @@ h1 { margin-bottom: 1.2rem; color: var(--elevate-black); font-size: clamp(4rem, 
 .filters-heading, .results-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .filters-heading h2, .results-heading h2 { margin-bottom: 0; color: var(--elevate-black); font-size: clamp(1.55rem, 3vw, 2.35rem); letter-spacing: -.06em; line-height: .95; }
 .clear-filters { border: 0; border-bottom: 1px solid currentColor; padding: .3rem 0; background: transparent; font: inherit; font-weight: 800; cursor: pointer; }
-.clear-filters:focus-visible, .clear-search:focus-visible, .pagination button:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
+.clear-filters:focus-visible, .clear-search:focus-visible, .pagination button:focus-visible, .active-filters button:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
 .filter-grid { display: grid; grid-template-columns: minmax(15rem, 2fr) repeat(3, minmax(10rem, 1fr)); gap: 1rem; align-items: end; margin-top: 1.4rem; }
 .search-field { display: grid; gap: .5rem; }
 .search-field label { color: var(--elevate-black); font-size: .78rem; font-weight: 800; }
@@ -18,6 +18,10 @@ h1 { margin-bottom: 1.2rem; color: var(--elevate-black); font-size: clamp(4rem, 
 .search-control input:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 2px; }
 .clear-search { position: absolute; top: 50%; right: .7rem; width: 1.8rem; height: 1.8rem; transform: translateY(-50%); border: 0; border-radius: 50%; background: var(--elevate-page); color: var(--elevate-black); font-size: 1.2rem; line-height: 1; cursor: pointer; }
 .options-note { color: var(--elevate-muted); }
+.active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: 1.15rem 0 .75rem; }
+.active-filters-label { color: var(--elevate-black); font-size: .78rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.active-filters ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.active-filters button { max-width: 100%; min-height: 2.35rem; border: 1px solid var(--elevate-border); padding: .45rem .7rem; background: var(--elevate-surface); color: var(--elevate-ink); font: inherit; font-size: .82rem; font-weight: 750; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
 .results-heading { margin-bottom: 1.25rem; }
 .results-heading p { color: var(--elevate-muted); font-size: .9rem; }
 .member-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }

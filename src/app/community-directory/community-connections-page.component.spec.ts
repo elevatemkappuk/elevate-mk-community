@@ -10,6 +10,7 @@ const member: DirectoryMember = {
   directory_id: 'member-1', photo_url: null, first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes',
   professional: { job_title: 'Product lead', company: 'Elevate', industry: { slug: 'technology', label: 'Technology' } },
   skills: [], interests: [],
+  relationship: { state: 'CONNECTED', connection_id: 'connection-1', can_connect: false, can_accept: false, can_decline: false, can_remove: true },
 };
 
 const connectionsPage: ConnectionPage<{ connection_id: string; member: DirectoryMember }> = {
@@ -73,6 +74,7 @@ describe('CommunityConnectionsPageComponent', () => {
     await createComponent();
     expect(fixture.nativeElement.textContent).toContain('No connections yet');
     expect(fixture.nativeElement.textContent).toContain('Discover members');
+    expect(fixture.nativeElement.textContent).not.toContain('conversation');
   });
 
   it('loads incoming requests by default and refreshes after Accept', async () => {

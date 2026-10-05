@@ -12,6 +12,14 @@ import { SelectComponent, SelectOption } from '../shared/ui/select/select.compon
 import { CommunityDirectoryMemberCardComponent } from './community-directory-member-card.component';
 import { CommunityConnectNavComponent } from './community-connect-nav.component';
 
+type StructuredFilterKey = 'industry' | 'skill' | 'interest';
+
+interface ActiveStructuredFilter {
+  key: StructuredFilterKey;
+  label: string;
+  valueLabel: string;
+}
+
 @Component({
   selector: 'app-community-directory-page',
   imports: [CommunityHeaderComponent, CommunityDirectoryMemberCardComponent, CommunityConnectNavComponent, ReactiveFormsModule, SelectComponent],
@@ -81,6 +89,21 @@ export class CommunityDirectoryPageComponent implements OnInit {
   skillOptions(): SelectOption[] { return this.toSelectOptions(this.options()?.skills); }
   interestOptions(): SelectOption[] { return this.toSelectOptions(this.options()?.interests); }
 
+  activeStructuredFilters(): ActiveStructuredFilter[] {
+    const labels: Record<StructuredFilterKey, string> = { industry: 'Industry', skill: 'Skill', interest: 'Interest' };
+    return (['industry', 'skill', 'interest'] as const).flatMap((key) => {
+      const value = this.filterForm.controls[key].value;
+      if (!value) return [];
+      const option = this.optionsFor(key).find((item) => item.slug === value);
+      return [{ key, label: labels[key], valueLabel: option?.label ?? this.humanizeFilterValue(value) }];
+    });
+  }
+
+  clearFilter(key: StructuredFilterKey): void {
+    this.filterForm.controls[key].setValue('', { emitEvent: false });
+    this.navigateWithState(1, false);
+  }
+
   retry(): void {
     this.loadDirectory();
   }
@@ -116,7 +139,7 @@ export class CommunityDirectoryPageComponent implements OnInit {
   }
 
   connectQueryParams(): Record<string, string> {
-    const params: Record<string, string> = {};
+    const params: Record<string, string> = { from: 'discover' };
     const q = this.searchControl.value.trim();
     if (q) params['q'] = q;
     for (const key of ['industry', 'skill', 'interest'] as const) {
@@ -171,5 +194,17 @@ export class CommunityDirectoryPageComponent implements OnInit {
 
   private toSelectOptions(options: Array<{ slug: string; label: string }> | undefined): SelectOption[] {
     return (options || []).map((option) => ({ value: option.slug, label: option.label }));
+  }
+
+  private optionsFor(key: StructuredFilterKey): Array<{ slug: string; label: string }> {
+    const options = this.options();
+    if (!options) return [];
+    if (key === 'industry') return options.industries;
+    if (key === 'skill') return options.skills;
+    return options.interests;
+  }
+
+  private humanizeFilterValue(value: string): string {
+    return value.replaceAll('_', ' ').replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
   }
 }
