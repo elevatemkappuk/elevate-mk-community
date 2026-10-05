@@ -16,6 +16,10 @@ export interface CommunityMobileUpdateRequest {
   phone_region: string;
 }
 
+export interface CommunityMarketingPreferenceRequest {
+  email_marketing: boolean;
+}
+
 export interface CommunityAccountResponse {
   email: string;
   mobile: { present: boolean; masked: string | null };
@@ -49,6 +53,15 @@ export class CommunityAccountService {
     return this.auth.bootstrapCsrf().pipe(
       switchMap(() => this.http.patch<CommunityAccountResponse>(
         `${this.apiConfig.apiBaseUrl}/community/account/mobile/`, request, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  updateMarketingPreference(request: CommunityMarketingPreferenceRequest): Observable<CommunityAccountResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.patch<CommunityAccountResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/account/marketing-preference/`, request, { withCredentials: true },
       )),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );

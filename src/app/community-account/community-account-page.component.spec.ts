@@ -15,10 +15,10 @@ const account: CommunityAccountResponse = {
 
 describe('CommunityAccountPageComponent', () => {
   let fixture: ComponentFixture<CommunityAccountPageComponent>;
-  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn> };
+  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn>; updateMarketingPreference: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)) };
+    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)), updateMarketingPreference: vi.fn(() => of(account)) };
     await TestBed.configureTestingModule({
       imports: [CommunityAccountPageComponent],
       providers: [
@@ -35,7 +35,7 @@ describe('CommunityAccountPageComponent', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('member@example.com');
     expect(element.textContent).toContain('+44******0123');
-    expect(element.textContent).toContain('Subscribed');
+    expect(element.textContent).toContain('Email updates are on');
     expect(element.textContent).toContain('separate from whether other Community members can see your contact details in Connect');
     expect(element.querySelector('button[type="submit"]')).toBeNull();
   });
@@ -52,7 +52,7 @@ describe('CommunityAccountPageComponent', () => {
     accountService.getAccount.mockReturnValue(of({ ...account, email_marketing: { state: 'OPTED_OUT' } }));
     fixture = TestBed.createComponent(CommunityAccountPageComponent);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Unsubscribed');
+    expect(fixture.nativeElement.textContent).toContain('Email updates are off');
     expect(fixture.nativeElement.textContent).not.toContain('Opted out');
     expect(fixture.nativeElement.querySelectorAll('.contact-actions button').length).toBe(2);
   });
@@ -66,6 +66,37 @@ describe('CommunityAccountPageComponent', () => {
     expect(fixture.nativeElement.querySelector('.account-state button')?.textContent).toContain('Try again');
   });
 
+  it('keeps UNKNOWN explicit and offers separate receive/no-thanks choices without loading mutation', () => {
+    accountService.getAccount.mockReturnValue(of({ ...account, email_marketing: { state: 'UNKNOWN' } }));
+    fixture = TestBed.createComponent(CommunityAccountPageComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('No preference set');
+    expect(fixture.nativeElement.textContent).toContain('You have not chosen whether to receive');
+    expect(fixture.nativeElement.textContent).not.toContain('Email updates are off');
+    expect(fixture.nativeElement.querySelectorAll('.marketing-choice-actions button')).toHaveLength(2);
+    expect(accountService.updateMarketingPreference).not.toHaveBeenCalled();
+  });
+
+  it('saves an explicit marketing choice and renders the authoritative response', () => {
+    const optedOut = { ...account, email_marketing: { state: 'OPTED_OUT' as const } };
+    accountService.getAccount.mockReturnValue(of({ ...account, email_marketing: { state: 'UNKNOWN' } }));
+    accountService.updateMarketingPreference.mockReturnValue(of(optedOut));
+    fixture = TestBed.createComponent(CommunityAccountPageComponent);
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.marketing-choice-actions button:last-child') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(accountService.updateMarketingPreference).toHaveBeenCalledWith({ email_marketing: false });
+    expect(fixture.nativeElement.textContent).toContain('Email updates are off');
+    expect(fixture.nativeElement.textContent).toContain('Email updates are now off.');
+  });
+
+  it('uses the switch for an existing preference and preserves the Connect privacy explanation', () => {
+    fixture.componentInstance.saveMarketingPreference(true);
+    fixture.detectChanges();
+    expect(accountService.updateMarketingPreference).toHaveBeenCalledWith({ email_marketing: true });
+    expect(fixture.nativeElement.textContent).toContain('separate from whether other Community members can see your contact details in Connect');
+  });
+
   it('opens an accessible change-password form with semantic autocomplete fields', () => {
     const element = fixture.nativeElement as HTMLElement;
     (element.querySelector('.security-card > button[type="button"]') as HTMLButtonElement).click();
@@ -76,14 +107,16 @@ describe('CommunityAccountPageComponent', () => {
     expect(element.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
   });
 
-  it('renders three independent hidden password controls with dynamic accessible labels', () => {
+  it('renders three independent hidden SHOW controls with dynamic accessible labels', () => {
     fixture.componentInstance.beginPasswordChange();
     fixture.detectChanges();
-    const controls = Array.from(fixture.nativeElement.querySelectorAll('.password-visibility-button')) as HTMLButtonElement[];
+    const controls = Array.from(fixture.nativeElement.querySelectorAll('.visibility-button')) as HTMLButtonElement[];
     expect(controls).toHaveLength(3);
     expect(controls.map((control) => control.type)).toEqual(['button', 'button', 'button']);
     expect(controls.map((control) => control.getAttribute('aria-label'))).toEqual(['Show current password', 'Show new password', 'Show password confirmation']);
     expect(controls.every((control) => control.getAttribute('aria-pressed') === 'false')).toBe(true);
+    expect(controls.map((control) => control.textContent?.trim())).toEqual(['Show', 'Show', 'Show']);
+    expect(fixture.nativeElement.querySelector('.password-form svg')).toBeNull();
     expect(Array.from(fixture.nativeElement.querySelectorAll('.password-form input')).map((input) => (input as HTMLInputElement).type)).toEqual(['password', 'password', 'password']);
   });
 
@@ -92,7 +125,7 @@ describe('CommunityAccountPageComponent', () => {
     fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
     fixture.detectChanges();
     const inputs = Array.from(fixture.nativeElement.querySelectorAll('.password-form input')) as HTMLInputElement[];
-    const controls = Array.from(fixture.nativeElement.querySelectorAll('.password-visibility-button')) as HTMLButtonElement[];
+    const controls = Array.from(fixture.nativeElement.querySelectorAll('.visibility-button')) as HTMLButtonElement[];
     controls[0].click();
     fixture.detectChanges();
     expect(inputs.map((input) => input.type)).toEqual(['text', 'password', 'password']);
@@ -110,12 +143,12 @@ describe('CommunityAccountPageComponent', () => {
   it('resets all password visibility after cancel and successful change', () => {
     fixture.componentInstance.beginPasswordChange();
     fixture.detectChanges();
-    (fixture.nativeElement.querySelector('.password-visibility-button') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('.visibility-button') as HTMLButtonElement).click();
     fixture.componentInstance.cancelPasswordChange();
     fixture.componentInstance.beginPasswordChange();
     fixture.detectChanges();
     expect(Array.from(fixture.nativeElement.querySelectorAll('.password-form input')).every((input) => (input as HTMLInputElement).type === 'password')).toBe(true);
-    (fixture.nativeElement.querySelector('.password-visibility-button') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('.visibility-button') as HTMLButtonElement).click();
     fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
     fixture.componentInstance.submitPasswordChange();
     fixture.detectChanges();

@@ -10,15 +10,17 @@ import { CommunityAuthService } from './community-auth.service';
 describe('CommunityAccountService', () => {
   let service: CommunityAccountService;
   let http: HttpTestingController;
+  let bootstrapCsrf: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    bootstrapCsrf = vi.fn(() => of(void 0));
     TestBed.configureTestingModule({
       providers: [
         CommunityAccountService,
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_CONFIG, useValue: { apiBaseUrl: 'http://api.test/api/v1' } },
-        { provide: CommunityAuthService, useValue: { bootstrapCsrf: () => of(void 0) } },
+        { provide: CommunityAuthService, useValue: { bootstrapCsrf } },
       ],
     });
     service = TestBed.inject(CommunityAccountService);
@@ -50,5 +52,15 @@ describe('CommunityAccountService', () => {
     expect(request.request.body).toEqual({ mobile: '07123456789', phone_region: 'GB' });
     expect(request.request.withCredentials).toBe(true);
     request.flush({ email: 'member@example.com', mobile: { present: true, masked: '+44******6789' }, email_marketing: { state: 'UNKNOWN' }, password: { configured: true } });
+  });
+
+  it('bootstraps CSRF and sends the email marketing PATCH DTO', () => {
+    service.updateMarketingPreference({ email_marketing: false }).subscribe((response) => expect(response.email_marketing.state).toBe('OPTED_OUT'));
+    expect(bootstrapCsrf).toHaveBeenCalledTimes(1);
+    const request = http.expectOne('http://api.test/api/v1/community/account/marketing-preference/');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ email_marketing: false });
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ email: 'member@example.com', mobile: { present: false, masked: null }, email_marketing: { state: 'OPTED_OUT' }, password: { configured: true } });
   });
 });

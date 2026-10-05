@@ -56,6 +56,9 @@ export class CommunityAccountPageComponent implements OnInit {
   readonly savingMobile = signal(false);
   readonly mobileSuccess = signal('');
   readonly mobileSubmitError = signal('');
+  readonly marketingSaving = signal(false);
+  readonly marketingSuccess = signal('');
+  readonly marketingSubmitError = signal('');
   readonly mobileServerErrors = signal<Partial<Record<keyof MobileForm, string>>>({});
   readonly mobileForm = new FormGroup<MobileForm>({
     mobile: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -229,7 +232,7 @@ export class CommunityAccountPageComponent implements OnInit {
   }
 
   marketingLabel(state: CommunityAccountResponse['email_marketing']['state']): string {
-    return state === 'OPTED_IN' ? 'Subscribed' : state === 'OPTED_OUT' ? 'Unsubscribed' : 'No preference set';
+    return state === 'OPTED_IN' ? 'Email updates are on' : state === 'OPTED_OUT' ? 'Email updates are off' : 'No preference set';
   }
 
   marketingCopy(state: CommunityAccountResponse['email_marketing']['state']): string {
@@ -237,7 +240,29 @@ export class CommunityAccountPageComponent implements OnInit {
       ? 'You are subscribed to Elevate MK Community email updates.'
       : state === 'OPTED_OUT'
         ? 'You are not subscribed to Elevate MK Community email updates.'
-        : 'You have not set an email marketing preference.';
+        : 'You have not chosen whether to receive Elevate MK Community email updates.';
+  }
+
+  saveMarketingPreference(email_marketing: boolean): void {
+    if (this.marketingSaving()) return;
+    this.marketingSaving.set(true);
+    this.marketingSuccess.set('');
+    this.marketingSubmitError.set('');
+    this.accountService.updateMarketingPreference({ email_marketing }).subscribe({
+      next: (account) => {
+        this.account.set(account);
+        this.marketingSaving.set(false);
+        this.marketingSuccess.set(email_marketing ? 'Email updates are now on.' : 'Email updates are now off.');
+      },
+      error: () => {
+        this.marketingSaving.set(false);
+        this.marketingSubmitError.set("We couldn't update your email preference right now. Please try again.");
+      },
+    });
+  }
+
+  onMarketingToggle(event: Event): void {
+    this.saveMarketingPreference((event.target as HTMLInputElement).checked);
   }
 
   private hasPasswordMismatch(): boolean {
