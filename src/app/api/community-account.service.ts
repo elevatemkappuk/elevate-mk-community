@@ -11,6 +11,11 @@ export interface CommunityPasswordChangeRequest {
   confirm_password: string;
 }
 
+export interface CommunityMobileUpdateRequest {
+  mobile: string;
+  phone_region: string;
+}
+
 export interface CommunityAccountResponse {
   email: string;
   mobile: { present: boolean; masked: string | null };
@@ -35,6 +40,15 @@ export class CommunityAccountService {
     return this.auth.bootstrapCsrf().pipe(
       switchMap(() => this.http.post<{ detail: string }>(
         `${this.apiConfig.apiBaseUrl}/community/account/password/`, request, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  updateMobile(request: CommunityMobileUpdateRequest): Observable<CommunityAccountResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.patch<CommunityAccountResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/account/mobile/`, request, { withCredentials: true },
       )),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );

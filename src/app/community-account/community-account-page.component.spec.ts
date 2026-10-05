@@ -15,10 +15,10 @@ const account: CommunityAccountResponse = {
 
 describe('CommunityAccountPageComponent', () => {
   let fixture: ComponentFixture<CommunityAccountPageComponent>;
-  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn> };
+  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })) };
+    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)) };
     await TestBed.configureTestingModule({
       imports: [CommunityAccountPageComponent],
       providers: [
@@ -54,7 +54,7 @@ describe('CommunityAccountPageComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Unsubscribed');
     expect(fixture.nativeElement.textContent).not.toContain('Opted out');
-    expect(fixture.nativeElement.querySelectorAll('.account-main button').length).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.contact-actions button').length).toBe(2);
   });
 
   it('shows a safe loading error and retry control', () => {
@@ -103,5 +103,37 @@ describe('CommunityAccountPageComponent', () => {
     fixture.componentInstance.submitPasswordChange();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('The current password is incorrect.');
+  });
+
+  it('keeps the masked mobile in the read view and starts editing with an empty field', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('+44******0123');
+    (element.querySelector('.account-card:first-child button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('#account-mobile')).not.toBeNull();
+    expect((element.querySelector('#account-mobile') as HTMLInputElement).value).toBe('');
+    expect(element.textContent).toContain('+44******0123');
+    expect(element.querySelector('#account-phone-region')).not.toBeNull();
+  });
+
+  it('submits add/change mobile values and replaces the authoritative summary', () => {
+    fixture.componentInstance.beginMobileEdit();
+    fixture.componentInstance.mobileForm.setValue({ mobile: '07123456789', phone_region: 'GB' });
+    fixture.componentInstance.saveMobile();
+    fixture.detectChanges();
+    expect(accountService.updateMobile).toHaveBeenCalledWith({ mobile: '07123456789', phone_region: 'GB' });
+    expect(fixture.nativeElement.textContent).toContain('Your mobile number has been updated.');
+  });
+
+  it('requires explicit removal confirmation and sends an empty mobile DTO', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('.account-card:first-child .secondary-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.textContent).toContain('Remove your mobile number?');
+    expect(accountService.updateMobile).not.toHaveBeenCalled();
+    fixture.componentInstance.confirmMobileRemoval();
+    fixture.detectChanges();
+    expect(accountService.updateMobile).toHaveBeenCalledWith({ mobile: '', phone_region: '' });
+    expect(element.textContent).toContain('Your mobile number has been removed.');
   });
 });

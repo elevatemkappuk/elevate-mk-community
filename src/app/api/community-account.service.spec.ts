@@ -42,4 +42,13 @@ describe('CommunityAccountService', () => {
     expect(request.request.withCredentials).toBe(true);
     request.flush({ detail: 'Your password has been changed successfully.' });
   });
+
+  it('bootstraps CSRF and sends the mobile PATCH DTO', () => {
+    service.updateMobile({ mobile: '07123456789', phone_region: 'GB' }).subscribe((response) => expect(response.mobile.present).toBe(true));
+    const request = http.expectOne('http://api.test/api/v1/community/account/mobile/');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ mobile: '07123456789', phone_region: 'GB' });
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ email: 'member@example.com', mobile: { present: true, masked: '+44******6789' }, email_marketing: { state: 'UNKNOWN' }, password: { configured: true } });
+  });
 });
