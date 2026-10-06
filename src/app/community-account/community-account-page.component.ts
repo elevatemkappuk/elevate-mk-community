@@ -65,7 +65,7 @@ export class CommunityAccountPageComponent implements OnInit {
     phone_region: new FormControl('GB', { nonNullable: true }),
   }, { validators: [mobileRegionRequired] });
   readonly phoneRegions = [{ value: 'GB', label: 'GB +44' }];
-  readonly passwordServerErrors = signal<Partial<Record<keyof PasswordChangeForm, string>>>({});
+  readonly passwordServerErrors = signal<Partial<Record<keyof PasswordChangeForm, string[]>>>({});
   readonly passwordForm = new FormGroup<PasswordChangeForm>({
     current_password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     new_password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(8), numericOnly] }),
@@ -210,7 +210,7 @@ export class CommunityAccountPageComponent implements OnInit {
   }
 
   passwordError(field: 'current_password' | 'new_password' | 'confirm_password'): string {
-    const server = this.passwordServerErrors()[field];
+    const server = this.passwordServerErrors()[field]?.[0];
     const control = this.passwordForm.controls[field];
     if (server) return server;
     if (control.hasError('required')) return field === 'current_password' ? 'Enter your current password.' : field === 'new_password' ? 'Enter a new password.' : 'Confirm your new password.';
@@ -222,7 +222,20 @@ export class CommunityAccountPageComponent implements OnInit {
 
   hasPasswordError(field: 'current_password' | 'new_password' | 'confirm_password'): boolean {
     const control = this.passwordForm.controls[field];
-    return (control.invalid && control.touched) || !!this.passwordServerErrors()[field] || (field === 'confirm_password' && this.hasPasswordMismatch());
+    return (control.invalid && control.touched) || (this.passwordServerErrors()[field]?.length ?? 0) > 0 || (field === 'confirm_password' && this.hasPasswordMismatch());
+  }
+
+  passwordValidationMessages(): string[] {
+    const messages: string[] = [];
+    for (const field of ['current_password', 'new_password', 'confirm_password'] as const) {
+      const serverMessages = this.passwordServerErrors()[field] ?? [];
+      if (serverMessages.length) {
+        messages.push(...serverMessages);
+      } else if (this.hasPasswordError(field)) {
+        messages.push(this.passwordError(field));
+      }
+    }
+    return [...new Set(messages.filter(Boolean))];
   }
 
   togglePassword(field: 'current' | 'new' | 'confirmation'): void {
@@ -279,11 +292,11 @@ export class CommunityAccountPageComponent implements OnInit {
   private applyPasswordServerErrors(body: unknown): void {
     const fields = body && typeof body === 'object' ? (body as Record<string, unknown>)['fields'] : null;
     if (!fields || typeof fields !== 'object') return;
-    const next: Partial<Record<keyof PasswordChangeForm, string>> = {};
+    const next: Partial<Record<keyof PasswordChangeForm, string[]>> = {};
     for (const field of ['current_password', 'new_password', 'confirm_password'] as const) {
       const messages = (fields as Record<string, unknown>)[field];
-      if (Array.isArray(messages) && typeof messages[0] === 'string') {
-        next[field] = messages[0];
+      if (Array.isArray(messages) && messages.every((message) => typeof message === 'string') && messages.length) {
+        next[field] = messages as string[];
         this.passwordForm.controls[field].setErrors({ server: true });
         this.passwordForm.controls[field].markAsTouched();
       }

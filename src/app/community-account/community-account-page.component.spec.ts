@@ -184,6 +184,46 @@ describe('CommunityAccountPageComponent', () => {
     fixture.componentInstance.submitPasswordChange();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('The current password is incorrect.');
+    expect(fixture.nativeElement.querySelector('#password-validation-error')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#current-password-error')).toBeNull();
+  });
+
+  it('places mismatch and multiple password validation messages in one shared area', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'short', confirm_password: 'different' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    const errorArea = fixture.nativeElement.querySelector('#password-validation-error') as HTMLElement;
+    expect(errorArea).not.toBeNull();
+    expect(errorArea.textContent).toContain('Use at least 8 characters.');
+    expect(errorArea.textContent).toContain('Passwords do not match.');
+    expect(fixture.nativeElement.querySelector('.field-group .field-error')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#new-password')?.getAttribute('aria-describedby')).toBe('password-validation-error');
+    expect(fixture.nativeElement.querySelector('#confirm-new-password')?.getAttribute('aria-describedby')).toBe('password-validation-error');
+    expect(fixture.nativeElement.querySelector('#new-password')?.getAttribute('aria-invalid')).toBe('true');
+    accountService.changePassword.mockReturnValue(throwError(() => ({ body: { fields: { current_password: ['Current password is incorrect.', 'Try again.'], new_password: ['Password is too common.'] } } })));
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'wrong', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('#password-validation-error li')).toHaveLength(3);
+  });
+
+  it('does not render an empty validation area and clears errors on cancel and success', () => {
+    fixture.componentInstance.beginPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#password-validation-error')).toBeNull();
+    fixture.componentInstance.passwordForm.setValue({ current_password: '', new_password: 'short', confirm_password: 'different' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#password-validation-error')).not.toBeNull();
+    fixture.componentInstance.cancelPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#password-validation-error')).toBeNull();
+    fixture.componentInstance.beginPasswordChange();
+    fixture.componentInstance.passwordForm.setValue({ current_password: 'Current-password-123!', new_password: 'New-password-456!', confirm_password: 'New-password-456!' });
+    fixture.componentInstance.submitPasswordChange();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#password-validation-error')).toBeNull();
   });
 
   it('keeps the masked mobile in the read view and starts editing with an empty field', () => {
