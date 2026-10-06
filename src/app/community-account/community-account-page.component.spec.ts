@@ -16,11 +16,11 @@ const account: CommunityAccountResponse = {
 describe('CommunityAccountPageComponent', () => {
   let fixture: ComponentFixture<CommunityAccountPageComponent>;
   let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn>; updateMarketingPreference: ReturnType<typeof vi.fn>; requestEmailChange: ReturnType<typeof vi.fn> };
-  let auth: { logout: ReturnType<typeof vi.fn> };
+  let auth: { logout: ReturnType<typeof vi.fn>; requestPasswordReset: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)), updateMarketingPreference: vi.fn(() => of(account)), requestEmailChange: vi.fn(() => of({ status: 'VERIFICATION_REQUIRED', detail: 'Check your new email address for a verification link.' })) };
-    auth = { logout: vi.fn(() => of(void 0)) };
+    auth = { logout: vi.fn(() => of(void 0)), requestPasswordReset: vi.fn(() => of({ detail: 'If the account is eligible, a password reset email will be sent shortly.' })) };
     await TestBed.configureTestingModule({
       imports: [CommunityAccountPageComponent],
       providers: [
@@ -156,12 +156,65 @@ describe('CommunityAccountPageComponent', () => {
 
   it('opens an accessible change-password form with semantic autocomplete fields', () => {
     const element = fixture.nativeElement as HTMLElement;
-    (element.querySelector('.security-card > button[type="button"]') as HTMLButtonElement).click();
+    (element.querySelector('.password-entry-actions > button[type="button"]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('#current-password')?.getAttribute('autocomplete')).toBe('current-password');
     expect(element.querySelector('#new-password')?.getAttribute('autocomplete')).toBe('new-password');
     expect(element.querySelector('#confirm-new-password')?.getAttribute('autocomplete')).toBe('new-password');
     expect(element.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('opens inline recovery without navigating and uses the authenticated account email', () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl');
+    const prompt = fixture.nativeElement.querySelector('.password-recovery-prompt button') as HTMLButtonElement;
+    expect(prompt.type).toBe('button');
+    prompt.click();
+    fixture.detectChanges();
+    const securityCard = fixture.nativeElement.querySelector('.security-card') as HTMLElement;
+    const recoveryAction = securityCard.querySelector('.password-recovery-prompt button') as HTMLButtonElement;
+    expect(securityCard.querySelector('.password-recovery-prompt')).toBeNull();
+    expect(securityCard.textContent).toContain("We'll send a password reset link to your account email.");
+    expect(securityCard.textContent).toContain('member@example.com');
+    expect(recoveryAction).toBeNull();
+    expect(securityCard.querySelector('input')).toBeNull();
+    expect(securityCard.querySelector('a[href*="forgot-password"]')).toBeNull();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('sends the reset request with only the canonical account email and stays on the account page', () => {
+    fixture.componentInstance.beginPasswordRecovery();
+    fixture.componentInstance.submitPasswordRecovery();
+    fixture.detectChanges();
+    expect(auth.requestPasswordReset).toHaveBeenCalledTimes(1);
+    expect(auth.requestPasswordReset).toHaveBeenCalledWith('member@example.com');
+    expect(fixture.componentInstance.passwordRecoverySuccess()).toContain('If the account is eligible');
+    expect(fixture.componentInstance.passwordRecoveryOpen()).toBe(true);
+    expect(fixture.nativeElement.textContent).not.toContain('/forgot-password');
+  });
+
+  it('prevents duplicate recovery requests and allows the panel to be cancelled cleanly', () => {
+    const response = new Subject<{ detail: string }>();
+    auth.requestPasswordReset.mockReturnValue(response.asObservable());
+    fixture.componentInstance.beginPasswordRecovery();
+    fixture.componentInstance.submitPasswordRecovery();
+    fixture.componentInstance.submitPasswordRecovery();
+    expect(auth.requestPasswordReset).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.passwordRecoverySubmitting()).toBe(true);
+    response.next({ detail: 'ok' });
+    response.complete();
+    fixture.componentInstance.cancelPasswordRecovery();
+    expect(fixture.componentInstance.passwordRecoveryOpen()).toBe(false);
+    expect(fixture.componentInstance.passwordRecoverySuccess()).toBe('');
+  });
+
+  it('keeps the normal change-password flow available and unchanged', () => {
+    const securityCard = fixture.nativeElement.querySelector('.security-card') as HTMLElement;
+    expect(securityCard.querySelector('.password-recovery-prompt')).not.toBeNull();
+    (securityCard.querySelector('button.account-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(securityCard.querySelector('button[type="submit"]')).not.toBeNull();
+    expect(securityCard.querySelector('.password-recovery-panel')).toBeNull();
   });
 
   it('renders three independent hidden SHOW controls with dynamic accessible labels', () => {

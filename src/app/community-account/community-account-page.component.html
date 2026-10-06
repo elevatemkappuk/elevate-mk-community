@@ -32,7 +32,7 @@
         <section class="account-card security-card" aria-labelledby="security-title"><p class="eyebrow">Security</p><h2 id="security-title">Password &amp; sign-in</h2><p>{{ data.password.configured ? 'Your Community account has a password.' : 'Your Community account does not have a password configured.' }}</p>
           @if (passwordSuccess()) { <p class="success-message" role="status">Your password has been changed successfully.</p> }
           @if (passwordSubmitError()) { <p class="field-error" role="alert">We couldn’t change your password right now. Please try again.</p> }
-          @if (!passwordEditorOpen()) { <button class="account-button" type="button" (click)="beginPasswordChange()">Change password</button> }
+          @if (!passwordEditorOpen() && !passwordRecoveryOpen()) { <div class="password-entry-actions"><button class="account-button" type="button" (click)="beginPasswordChange()">Change password</button><p class="card-note password-recovery-prompt">Forgot your current password? <button class="card-note-action" type="button" (click)="beginPasswordRecovery()">Reset it by email</button></p></div> }
           @if (passwordEditorOpen()) {
             <form class="password-form" [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" novalidate>
               <div class="field-group"><label for="current-password">Current password</label><div class="password-control"><input id="current-password" [type]="showCurrentPassword() ? 'text' : 'password'" formControlName="current_password" autocomplete="current-password" [attr.aria-invalid]="hasPasswordError('current_password')" [attr.aria-describedby]="hasPasswordError('current_password') ? 'password-validation-error' : null" /><button type="button" class="visibility-button" (click)="togglePassword('current')" [attr.aria-label]="showCurrentPassword() ? 'Hide current password' : 'Show current password'" [attr.aria-pressed]="showCurrentPassword()">{{ showCurrentPassword() ? 'Hide' : 'Show' }}</button></div></div>
@@ -41,6 +41,16 @@
               @if (passwordValidationMessages().length) { <div id="password-validation-error" class="form-validation-errors" role="alert"><p>Password update needs attention:</p><ul>@for (message of passwordValidationMessages(); track message) { <li>{{ message }}</li> }</ul></div> }
               <div class="password-actions"><button class="account-button" type="submit" [disabled]="passwordForm.invalid || changingPassword()">{{ changingPassword() ? 'Changing password…' : 'Change password' }}</button><button class="account-button secondary-button" type="button" (click)="cancelPasswordChange()" [disabled]="changingPassword()">Cancel</button></div>
             </form>
+          }
+          @if (passwordRecoveryOpen()) {
+            <div class="password-recovery-panel removal-confirmation" aria-labelledby="password-recovery-title">
+              <h3 id="password-recovery-title">Reset your password by email</h3>
+              <p>We'll send a password reset link to your account email.</p>
+              <p class="card-note"><span>Account email</span><output class="status-label">{{ data.email }}</output></p>
+              @if (passwordRecoverySuccess()) { <p class="success-message" role="status">{{ passwordRecoverySuccess() }}</p> }
+              @if (passwordRecoveryError()) { <p class="field-error" role="alert">We couldn't request a password reset right now. Please try again.</p> }
+              <div class="password-actions"><button class="account-button" type="button" (click)="submitPasswordRecovery()" [disabled]="passwordRecoverySubmitting()">{{ passwordRecoverySubmitting() ? 'Sending…' : 'Send reset email' }}</button><button class="account-button secondary-button" type="button" (click)="cancelPasswordRecovery()" [disabled]="passwordRecoverySubmitting()">Cancel</button></div>
+            </div>
           }
         </section>
       </div>

@@ -64,6 +64,15 @@ body {
 .community-primary-action:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
 .community-primary-action:disabled { cursor: not-allowed; opacity: .58; }
 
+.card-note-action { border: 0; padding: 0; background: transparent; color: var(--elevate-black); font: inherit; text-decoration: underline; cursor: pointer; }
+.card-note-action:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 3px; }
+.password-entry-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+.password-recovery-prompt { margin: 0; }
+.password-recovery-panel > p { margin: 0 0 1rem; }
+.password-recovery-panel > .card-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; }
+.password-recovery-panel > .card-note output { min-width: 0; overflow-wrap: anywhere; }
+.password-recovery-panel > .password-actions { margin-top: 1.5rem; }
+
 .password-control { display: flex; border: 1px solid var(--elevate-border); background: var(--elevate-surface); }
 .password-control:focus-within { border-color: var(--elevate-focus); outline: 3px solid rgb(205 153 23 / 18%); outline-offset: 1px; }
 .password-control input { min-height: 4rem; flex: 1; border: 0; background: transparent; padding-inline: 1rem; outline: 0; }

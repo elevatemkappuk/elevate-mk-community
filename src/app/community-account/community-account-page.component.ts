@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 
 import { CommunityAccountResponse, CommunityAccountService } from '../api/community-account.service';
 import { CommunityAuthService } from '../api/community-auth.service';
@@ -50,6 +51,10 @@ export class CommunityAccountPageComponent implements OnInit {
   readonly passwordEditorOpen = signal(false);
   readonly passwordSuccess = signal(false);
   readonly passwordSubmitError = signal(false);
+  readonly passwordRecoveryOpen = signal(false);
+  readonly passwordRecoverySubmitting = signal(false);
+  readonly passwordRecoverySuccess = signal('');
+  readonly passwordRecoveryError = signal(false);
   readonly showCurrentPassword = signal(false);
   readonly showNewPassword = signal(false);
   readonly showPasswordConfirmation = signal(false);
@@ -121,6 +126,35 @@ export class CommunityAccountPageComponent implements OnInit {
     this.resetPasswordVisibility();
     this.passwordServerErrors.set({});
     this.passwordEditorOpen.set(false);
+  }
+
+  beginPasswordRecovery(): void {
+    this.passwordRecoverySuccess.set('');
+    this.passwordRecoveryError.set(false);
+    this.passwordRecoveryOpen.set(true);
+  }
+
+  cancelPasswordRecovery(): void {
+    if (this.passwordRecoverySubmitting()) return;
+    this.passwordRecoveryOpen.set(false);
+    this.passwordRecoverySuccess.set('');
+    this.passwordRecoveryError.set(false);
+  }
+
+  submitPasswordRecovery(): void {
+    if (this.passwordRecoverySubmitting()) return;
+    const email = this.account()?.email;
+    if (!email) {
+      this.passwordRecoveryError.set(true);
+      return;
+    }
+    this.passwordRecoverySubmitting.set(true);
+    this.passwordRecoverySuccess.set('');
+    this.passwordRecoveryError.set(false);
+    this.auth.requestPasswordReset(email).pipe(finalize(() => this.passwordRecoverySubmitting.set(false))).subscribe({
+      next: () => this.passwordRecoverySuccess.set('If the account is eligible, a password reset email will be sent shortly.'),
+      error: () => this.passwordRecoveryError.set(true),
+    });
   }
 
   beginMobileEdit(): void {
