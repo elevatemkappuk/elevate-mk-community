@@ -70,10 +70,10 @@ body {
 .visibility-button { border: 0; padding: 0 1.3rem; background: transparent; color: var(--elevate-black); font: inherit; font-size: .95rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
 .visibility-button:hover { background: var(--elevate-gold-wash); }
 .visibility-button:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 2px; }
-.password-validation-errors { margin: 1.25rem 0 0; border-left: 3px solid var(--elevate-error, #9a2f24); padding: .75rem 1rem; background: #fff4f1; color: var(--elevate-error, #9a2f24); font-size: .85rem; line-height: 1.4; }
-.password-validation-errors p { margin: 0 0 .35rem; font-weight: 800; }
-.password-validation-errors ul { margin: 0; padding-left: 1.25rem; }
-.password-validation-errors li + li { margin-top: .2rem; }
+.form-validation-errors { margin: 1.25rem 0 0; border-left: 3px solid var(--elevate-error, #9a2f24); padding: .75rem 1rem; background: #fff4f1; color: var(--elevate-error, #9a2f24); font-size: .85rem; line-height: 1.4; }
+.form-validation-errors p { margin: 0 0 .35rem; font-weight: 800; }
+.form-validation-errors ul { margin: 0; padding-left: 1.25rem; }
+.form-validation-errors li + li { margin-top: .2rem; }
 
 @media (max-width: 760px) {
   .community-primary-action { min-height: 3.75rem; padding-inline: 1.25rem; }

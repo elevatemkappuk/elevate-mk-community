@@ -25,6 +25,10 @@ export class ForgotPasswordPageComponent {
   readonly submitting = signal(false);
   readonly submitted = signal(false);
 
+  validationMessages(): string[] {
+    return this.form.controls.email.invalid && this.form.controls.email.touched ? ['Enter a valid email address.'] : [];
+  }
+
   submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid || this.submitting()) return;

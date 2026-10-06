@@ -44,8 +44,8 @@
         <fieldset formGroupName="person">
           <legend>Your details</legend>
           <div class="field-grid">
-            <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" />@if (form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched) { <span class="field-error">First name is required.</span> }</label>
-            <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" />@if (form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched) { <span class="field-error">Last name is required.</span> }</label>
+            <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" [attr.aria-invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" [attr.aria-describedby]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched ? 'profile-validation-error' : null" /></label>
+            <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" [attr.aria-invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" [attr.aria-describedby]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched ? 'profile-validation-error' : null" /></label>
           </div>
           <label><span>Location <span class="optional-label">(optional)</span></span><input formControlName="location" autocomplete="address-level2" /></label>
         </fieldset>
@@ -66,7 +66,7 @@
             <label>Industry <app-select id="profile-industry" formControlName="industry" [options]="industryOptions" placeholder="Select an industry" [describedBy]="'industry-help'"></app-select></label>
             <label>Career stage <app-select id="profile-career-stage" formControlName="career_stage" [options]="careerStageOptions" placeholder="Select a career stage"></app-select></label>
           </div>
-          <label><span>LinkedIn profile <span class="optional-label">(optional)</span></span><input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" />@if (form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched) { <span class="field-error">Enter a valid http or https URL.</span> }</label>
+          <label><span>LinkedIn profile <span class="optional-label">(optional)</span></span><input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" [attr.aria-invalid]="form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched" [attr.aria-describedby]="form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched ? 'profile-validation-error' : null" /></label>
         </fieldset>
 
         <fieldset>
@@ -109,7 +109,7 @@
         @if (profile()?.community?.review_required) {
           <label class="review-checkbox"><input type="checkbox" [checked]="reviewAcknowledgement()" (change)="reviewAcknowledgement.set($any($event.target).checked)" /> <span>I’ve reviewed my profile and the information is up to date.</span></label>
         }
-        @if (saveError()) { <p class="form-error" role="alert">{{ saveError() }}</p> }
+        @if (validationMessages().length) { <div id="profile-validation-error" class="form-validation-errors" role="alert"><p>Profile needs attention:</p><ul>@for (message of validationMessages(); track message) { <li>{{ message }}</li> }</ul></div> }
         <div class="form-actions"><button class="profile-button secondary-action" type="button" [disabled]="saving()" (click)="cancel()">Cancel</button><button class="profile-button" type="submit" [disabled]="saving() || loading()">{{ saving() ? 'Saving...' : 'Save changes' }}</button></div>
       </form>
     }

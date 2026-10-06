@@ -185,6 +185,15 @@ export class CommunityAccountPageComponent implements OnInit {
     return (control.invalid && control.touched) || !!this.mobileServerErrors()[field] || (field === 'phone_region' && this.mobileForm.hasError('phoneRegionRequired'));
   }
 
+  mobileValidationMessages(): string[] {
+    const messages = [
+      this.hasMobileError('mobile') ? this.mobileError('mobile') : '',
+      this.hasMobileError('phone_region') ? this.mobileError('phone_region') : '',
+      this.mobileEditorOpen() ? this.mobileSubmitError() : '',
+    ];
+    return [...new Set(messages.filter(Boolean))];
+  }
+
   submitPasswordChange(): void {
     if (this.changingPassword()) return;
     this.passwordServerErrors.set({});

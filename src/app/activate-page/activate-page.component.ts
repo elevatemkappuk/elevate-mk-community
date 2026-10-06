@@ -65,6 +65,9 @@ export class ActivatePageComponent implements OnInit {
   }
   hasPasswordError(): boolean { return (this.activationForm.controls.password.invalid && this.activationForm.controls.password.touched) || !!this.serverErrors().password; }
   hasConfirmError(): boolean { return (this.activationForm.controls.confirm_password.invalid && this.activationForm.controls.confirm_password.touched) || !!this.serverErrors().confirm_password || this.hasPasswordMismatch(); }
+  validationMessages(): string[] {
+    return [...new Set([this.hasPasswordError() ? this.passwordError() : '', this.hasConfirmError() ? this.confirmError() : ''].filter(Boolean))];
+  }
   backToElevate(): void { window.location.href = 'https://elevatemk.org/'; }
 
   private handleError(error: CommunityApiError): void {

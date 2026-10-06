@@ -194,6 +194,18 @@ export class CommunityProfileEditPageComponent implements OnInit {
 
   cancel(): void { this.router.navigateByUrl('/community/profile'); }
 
+  validationMessages(): string[] {
+    const person = this.form.controls.person.controls;
+    const linkedin = this.form.controls.professional.controls.linkedin_url;
+    const messages = [
+      person.first_name.invalid && person.first_name.touched ? 'First name is required.' : '',
+      person.last_name.invalid && person.last_name.touched ? 'Last name is required.' : '',
+      linkedin.invalid && linkedin.touched ? 'Enter a valid http or https URL.' : '',
+      this.saveError() ?? '',
+    ];
+    return [...new Set(messages.filter(Boolean))];
+  }
+
   signOut(): void {
     if (this.signingOut()) return;
     this.signingOut.set(true);
