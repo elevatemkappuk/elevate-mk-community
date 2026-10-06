@@ -72,6 +72,19 @@ body {
 .password-recovery-panel > .card-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; }
 .password-recovery-panel > .card-note output { min-width: 0; overflow-wrap: anywhere; }
 .password-recovery-panel > .password-actions { margin-top: 1.5rem; }
+.community-account-shell .account-email-value { margin-bottom: 1.25rem; color: var(--elevate-black); font-size: 1.1rem; font-weight: 750; overflow-wrap: anywhere; }
+.community-account-shell .contact-note { margin-top: 1.5rem; }
+.community-account-shell .contact-card { grid-column: 1 / -1; }
+.community-account-shell .contact-management-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem clamp(2rem, 5vw, 5rem); align-items: start; }
+.community-account-shell .contact-item { min-width: 0; }
+.community-account-shell .contact-label { margin: 0 0 .45rem; color: var(--elevate-muted); font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.community-account-shell .account-email-value, .community-account-shell .contact-value { margin: 0 0 1.25rem; color: var(--elevate-black); font-size: 1.1rem; font-weight: 750; overflow-wrap: anywhere; }
+.community-account-shell .marketing-card .status-label { display: block; margin: 0 0 .5rem; }
+.community-account-shell .marketing-copy { margin: 0 0 1rem; }
+.community-account-shell .marketing-card .card-note { margin-top: 1.25rem; }
+.community-account-shell .back-profile-link { margin-top: clamp(2rem, 4vw, 3.5rem); }
+.community-account-shell .marketing-card { grid-column: 1; max-width: 700px; }
+.community-account-shell .security-card { grid-column: 2; max-width: 700px; }
 
 .password-control { display: flex; border: 1px solid var(--elevate-border); background: var(--elevate-surface); }
 .password-control:focus-within { border-color: var(--elevate-focus); outline: 3px solid rgb(205 153 23 / 18%); outline-offset: 1px; }

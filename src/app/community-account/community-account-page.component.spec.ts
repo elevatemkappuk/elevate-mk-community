@@ -36,6 +36,7 @@ describe('CommunityAccountPageComponent', () => {
   it('renders the canonical email, masked mobile and member-friendly preference state', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('member@example.com');
+    expect(element.querySelectorAll('.account-email-value')).toHaveLength(1);
     expect(element.textContent).toContain('+44******0123');
     expect(element.textContent).toContain('Email updates are on');
     expect(element.textContent).toContain('separate from whether other Community members can see your contact details in Connect');
@@ -339,7 +340,7 @@ describe('CommunityAccountPageComponent', () => {
   it('keeps the masked mobile in the read view and starts editing with an empty field', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('+44******0123');
-    (element.querySelector('.account-card[aria-labelledby="contact-title"] button') as HTMLButtonElement).click();
+    (element.querySelector('.account-card[aria-labelledby="contact-title"] .mobile-management button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('#account-mobile')).not.toBeNull();
     expect((element.querySelector('#account-mobile') as HTMLInputElement).value).toBe('');
@@ -358,7 +359,7 @@ describe('CommunityAccountPageComponent', () => {
 
   it('requires explicit removal confirmation and sends an empty mobile DTO', () => {
     const element = fixture.nativeElement as HTMLElement;
-    (element.querySelector('.account-card[aria-labelledby="contact-title"] .secondary-button') as HTMLButtonElement).click();
+    (element.querySelector('.account-card[aria-labelledby="contact-title"] .mobile-management .secondary-button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.textContent).toContain('Remove your mobile number?');
     expect(accountService.updateMobile).not.toHaveBeenCalled();
