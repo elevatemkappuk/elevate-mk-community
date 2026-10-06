@@ -6,6 +6,7 @@ import { CommunityProfileEditPageComponent } from './community-profile-edit/comm
 import { CommunityDirectoryPageComponent } from './community-directory/community-directory-page.component';
 import { CommunityDirectoryProfilePageComponent } from './community-directory/community-directory-profile-page.component';
 import { SignInPageComponent } from './sign-in-page/sign-in-page.component';
+import { CommunityEmailChangeVerifyPageComponent } from './community-email-change-verify/community-email-change-verify-page.component';
 import { routes } from './app.routes';
 
 describe('Community routes', () => {
@@ -18,6 +19,8 @@ describe('Community routes', () => {
 
   it('exposes activation and guarded Community routes', async () => {
     expect(routes.find((route) => route.path === 'activate/:invitationId/:token')?.component).toBe(ActivatePageComponent);
+    expect(routes.find((route) => route.path === 'community/account/verify-email/:requestId/:token')?.component).toBe(CommunityEmailChangeVerifyPageComponent);
+    expect(routes.find((route) => route.path === 'community/account/verify-email/:requestId/:token')?.canActivate).toBeUndefined();
     expect(await routes.find((route) => route.path === 'community')?.loadComponent?.()).toBeTruthy();
     expect(routes.find((route) => route.path === 'community')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/profile')?.component).toBe(CommunityProfilePageComponent);

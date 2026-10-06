@@ -1,0 +1,36 @@
+<app-community-header />
+
+<main class="email-change-verification" aria-labelledby="verification-title">
+  @if (state() === 'loading') {
+    <section class="verification-panel" aria-live="polite">
+      <p class="eyebrow">Elevate MK account</p>
+      <h1 id="verification-title">Verifying your email...</h1>
+      <p>Please wait while we securely complete this change.</p>
+    </section>
+  } @else if (state() === 'success') {
+    <section class="verification-panel" aria-live="polite">
+      <p class="eyebrow">Elevate MK account</p>
+      <h1 id="verification-title">Email address updated</h1>
+      <p>{{ detail() }}</p>
+      <p>For security, please sign in again using your new email address.</p>
+      <a class="primary-action" routerLink="/sign-in">Sign in</a>
+    </section>
+  } @else if (state() === 'invalid') {
+    <section class="verification-panel" aria-live="assertive">
+      <p class="eyebrow">Elevate MK account</p>
+      <h1 id="verification-title">We couldn't verify this email change</h1>
+      <p>The verification link may be invalid or expired. Sign in using your current account details and request another change if needed.</p>
+      <a class="primary-action" routerLink="/sign-in">Go to sign in</a>
+    </section>
+  } @else {
+    <section class="verification-panel" aria-live="assertive">
+      <p class="eyebrow">Elevate MK account</p>
+      <h1 id="verification-title">We couldn't complete this request</h1>
+      <p>We couldn't verify your email change right now. Please try again.</p>
+      <div class="actions">
+        <button class="primary-action" type="button" (click)="retry()">Try again</button>
+        <a routerLink="/sign-in">Go to sign in</a>
+      </div>
+    </section>
+  }
+</main>

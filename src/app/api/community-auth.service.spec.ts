@@ -126,4 +126,17 @@ describe('CommunityAuthService', () => {
     expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
     request.flush({ detail: 'Your password has been reset successfully.' });
   });
+
+  it('verifies an email change through CSRF without storing the route token', () => {
+    service.verifyEmailChange('request-id', 'verification-token').subscribe((response) => {
+      expect(response.status).toBe('EMAIL_UPDATED');
+    });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    const request = http.expectOne('/api/v1/community/account/email-change/verify/');
+    expect(request.request.body).toEqual({ request_id: 'request-id', token: 'verification-token' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
+    request.flush({ status: 'EMAIL_UPDATED', detail: 'Your email address has been verified and updated.' });
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
+  });
 });

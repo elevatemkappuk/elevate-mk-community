@@ -11,6 +11,7 @@ import { CommunityProfilePageComponent } from './community-profile/community-pro
 import { CommunityProfileEditPageComponent } from './community-profile-edit/community-profile-edit-page.component';
 import { CommunityDirectoryPageComponent } from './community-directory/community-directory-page.component';
 import { CommunityDirectoryProfilePageComponent } from './community-directory/community-directory-profile-page.component';
+import { CommunityEmailChangeVerifyPageComponent } from './community-email-change-verify/community-email-change-verify-page.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'join' },
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'join/success', component: JoinSuccessPageComponent },
   { path: 'activate/invalid', component: ActivatePageComponent },
   { path: 'activate/:invitationId/:token', component: ActivatePageComponent },
+  { path: 'community/account/verify-email/:requestId/:token', component: CommunityEmailChangeVerifyPageComponent },
   { path: 'community', loadComponent: () => import('./community-home/community-home-page.component').then((module) => module.CommunityHomePageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile/edit', component: CommunityProfileEditPageComponent, canActivate: [communityAuthGuard] },

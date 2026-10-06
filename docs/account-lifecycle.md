@@ -240,6 +240,28 @@ expired links receive generic safe handling. A successful reset changes the
 password but does not automatically sign the member in; the member returns
 to `/sign-in`.
 
+## Verified email change
+
+Authenticated members request an email change from `/community/account` with
+the current password. The backend sends a durable transactional message to
+the requested new address; the frontend does not receive or store the raw
+verification token.
+
+The verification link opens:
+
+```text
+/community/account/verify-email/:requestId/:token
+```
+
+The page automatically posts the route credentials once to the public-capable,
+CSRF-protected API endpoint. A successful response updates the canonical
+Person/User email atomically, queues provider synchronization and an
+old-email security notification, clears the current frontend session state,
+and shows a sign-in action. The page replaces the URL after the attempt so
+the token is removed from browser history where practical. It never
+auto-signs the member in. Invalid or expired links use generic safe wording;
+transient failures offer retry without persisting the token.
+
 ## CSRF and session model
 
 Community authentication uses Django session authentication:
