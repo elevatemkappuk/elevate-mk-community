@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Router, provideRouter } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
 
 import { CommunityAccountResponse, CommunityAccountService } from '../api/community-account.service';
 import { CommunityAuthService } from '../api/community-auth.service';
@@ -15,16 +15,18 @@ const account: CommunityAccountResponse = {
 
 describe('CommunityAccountPageComponent', () => {
   let fixture: ComponentFixture<CommunityAccountPageComponent>;
-  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn>; updateMarketingPreference: ReturnType<typeof vi.fn> };
+  let accountService: { getAccount: ReturnType<typeof vi.fn>; changePassword: ReturnType<typeof vi.fn>; updateMobile: ReturnType<typeof vi.fn>; updateMarketingPreference: ReturnType<typeof vi.fn>; requestEmailChange: ReturnType<typeof vi.fn> };
+  let auth: { logout: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)), updateMarketingPreference: vi.fn(() => of(account)) };
+    accountService = { getAccount: vi.fn(() => of(account)), changePassword: vi.fn(() => of({ detail: 'Your password has been changed successfully.' })), updateMobile: vi.fn(() => of(account)), updateMarketingPreference: vi.fn(() => of(account)), requestEmailChange: vi.fn(() => of({ status: 'VERIFICATION_REQUIRED', detail: 'Check your new email address for a verification link.' })) };
+    auth = { logout: vi.fn(() => of(void 0)) };
     await TestBed.configureTestingModule({
       imports: [CommunityAccountPageComponent],
       providers: [
         provideRouter([]),
         { provide: CommunityAccountService, useValue: accountService },
-        { provide: CommunityAuthService, useValue: { logout: vi.fn(() => of(void 0)) } },
+        { provide: CommunityAuthService, useValue: auth },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(CommunityAccountPageComponent);
@@ -40,12 +42,67 @@ describe('CommunityAccountPageComponent', () => {
     expect(element.querySelector('button[type="submit"]')).toBeNull();
   });
 
+  it('navigates to the signed-out destination after a successful 204 logout', async () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    fixture.componentInstance.signOut();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.signingOut()).toBe(false);
+    expect(navigate).toHaveBeenCalledWith('/join');
+    navigate.mockRestore();
+  });
+
+  it('clears the signing-out state when logout fails and ignores repeated clicks', () => {
+    const response = new Subject<void>();
+    auth.logout.mockReturnValue(response.asObservable());
+    fixture.componentInstance.signOut();
+    fixture.componentInstance.signOut();
+    fixture.detectChanges();
+    expect(auth.logout).toHaveBeenCalledTimes(1);
+    expect(fixture.componentInstance.signingOut()).toBe(true);
+    response.error({ status: 500, body: null });
+    expect(fixture.componentInstance.signingOut()).toBe(false);
+  });
+
   it('renders safe no-mobile and no-preference states', () => {
     accountService.getAccount.mockReturnValue(of({ ...account, mobile: { present: false, masked: null }, email_marketing: { state: 'UNKNOWN' } }));
     fixture = TestBed.createComponent(CommunityAccountPageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Not added');
     expect(fixture.nativeElement.textContent).toContain('No preference set');
+  });
+
+  it('submits a verified email-change request and shows the safe verification state', () => {
+    fixture.componentInstance.beginEmailChange();
+    fixture.componentInstance.emailChangeForm.setValue({ new_email: 'new@example.com', current_password: 'Current-password-123!' });
+    fixture.componentInstance.submitEmailChange();
+    fixture.detectChanges();
+
+    expect(accountService.requestEmailChange).toHaveBeenCalledWith({ new_email: 'new@example.com', current_password: 'Current-password-123!' });
+    expect(fixture.nativeElement.textContent).toContain('We\'ve sent a verification link to your new email address.');
+    expect(fixture.componentInstance.emailEditorOpen()).toBe(false);
+    expect(fixture.componentInstance.showEmailPassword()).toBe(false);
+  });
+
+  it('keeps email-change password visibility independent and cancel resets the form', () => {
+    fixture.componentInstance.beginEmailChange();
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('#account-email-password') as HTMLInputElement;
+    const toggle = fixture.nativeElement.querySelector('.email-change-form .visibility-button') as HTMLButtonElement;
+    expect(input.type).toBe('password');
+    expect(toggle.type).toBe('button');
+    expect(toggle.getAttribute('aria-label')).toBe('Show current password');
+    input.value = 'Current-password-123!';
+    input.dispatchEvent(new Event('input'));
+    toggle.click();
+    fixture.detectChanges();
+    expect(input.type).toBe('text');
+    expect(input.value).toBe('Current-password-123!');
+    expect(toggle.getAttribute('aria-label')).toBe('Hide current password');
+    fixture.componentInstance.cancelEmailChange();
+    expect(fixture.componentInstance.emailChangeForm.getRawValue()).toEqual({ new_email: '', current_password: '' });
+    expect(fixture.componentInstance.showEmailPassword()).toBe(false);
   });
 
   it('renders the unsubscribed state without adding a mutation control', () => {
@@ -229,7 +286,7 @@ describe('CommunityAccountPageComponent', () => {
   it('keeps the masked mobile in the read view and starts editing with an empty field', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('+44******0123');
-    (element.querySelector('.account-card:first-child button') as HTMLButtonElement).click();
+    (element.querySelector('.account-card[aria-labelledby="contact-title"] button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('#account-mobile')).not.toBeNull();
     expect((element.querySelector('#account-mobile') as HTMLInputElement).value).toBe('');
@@ -248,7 +305,7 @@ describe('CommunityAccountPageComponent', () => {
 
   it('requires explicit removal confirmation and sends an empty mobile DTO', () => {
     const element = fixture.nativeElement as HTMLElement;
-    (element.querySelector('.account-card:first-child .secondary-button') as HTMLButtonElement).click();
+    (element.querySelector('.account-card[aria-labelledby="contact-title"] .secondary-button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.textContent).toContain('Remove your mobile number?');
     expect(accountService.updateMobile).not.toHaveBeenCalled();

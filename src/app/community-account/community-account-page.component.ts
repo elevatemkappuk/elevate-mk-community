@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { CommunityAccountResponse, CommunityAccountService } from '../api/community-account.service';
 import { CommunityAuthService } from '../api/community-auth.service';
@@ -13,6 +13,7 @@ type PasswordChangeForm = {
 };
 
 type MobileForm = { mobile: FormControl<string>; phone_region: FormControl<string> };
+type EmailChangeForm = { new_email: FormControl<string>; current_password: FormControl<string> };
 
 const numericOnly: ValidatorFn = (control): ValidationErrors | null =>
   typeof control.value === 'string' && control.value.length > 0 && /^\d+$/.test(control.value)
@@ -39,6 +40,7 @@ const mobileRegionRequired: ValidatorFn = (control): ValidationErrors | null => 
 export class CommunityAccountPageComponent implements OnInit {
   private readonly accountService = inject(CommunityAccountService);
   private readonly auth = inject(CommunityAuthService);
+  private readonly router = inject(Router);
 
   readonly account = signal<CommunityAccountResponse | null>(null);
   readonly loading = signal(true);
@@ -60,6 +62,12 @@ export class CommunityAccountPageComponent implements OnInit {
   readonly marketingSuccess = signal('');
   readonly marketingSubmitError = signal('');
   readonly mobileServerErrors = signal<Partial<Record<keyof MobileForm, string>>>({});
+  readonly emailEditorOpen = signal(false);
+  readonly emailSubmitting = signal(false);
+  readonly emailSuccess = signal('');
+  readonly emailSubmitError = signal('');
+  readonly showEmailPassword = signal(false);
+  readonly emailServerErrors = signal<Partial<Record<keyof EmailChangeForm, string>>>({});
   readonly mobileForm = new FormGroup<MobileForm>({
     mobile: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     phone_region: new FormControl('GB', { nonNullable: true }),
@@ -71,6 +79,10 @@ export class CommunityAccountPageComponent implements OnInit {
     new_password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(8), numericOnly] }),
     confirm_password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   }, { validators: [passwordsMatch] });
+  readonly emailChangeForm = new FormGroup<EmailChangeForm>({
+    new_email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    current_password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
 
   ngOnInit(): void {
     this.accountService.getAccount().subscribe({
@@ -84,7 +96,13 @@ export class CommunityAccountPageComponent implements OnInit {
   signOut(): void {
     if (this.signingOut()) return;
     this.signingOut.set(true);
-    this.auth.logout().subscribe({ error: () => this.signingOut.set(false) });
+    this.auth.logout().subscribe({
+      next: () => {
+        this.signingOut.set(false);
+        void this.router.navigateByUrl('/join').catch(() => this.signingOut.set(false));
+      },
+      error: () => this.signingOut.set(false),
+    });
   }
 
   beginPasswordChange(): void {
@@ -119,6 +137,73 @@ export class CommunityAccountPageComponent implements OnInit {
     this.mobileEditorOpen.set(false);
     this.mobileServerErrors.set({});
     this.mobileSubmitError.set('');
+  }
+
+  beginEmailChange(): void {
+    this.emailEditorOpen.set(true);
+    this.emailSuccess.set('');
+    this.emailSubmitError.set('');
+    this.emailServerErrors.set({});
+    this.showEmailPassword.set(false);
+    this.emailChangeForm.reset();
+  }
+
+  cancelEmailChange(): void {
+    if (this.emailSubmitting()) return;
+    this.emailEditorOpen.set(false);
+    this.emailSuccess.set('');
+    this.emailSubmitError.set('');
+    this.emailServerErrors.set({});
+    this.showEmailPassword.set(false);
+    this.emailChangeForm.reset();
+  }
+
+  toggleEmailPassword(): void { this.showEmailPassword.update((visible) => !visible); }
+
+  emailValidationMessages(): string[] {
+    const messages = [
+      this.emailServerErrors().new_email || (this.emailChangeForm.controls.new_email.hasError('required') ? 'Enter a new email address.' : this.emailChangeForm.controls.new_email.hasError('email') ? 'Enter a valid email address.' : ''),
+      this.emailServerErrors().current_password || (this.emailChangeForm.controls.current_password.hasError('required') ? 'Enter your current password.' : ''),
+      this.emailSubmitError(),
+    ];
+    return [...new Set(messages.filter(Boolean))];
+  }
+
+  emailFieldError(field: keyof EmailChangeForm): boolean {
+    const control = this.emailChangeForm.controls[field];
+    return (control.invalid && control.touched) || !!this.emailServerErrors()[field];
+  }
+
+  submitEmailChange(): void {
+    if (this.emailSubmitting()) return;
+    this.emailServerErrors.set({});
+    this.emailSubmitError.set('');
+    this.emailChangeForm.markAllAsTouched();
+    if (this.emailChangeForm.invalid) return;
+    this.emailSubmitting.set(true);
+    this.accountService.requestEmailChange(this.emailChangeForm.getRawValue()).subscribe({
+      next: (response) => {
+        this.emailSubmitting.set(false);
+        this.emailChangeForm.reset();
+        this.showEmailPassword.set(false);
+        this.emailEditorOpen.set(false);
+        this.emailSuccess.set(response.status === 'UNCHANGED' ? 'That is already your account email.' : 'We\'ve sent a verification link to your new email address. The link expires in 60 minutes. Your account email will not change until you verify it.');
+      },
+      error: (error: { body?: unknown }) => {
+        this.emailSubmitting.set(false);
+        const body = error.body && typeof error.body === 'object' ? error.body as Record<string, unknown> : null;
+        const fields = body?.['fields'];
+        if (fields && typeof fields === 'object') {
+          const next: Partial<Record<keyof EmailChangeForm, string>> = {};
+          for (const field of ['new_email', 'current_password'] as const) {
+            const messages = (fields as Record<string, unknown>)[field];
+            if (Array.isArray(messages) && typeof messages[0] === 'string') next[field] = messages[0];
+          }
+          this.emailServerErrors.set(next);
+        }
+        this.emailSubmitError.set(typeof body?.['code'] === 'string' && body['code'] === 'EMAIL_CHANGE_SUPPORT_REQUIRED' ? 'Your account email details need support before they can be changed.' : typeof body?.['code'] === 'string' && body['code'] === 'EMAIL_CHANGE_UNAVAILABLE' ? 'That email address is unavailable. Please try another email address.' : 'We couldn\'t change your email right now. Please try again.');
+      },
+    });
   }
 
   saveMobile(): void {

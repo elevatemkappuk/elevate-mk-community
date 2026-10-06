@@ -20,6 +20,11 @@ export interface CommunityMarketingPreferenceRequest {
   email_marketing: boolean;
 }
 
+export interface CommunityEmailChangeRequest {
+  new_email: string;
+  current_password: string;
+}
+
 export interface CommunityAccountResponse {
   email: string;
   mobile: { present: boolean; masked: string | null };
@@ -44,6 +49,15 @@ export class CommunityAccountService {
     return this.auth.bootstrapCsrf().pipe(
       switchMap(() => this.http.post<{ detail: string }>(
         `${this.apiConfig.apiBaseUrl}/community/account/password/`, request, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  requestEmailChange(request: CommunityEmailChangeRequest): Observable<{ status: 'VERIFICATION_REQUIRED' | 'UNCHANGED'; detail: string }> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<{ status: 'VERIFICATION_REQUIRED' | 'UNCHANGED'; detail: string }>(
+        `${this.apiConfig.apiBaseUrl}/community/account/email-change/`, request, { withCredentials: true },
       )),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );

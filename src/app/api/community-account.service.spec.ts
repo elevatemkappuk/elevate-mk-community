@@ -54,6 +54,16 @@ describe('CommunityAccountService', () => {
     request.flush({ email: 'member@example.com', mobile: { present: true, masked: '+44******6789' }, email_marketing: { state: 'UNKNOWN' }, password: { configured: true } });
   });
 
+  it('bootstraps CSRF and sends the verified email-change DTO', () => {
+    service.requestEmailChange({ new_email: 'new@example.com', current_password: 'old-password' }).subscribe((response) => expect(response.status).toBe('VERIFICATION_REQUIRED'));
+    expect(bootstrapCsrf).toHaveBeenCalledTimes(1);
+    const request = http.expectOne('http://api.test/api/v1/community/account/email-change/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ new_email: 'new@example.com', current_password: 'old-password' });
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ status: 'VERIFICATION_REQUIRED', detail: 'Check your new email address for a verification link.' });
+  });
+
   it('bootstraps CSRF and sends the email marketing PATCH DTO', () => {
     service.updateMarketingPreference({ email_marketing: false }).subscribe((response) => expect(response.email_marketing.state).toBe('OPTED_OUT'));
     expect(bootstrapCsrf).toHaveBeenCalledTimes(1);
