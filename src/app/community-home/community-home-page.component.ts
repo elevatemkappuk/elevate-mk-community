@@ -3,13 +3,14 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CommunityApiError, CommunityAuthService, CommunityUser } from '../api/community-auth.service';
-import { CommunityApiService, ConnectionRequestRecord } from '../api/community-api.service';
+import { CommunityApiService, CommunityPost, ConnectionRequestRecord } from '../api/community-api.service';
 import { CommunityProfileResponse, CommunityProfileService } from '../api/community-profile.service';
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 import { CommunityConnectionCardComponent } from '../community-directory/community-connection-card.component';
 import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avatar.component';
+import { CommunityPostCardComponent } from '../community-feed/community-post-card.component';
 
-@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent, CommunityConnectionCardComponent, ProfileAvatarComponent, RouterLink], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent, CommunityConnectionCardComponent, CommunityPostCardComponent, ProfileAvatarComponent, RouterLink], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
 export class CommunityHomePageComponent implements OnInit {
   private readonly auth = inject(CommunityAuthService);
   private readonly api = inject(CommunityApiService);
@@ -25,11 +26,15 @@ export class CommunityHomePageComponent implements OnInit {
   readonly requestsLoading = signal(true);
   readonly requestsError = signal<string | null>(null);
   readonly activeAction = signal<{ id: string; action: 'accept' | 'decline' } | null>(null);
+  readonly communityPosts = signal<CommunityPost[]>([]);
+  readonly communityPostsLoading = signal(true);
+  readonly communityPostsError = signal(false);
 
   ngOnInit(): void {
     this.user.set(this.auth.currentUser());
     this.loadProfile();
     this.loadRequests();
+    this.loadCommunityPosts();
   }
 
   signOut(): void { if (this.signingOut()) return; this.signingOut.set(true); this.auth.logout().subscribe({ next: () => this.router.navigateByUrl('/join'), error: () => this.signingOut.set(false) }); }
@@ -45,6 +50,7 @@ export class CommunityHomePageComponent implements OnInit {
   retryRequests(): void { this.loadRequests(); }
 
   retryProfile(): void { this.loadProfile(); }
+  retryCommunityPosts(): void { this.loadCommunityPosts(); }
 
   isProfileIncomplete(profile: CommunityProfileResponse): boolean {
     return Object.values(profile.completion).some((complete) => !complete);
@@ -91,6 +97,15 @@ export class CommunityHomePageComponent implements OnInit {
           ? 'Requests are taking a short pause. Please try again.'
           : 'Connection requests are temporarily unavailable.');
       },
+    });
+  }
+
+  private loadCommunityPosts(): void {
+    this.communityPostsLoading.set(true);
+    this.communityPostsError.set(false);
+    this.api.getCommunityPosts({ page: 1 }).subscribe({
+      next: (response) => { this.communityPosts.set(response.results.slice(0, 3)); this.communityPostsLoading.set(false); },
+      error: () => { this.communityPosts.set([]); this.communityPostsLoading.set(false); this.communityPostsError.set(true); },
     });
   }
 

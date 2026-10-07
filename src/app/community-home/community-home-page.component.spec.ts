@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-import { CommunityApiService, ConnectionRequestRecord, DirectoryMember } from '../api/community-api.service';
+import { CommunityApiService, CommunityPost, ConnectionRequestRecord, DirectoryMember } from '../api/community-api.service';
 import { CommunityAuthService } from '../api/community-auth.service';
 import { CommunityProfileResponse, CommunityProfileService } from '../api/community-profile.service';
 import { CommunityHomePageComponent } from './community-home-page.component';
@@ -16,6 +16,13 @@ const member: DirectoryMember = {
 const request = (id: string): ConnectionRequestRecord => ({
   connection_id: `connection-${id}`, state: 'INCOMING_PENDING', requested_at: '2026-10-04T10:00:00Z',
   member: { ...member, directory_id: `member-${id}`, first_name: id === '1' ? 'Helen' : 'Another', last_name: 'Member' },
+});
+
+const post = (id: string): CommunityPost => ({
+  public_id: id, purpose: 'ASK', headline: `Useful post ${id}`, body: 'A useful Community contribution.', audience: 'ELEVATE_COMMUNITY',
+  author: { directory_id: 'member-1', first_name: 'Helen', last_name: 'Amoako', photo_url: null, professional: { job_title: 'CEO', industry: null }, location: 'Milton Keynes' },
+  created_at: '2026-10-04T10:00:00Z', updated_at: '2026-10-04T10:00:00Z', edited_at: null, reply_count: 2, is_own_post: false,
+  capabilities: { can_edit: false, can_delete: false, can_edit_purpose: false, can_edit_audience: false },
 });
 
 const profile = (overrides: Partial<CommunityProfileResponse> = {}): CommunityProfileResponse => ({
@@ -33,6 +40,7 @@ describe('CommunityHomePageComponent', () => {
   let fixture: ComponentFixture<CommunityHomePageComponent>;
   let api: {
     getConnectionRequests: ReturnType<typeof vi.fn>;
+    getCommunityPosts: ReturnType<typeof vi.fn>;
     acceptConnection: ReturnType<typeof vi.fn>;
     declineConnection: ReturnType<typeof vi.fn>;
   };
@@ -55,11 +63,24 @@ describe('CommunityHomePageComponent', () => {
   beforeEach(() => {
     api = {
       getConnectionRequests: vi.fn(() => of({ count: 0, next: null, previous: null, results: [] })),
+      getCommunityPosts: vi.fn(() => of({ count: 0, next: null, previous: null, results: [] })),
       acceptConnection: vi.fn(() => of({ connection_id: 'connection-1', member })),
       declineConnection: vi.fn(() => of({ connection_id: 'connection-1', member })),
     };
     profileService = { getProfile: vi.fn(() => of(profile())) };
   });
+
+  function expectHomeOrder(hasRequests: boolean): void {
+    const home = fixture.nativeElement as HTMLElement;
+    expect(getComputedStyle(home.querySelector('.home-community') as HTMLElement).order).toBe('1');
+    if (hasRequests) {
+      expect(getComputedStyle(home.querySelector('.home-requests') as HTMLElement).order).toBe('2');
+    } else {
+      expect(home.querySelector('.home-requests')).toBeNull();
+    }
+    expect(getComputedStyle(home.querySelector('.home-secondary-grid') as HTMLElement).order).toBe('4');
+    expect(getComputedStyle(home.querySelector('.home-exit') as HTMLElement).order).toBe('5');
+  }
 
   it('loads only a small authoritative incoming preview without blocking Home', async () => {
     api.getConnectionRequests.mockReturnValue(of({ count: 5, next: 'next', previous: null, results: [request('1'), request('2'), request('3'), request('4')] }));
@@ -80,6 +101,7 @@ describe('CommunityHomePageComponent', () => {
     expect(fixture.nativeElement.querySelector('.home-identity .home-exit')).toBeNull();
     expect(fixture.nativeElement.querySelector('.home-exit')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.home-requests')?.compareDocumentPosition(fixture.nativeElement.querySelector('.home-exit')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expectHomeOrder(true);
   });
 
   it('omits the request section when there are no incoming requests', async () => {
@@ -106,6 +128,15 @@ describe('CommunityHomePageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Make your profile more useful to the Community.');
     expect(fixture.nativeElement.textContent).toContain('Complete profile');
     expect(fixture.nativeElement.querySelector('a[href="/community/profile/edit"]')).not.toBeNull();
+    expectHomeOrder(false);
+  });
+
+  it('places Community before requests and profile progress for an incomplete profile with requests', async () => {
+    profileService.getProfile.mockReturnValue(of(profile({ completion: { name: true, professional_details: false, bio: true, skills: true, interests: false } })));
+    api.getConnectionRequests.mockReturnValue(of({ count: 1, next: null, previous: null, results: [request('1')] }));
+    await createComponent();
+    expect(fixture.nativeElement.querySelector('.home-attention')).not.toBeNull();
+    expectHomeOrder(true);
   });
 
   it('shows a restrained positive state when the backend reports a complete profile', async () => {
@@ -115,6 +146,7 @@ describe('CommunityHomePageComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.home-progress-list li').length).toBe(0);
     expect(fixture.nativeElement.textContent).toContain('View profile');
     expect(fixture.nativeElement.querySelector('.home-attention')).toBeNull();
+    expectHomeOrder(false);
   });
 
   it('renders backend completion dimensions and an edit action without counting photo', async () => {
@@ -137,6 +169,47 @@ describe('CommunityHomePageComponent', () => {
     ]);
     expect(fixture.nativeElement.textContent).toContain('Discover members');
     expect(fixture.nativeElement.textContent).toContain('Account & Preferences');
+  });
+
+  it('loads only the first Community page, renders at most three posts, and keeps the prompt links', async () => {
+    api.getCommunityPosts.mockReturnValue(of({ count: 5, next: 'page-2', previous: null, results: [post('1'), post('2'), post('3'), post('4')] }));
+    await createComponent();
+    expect(api.getCommunityPosts).toHaveBeenCalledWith({ page: 1 });
+    expect(api.getCommunityPosts).toHaveBeenCalledOnce();
+    expect(fixture.nativeElement.querySelectorAll('app-community-post-card').length).toBe(3);
+    expect(fixture.nativeElement.querySelector('a[href="/community/community/post/new"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/community/community"]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Useful post 1');
+    expect(fixture.nativeElement.textContent).not.toContain('Useful post 4');
+  });
+
+  it('places Community activity before Profile Progress while preserving the existing navigation grid and exit link', async () => {
+    await createComponent();
+    const community = fixture.nativeElement.querySelector('.home-community') as HTMLElement;
+    const progress = fixture.nativeElement.querySelector('.home-secondary-grid') as HTMLElement;
+    const exit = fixture.nativeElement.querySelector('.home-exit') as HTMLElement;
+    expect(getComputedStyle(community).order).toBe('1');
+    expect(getComputedStyle(progress).order).toBe('4');
+    expect(getComputedStyle(exit).order).toBe('5');
+    expect(fixture.nativeElement.querySelector('a[href="/community/community"]')).not.toBeNull();
+  });
+
+  it('keeps a useful empty Community section without fabricating posts', async () => {
+    await createComponent();
+    expect(fixture.nativeElement.textContent).toContain('No posts yet.');
+    expect(fixture.nativeElement.querySelectorAll('app-community-post-card').length).toBe(0);
+    expect(fixture.nativeElement.querySelector('a[href="/community/community/post/new"]')).not.toBeNull();
+  });
+
+  it('keeps Home content usable and retries only the Community request after a feed failure', async () => {
+    api.getCommunityPosts.mockReturnValueOnce(throwError(() => ({ status: 503 }))).mockReturnValueOnce(of({ count: 0, next: null, previous: null, results: [] }));
+    await createComponent();
+    expect(fixture.nativeElement.textContent).toContain('COMMUNITY POSTS UNAVAILABLE');
+    expect(fixture.nativeElement.textContent).toContain('Welcome, Amina.');
+    expect(api.getConnectionRequests).toHaveBeenCalledOnce();
+    (fixture.nativeElement.querySelector('.home-community-error button') as HTMLButtonElement).click();
+    expect(api.getCommunityPosts).toHaveBeenCalledTimes(2);
+    expect(api.getConnectionRequests).toHaveBeenCalledOnce();
   });
 
   it('keeps profile content available when the requests request fails', async () => {
