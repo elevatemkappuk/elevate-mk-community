@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { CommunityApiError, CommunityAuthService } from '../api/community-auth.service';
@@ -11,7 +11,7 @@ interface PurposeFilter { label: string; value: CommunityPostPurpose | null; }
 
 @Component({
   selector: 'app-community-feed-page',
-  imports: [CommunityHeaderComponent, CommunityPostCardComponent],
+  imports: [CommunityHeaderComponent, CommunityPostCardComponent, RouterLink],
   templateUrl: './community-feed-page.component.html',
   styleUrl: './community-feed-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

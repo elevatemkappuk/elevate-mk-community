@@ -9,7 +9,7 @@
     } @else {
       @if (post(); as data) {
         <article class="community-post-detail" aria-labelledby="post-detail-title">
-          <div class="detail-meta"><span class="post-purpose">{{ purposeLabel(data.purpose) }}</span><span class="post-audience">{{ audienceLabel(data.audience) }}</span></div>
+          <div class="detail-meta"><div><span class="post-purpose">{{ purposeLabel(data.purpose) }}</span><span class="post-audience">{{ audienceLabel(data.audience) }}</span></div>@if (!data.is_own_post) { <button class="detail-secondary-action" type="button" (click)="openPostReport()">Report</button> }</div>
           <h1 id="post-detail-title">{{ data.headline }}</h1>
           <div class="detail-author">
             @if (data.author.directory_id; as directoryId) {
@@ -25,6 +25,46 @@
           <div class="detail-body">{{ data.body }}</div>
           <div class="detail-footer"><span>{{ data.reply_count }} {{ data.reply_count === 1 ? 'reply' : 'replies' }}</span><span>Conversation count</span></div>
         </article>
+
+        @if (reportAcknowledgement(); as acknowledgement) { <p class="report-acknowledgement" role="status">{{ acknowledgement }}</p> }
+        <section class="conversation" aria-labelledby="conversation-title">
+          <div class="conversation-heading"><div><p class="eyebrow">Conversation</p><h2 id="conversation-title">Replies</h2></div><p>Replies are shown in chronological order.</p></div>
+          @if (repliesLoading() && !replies().length) { <p class="conversation-state" role="status">Loading the conversation…</p> }
+          @else if (repliesError() && !replies().length) { <p class="conversation-state" role="alert">{{ repliesError() }} <button type="button" (click)="retryReplies()">Try again</button></p> }
+          @else {
+            <div class="reply-list">
+              @for (reply of replies(); track reply.public_id) {
+                <article class="reply-item" [class.reply-placeholder]="replyIsPlaceholder(reply)">
+                  @if (replyIsPlaceholder(reply)) {
+                    <p class="reply-placeholder-copy">{{ reply.body }}</p>
+                  } @else {
+                    <div class="reply-author-row"><app-profile-avatar size="compact" [photoUrl]="reply.author?.photo_url ?? null" [initials]="replyInitials(reply)" [altText]="authorNameForReply(reply) + ' profile photo'" /><div class="reply-author-copy"><strong>{{ authorNameForReply(reply) }}</strong>@if (reply.author?.professional?.job_title || reply.author?.professional?.industry?.label) { <p>{{ reply.author?.professional?.job_title }}@if (reply.author?.professional?.job_title && reply.author?.professional?.industry?.label) { <span aria-hidden="true"> · </span> }{{ reply.author?.professional?.industry?.label }}</p> }@if (reply.author?.location) { <p>{{ reply.author?.location }}</p> }</div></div>
+                    @if (reply.replying_to?.author) { <p class="replying-context">Replying to {{ replyToName(reply) }}</p> }
+                    @if (editingReplyId() === reply.public_id) {
+                      <textarea class="reply-edit-input" [formControl]="editBody" maxlength="1000" rows="5" aria-label="Edit reply"></textarea><div class="reply-edit-actions"><button type="button" (click)="saveEdit(reply)">Save</button><button type="button" (click)="cancelEdit()">Cancel</button></div>@if (editError(); as message) { <p class="reply-error" role="alert">{{ message }}</p> }
+                    } @else {
+                      <p class="reply-body">{{ reply.body }}</p><p class="reply-time"><time [attr.datetime]="reply.created_at" [title]="reply.created_at">{{ relativeTime(reply.created_at) }}</time>@if (reply.edited_at) { <span> · Edited</span> }</p>
+                      <div class="reply-actions"><button type="button" (click)="chooseReplyTarget(reply)">Reply</button>@if (replyCanManage(reply)) { <button type="button" (click)="beginEdit(reply)">Edit</button><button type="button" (click)="requestDelete(reply)">Delete</button> } @else if (replyCanReport(reply)) { <button type="button" (click)="openReplyReport(reply)">Report</button> }</div>
+                      @if (deletingReplyId() === reply.public_id) { <div class="delete-confirm" role="alertdialog" aria-label="Delete reply confirmation"><strong>Delete reply?</strong><p>This will remove the reply from the conversation. Replies made in response to it may remain.</p><button type="button" (click)="confirmDelete(reply)">Delete reply</button><button type="button" (click)="cancelDelete()">Cancel</button></div> }
+                    }
+                  }
+                </article>
+              }
+            </div>
+            @if (!replies().length && repliesLoaded()) { <p class="conversation-state">No replies yet. Add the first useful thought to the conversation.</p> }
+            @if (repliesError() && replies().length) { <p class="conversation-state" role="alert">{{ repliesError() }} <button type="button" (click)="loadMoreReplies()">Try again</button></p> }
+            @if (hasMoreReplies()) { <button class="load-more-replies" type="button" [disabled]="repliesLoadingMore()" [attr.aria-busy]="repliesLoadingMore()" (click)="loadMoreReplies()">{{ repliesLoadingMore() ? 'Loading more…' : 'Load more replies' }}</button> }
+          }
+
+          <form class="reply-composer" (ngSubmit)="submitReply()" novalidate aria-labelledby="reply-composer-title">
+            <h3 id="reply-composer-title">Add to the conversation</h3>
+            @if (replyTo(); as target) { <p class="reply-target">Replying to {{ replyToName(target) }} <button type="button" (click)="cancelReplyTarget()">Cancel</button></p> }
+            <textarea [formControl]="replyBody" maxlength="1000" rows="5" aria-label="Reply body" placeholder="Add a useful thought or response."></textarea>
+            <div class="reply-composer-footer"><span>{{ 1000 - replyBody.value.length }} characters left</span><button class="community-primary-action" type="submit" [disabled]="replySubmitting()">{{ replySubmitting() ? 'Replying…' : 'Reply' }}</button></div>
+            @if (showReplyError()) { <p class="reply-error" role="alert">Enter a reply of 1,000 characters or fewer.</p> } @if (replyError(); as message) { <p class="reply-error" role="alert">{{ message }} <button type="button" (click)="submitReply()">Try again</button></p> }
+          </form>
+        </section>
+        @if (reportTarget(); as target) { <app-community-report-dialog [targetLabel]="target" [submitting]="reportSubmitting()" [errorMessage]="reportError()" (submitReport)="submitReport($event)" (close)="closeReport()" /> }
       }
     }
   </main>

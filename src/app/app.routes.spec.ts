@@ -25,6 +25,8 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'community')?.canActivate?.length).toBe(1);
     expect(await routes.find((route) => route.path === 'community/community')?.loadComponent?.()).toBeTruthy();
     expect(routes.find((route) => route.path === 'community/community')?.canActivate?.length).toBe(1);
+    expect(await routes.find((route) => route.path === 'community/community/post/new')?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/community/post/new')?.canActivate?.length).toBe(1);
     expect(await routes.find((route) => route.path === 'community/community/post/:postId')?.loadComponent?.()).toBeTruthy();
     expect(routes.find((route) => route.path === 'community/community/post/:postId')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/profile')?.component).toBe(CommunityProfilePageComponent);

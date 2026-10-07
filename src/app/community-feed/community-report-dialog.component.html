@@ -1,0 +1,17 @@
+<div class="report-backdrop" (click)="close.emit()">
+  <section class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-dialog-title" (click)="$event.stopPropagation()">
+    <div class="report-dialog-heading"><div><p class="eyebrow">Community</p><h2 id="report-dialog-title">Report {{ targetLabel() }}</h2></div><button class="report-close" type="button" aria-label="Close report dialog" (click)="close.emit()">×</button></div>
+    <p class="report-intro">Help the Elevate team understand what needs reviewing.</p>
+    <fieldset><legend>Why are you reporting this?</legend>
+      <label><input type="radio" name="report-reason" [formControl]="reason" value="OFF_TOPIC" /> Off topic</label>
+      <label><input type="radio" name="report-reason" [formControl]="reason" value="SPAM_OR_EXCESSIVE_PROMOTION" /> Spam or excessive promotion</label>
+      <label><input type="radio" name="report-reason" [formControl]="reason" value="INAPPROPRIATE_OR_ABUSIVE" /> Inappropriate or abusive</label>
+      <label><input type="radio" name="report-reason" [formControl]="reason" value="MISLEADING_OR_SUSPICIOUS" /> Misleading or suspicious</label>
+      <label><input type="radio" name="report-reason" [formControl]="reason" value="OTHER" /> Other</label>
+    </fieldset>
+    <label class="details-label" for="report-details">Additional details <span>(optional)</span></label>
+    <textarea #detailsInput id="report-details" [formControl]="details" maxlength="1000" rows="4" placeholder="Add useful context if you can."></textarea>
+    @if (errorMessage(); as message) { <p class="report-error" role="alert">{{ message }}</p> }
+    <div class="report-actions"><button class="community-primary-action" type="button" [disabled]="submitting()" (click)="submit()">{{ submitting() ? 'Sending…' : 'Send report' }}</button><button class="report-cancel" type="button" [disabled]="submitting()" (click)="close.emit()">Cancel</button></div>
+  </section>
+</div>

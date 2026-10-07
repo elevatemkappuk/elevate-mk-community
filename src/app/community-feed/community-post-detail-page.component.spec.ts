@@ -14,7 +14,7 @@ const detail = {
 
 describe('CommunityPostDetailPageComponent', () => {
   let fixture: ComponentFixture<CommunityPostDetailPageComponent>;
-  let api: { getCommunityPost: ReturnType<typeof vi.fn> };
+  let api: { getCommunityPost: ReturnType<typeof vi.fn>; getCommunityReplies: ReturnType<typeof vi.fn>; createCommunityReply: ReturnType<typeof vi.fn> };
 
   async function create(): Promise<void> {
     await TestBed.configureTestingModule({
@@ -25,16 +25,38 @@ describe('CommunityPostDetailPageComponent', () => {
     fixture.detectChanges();
   }
 
-  beforeEach(() => { api = { getCommunityPost: vi.fn(() => of(detail)) }; });
+  beforeEach(() => { api = { getCommunityPost: vi.fn(() => of(detail)), getCommunityReplies: vi.fn(() => of({ count: 0, next: null, previous: null, results: [] })), createCommunityReply: vi.fn(() => of({ public_id: 'reply-3', body: 'A useful response', author: null, created_at: '2026-10-07T10:03:00Z', updated_at: '2026-10-07T10:03:00Z', edited_at: null, is_own_reply: true, replying_to: null })) }; });
 
   it('loads the public post id and renders the full body without reply UI', async () => {
     await create();
     expect(api.getCommunityPost).toHaveBeenCalledWith('post-1');
+    expect(api.getCommunityReplies).toHaveBeenCalledWith('post-1', 1);
     expect(fixture.nativeElement.textContent).toContain('Full body\nwith line breaks.');
     expect(fixture.nativeElement.textContent).toContain('MY CONNECTIONS');
     expect(fixture.nativeElement.textContent).toContain('Edited');
     expect(fixture.nativeElement.textContent).not.toContain('Reply to');
     expect(fixture.nativeElement.textContent).not.toContain('email');
+  });
+
+  it('renders a flat conversation and submits a reply with its reply target', async () => {
+    api.getCommunityReplies.mockReturnValue(of({ count: 2, next: null, previous: null, results: [
+      { public_id: 'reply-1', body: 'First reply', author: { directory_id: null, first_name: 'James', last_name: 'Carter', photo_url: null, professional: { job_title: 'Designer', industry: null }, location: '' }, created_at: '2026-10-07T10:01:00Z', updated_at: '2026-10-07T10:01:00Z', edited_at: null, is_own_reply: false, replying_to: null },
+      { public_id: 'reply-2', body: 'Second reply', author: { directory_id: null, first_name: 'Amina', last_name: 'Zulu', photo_url: null, professional: { job_title: '', industry: null }, location: '' }, created_at: '2026-10-07T10:02:00Z', updated_at: '2026-10-07T10:02:00Z', edited_at: null, is_own_reply: true, replying_to: { public_id: 'reply-1', author: { first_name: 'James', last_name: 'Carter' } } },
+    ] }));
+    await create();
+    expect(fixture.nativeElement.textContent).toContain('First reply');
+    expect(fixture.nativeElement.textContent).toContain('Replying to James Carter');
+    fixture.componentInstance.replyTo.set(fixture.componentInstance.replies()[0]);
+    fixture.componentInstance.replyBody.setValue('A useful response');
+    fixture.componentInstance.submitReply();
+    expect(api.getCommunityReplies).toHaveBeenCalledWith('post-1', 1);
+    expect(api.createCommunityReply).toHaveBeenCalledWith('post-1', { body: 'A useful response', reply_to_id: 'reply-1' }, expect.any(String));
+  });
+
+  it('does not fabricate post edit/delete controls when the backend exposes no post mutations', async () => {
+    await create();
+    expect(fixture.nativeElement.textContent).not.toContain('Edit post');
+    expect(fixture.nativeElement.textContent).not.toContain('Delete post');
   });
 
   it('uses a generic unavailable state for inaccessible details', async () => {

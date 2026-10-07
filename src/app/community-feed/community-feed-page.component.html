@@ -7,6 +7,11 @@
       <p>A useful professional community built around helping each other.</p>
     </header>
 
+    <aside class="create-post-entry" aria-labelledby="create-post-entry-title">
+      <div><p class="eyebrow">Have something useful to share?</p><h2 id="create-post-entry-title">Ask for help, offer something, share an opportunity or update the community.</h2></div>
+      <a class="create-post-link" routerLink="/community/community/post/new">Create a post <span aria-hidden="true">→</span></a>
+    </aside>
+
     <nav class="purpose-filters" aria-label="Community post purpose">
       @for (filter of filters; track filter.label) {
         <button type="button" [class.active]="selectedPurpose() === filter.value" [attr.aria-pressed]="selectedPurpose() === filter.value" (click)="choosePurpose(filter.value)">{{ filter.label }}</button>

@@ -126,6 +126,40 @@ export interface CommunityPostPage {
   results: CommunityPost[];
 }
 
+export interface CommunityReplyingTo {
+  reply_id: string;
+  author: { directory_id: string | null; first_name: string; last_name: string } | null;
+}
+
+export interface CommunityReply {
+  public_id: string;
+  body: string;
+  author: CommunityPostAuthor | null;
+  created_at: string;
+  updated_at: string;
+  edited_at: string | null;
+  is_own_reply: boolean;
+  replying_to: CommunityReplyingTo | null;
+}
+
+export interface CommunityReplyPage {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: CommunityReply[];
+}
+
+export interface CommunityPostCreatePayload {
+  purpose: CommunityPostPurpose;
+  headline: string;
+  body: string;
+  audience: CommunityPostAudience;
+}
+
+export interface CommunityReplyCreatePayload { body: string; reply_to_id?: string | null; }
+export interface CommunityReportPayload { reason: 'OFF_TOPIC' | 'SPAM_OR_EXCESSIVE_PROMOTION' | 'INAPPROPRIATE_OR_ABUSIVE' | 'MISLEADING_OR_SUSPICIOUS' | 'OTHER'; details?: string; }
+export interface CommunityReportAcknowledgement { report_id: string; status: 'OPEN'; }
+
 export interface CommunityPostQuery {
   purpose?: CommunityPostPurpose;
   page?: number;
@@ -164,6 +198,52 @@ export class CommunityApiService {
     return this.http.get<CommunityPost>(
       `${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(publicId)}/`,
       { withCredentials: true },
+    );
+  }
+
+  createCommunityPost(payload: CommunityPostCreatePayload, idempotencyKey: string): Observable<CommunityPost> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityPost>(`${this.apiConfig.apiBaseUrl}/community/posts/`, payload, {
+        headers: { 'Idempotency-Key': idempotencyKey }, withCredentials: true,
+      })),
+    );
+  }
+
+  getCommunityReplies(postId: string, page = 1): Observable<CommunityReplyPage> {
+    let params = new HttpParams();
+    if (page > 1) params = params.set('page', page);
+    return this.http.get<CommunityReplyPage>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/replies/`, { params, withCredentials: true });
+  }
+
+  createCommunityReply(postId: string, payload: CommunityReplyCreatePayload, idempotencyKey: string): Observable<CommunityReply> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityReply>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/replies/`, payload, {
+        headers: { 'Idempotency-Key': idempotencyKey }, withCredentials: true,
+      })),
+    );
+  }
+
+  editCommunityReply(postId: string, replyId: string, body: string): Observable<CommunityReply> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.patch<CommunityReply>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/replies/${encodeURIComponent(replyId)}/`, { body }, { withCredentials: true })),
+    );
+  }
+
+  deleteCommunityReply(postId: string, replyId: string): Observable<void> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.delete<void>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/replies/${encodeURIComponent(replyId)}/`, { withCredentials: true })),
+    );
+  }
+
+  reportCommunityPost(postId: string, payload: CommunityReportPayload): Observable<CommunityReportAcknowledgement> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityReportAcknowledgement>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/report/`, payload, { withCredentials: true })),
+    );
+  }
+
+  reportCommunityReply(postId: string, replyId: string, payload: CommunityReportPayload): Observable<CommunityReportAcknowledgement> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityReportAcknowledgement>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(postId)}/replies/${encodeURIComponent(replyId)}/report/`, payload, { withCredentials: true })),
     );
   }
 

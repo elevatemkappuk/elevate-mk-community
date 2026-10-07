@@ -1,0 +1,30 @@
+<div class="community-create-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="community-create-main" aria-labelledby="create-post-title">
+    <a class="back-community" routerLink="/community/community">← Back to Community</a>
+    <header class="create-heading"><p class="eyebrow">Community</p><h1 id="create-post-title">Create a post.</h1><p>Choose what you want to contribute, then give members the detail they need to respond.</p></header>
+
+    <form [formGroup]="form" (ngSubmit)="publish()" novalidate>
+      <fieldset class="purpose-fieldset" [attr.aria-describedby]="showError('purpose') ? 'purpose-error' : null">
+        <legend>What kind of contribution is this?</legend>
+        <div class="purpose-options" role="radiogroup" aria-label="Post purpose">
+          @for (purpose of purposes; track purpose.value) {
+            <button type="button" class="purpose-option" role="radio" [attr.aria-checked]="form.controls.purpose.value === purpose.value" [class.selected]="form.controls.purpose.value === purpose.value" (click)="selectPurpose(purpose.value)"><strong>{{ purpose.label }}</strong><span>{{ purpose.prompt }}</span></button>
+          }
+        </div>
+        @if (selectedPurpose(); as purpose) { <p class="purpose-guidance"><strong>{{ purpose.prompt }}</strong> {{ purpose.help }}</p> }
+        @if (showError('purpose')) { <p id="purpose-error" class="field-error" role="alert">{{ errorText('purpose') }}</p> }
+      </fieldset>
+
+      <section class="post-guideline" aria-label="Community posting guideline"><strong>Keep it useful to the community.</strong><p>Posts should ask for help, offer value, share a genuine opportunity, or provide a relevant professional/community update. Generic motivational content, promotional spam and unrelated content may be removed.</p></section>
+
+      <div class="form-field"><label for="post-headline">Headline</label><input id="post-headline" formControlName="headline" maxlength="120" [attr.aria-invalid]="showError('headline')" [attr.aria-describedby]="showError('headline') ? 'headline-error headline-count' : 'headline-count'" placeholder="Give your post a clear headline" /> <div class="field-meta"><span>@if (showError('headline')) { <span id="headline-error" class="field-error">{{ errorText('headline') }}</span> }</span><span id="headline-count">{{ remaining('headline', 120) }} characters left</span></div></div>
+      <div class="form-field"><label for="post-body">Your contribution</label><textarea id="post-body" rows="9" formControlName="body" maxlength="2000" [attr.aria-invalid]="showError('body')" [attr.aria-describedby]="showError('body') ? 'body-error body-count' : 'body-count'" placeholder="Add the detail members need to understand and respond."></textarea><div class="field-meta"><span>@if (showError('body')) { <span id="body-error" class="field-error">{{ errorText('body') }}</span> }</span><span id="body-count">{{ remaining('body', 2000) }} characters left</span></div></div>
+
+      <fieldset class="audience-fieldset"><legend>Who can see this post?</legend><div class="audience-options"><label [class.selected]="form.controls.audience.value === 'ELEVATE_COMMUNITY'"><input type="radio" formControlName="audience" value="ELEVATE_COMMUNITY" /> <span><strong>Elevate Community</strong><small>Everyone in the eligible Elevate Community can see this post.</small></span></label><label [class.selected]="form.controls.audience.value === 'CONNECTIONS'"><input type="radio" formControlName="audience" value="CONNECTIONS" /> <span><strong>My connections</strong><small>Only your current accepted connections can see this post.</small></span></label></div></fieldset>
+
+      @if (errorMessage(); as message) { <p class="submit-error" role="alert">{{ message }} <button type="button" (click)="publish()">Try again</button></p> }
+      <div class="form-actions"><button class="community-primary-action" type="submit" [disabled]="submitting()">{{ submitting() ? 'Posting…' : 'Post to Community' }}</button><a class="cancel-action" routerLink="/community/community">Cancel</a></div>
+    </form>
+  </main>
+</div>
