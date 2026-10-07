@@ -46,6 +46,9 @@ export class CommunityPostDetailPageComponent implements OnInit {
   readonly reportSubmitting = signal(false);
   readonly reportAcknowledgement = signal<string | null>(null);
   readonly reportError = signal<string | null>(null);
+  readonly deleteConfirmation = signal(false);
+  readonly deleteSubmitting = signal(false);
+  readonly deleteError = signal<string | null>(null);
   readonly signingOut = signal(false);
   private replyIdempotencyKey: string | null = null;
 
@@ -119,6 +122,22 @@ export class CommunityPostDetailPageComponent implements OnInit {
     this.reportSubmitting.set(true); this.reportError.set(null);
     const request$ = this.reportTarget() === 'post' ? this.api.reportCommunityPost(post.public_id, payload) : this.api.reportCommunityReply(post.public_id, this.reportReply()!.public_id, payload);
     request$.subscribe({ next: () => { this.reportSubmitting.set(false); this.reportTarget.set(null); this.reportAcknowledgement.set('REPORT RECEIVED — Thank you. The Elevate team will review it.'); }, error: (error: CommunityApiError) => { this.reportSubmitting.set(false); this.reportError.set(error.status === 429 ? 'Reports are taking a short pause. Please try again later.' : 'We couldn’t send the report right now. Please try again.'); } });
+  }
+
+  requestPostDelete(): void { this.deleteConfirmation.set(true); this.deleteError.set(null); }
+  cancelPostDelete(): void { if (!this.deleteSubmitting()) this.deleteConfirmation.set(false); }
+  confirmPostDelete(): void {
+    const post = this.post();
+    if (!post || this.deleteSubmitting() || !post.capabilities.can_delete) return;
+    this.deleteSubmitting.set(true);
+    this.deleteError.set(null);
+    this.api.deleteCommunityPost(post.public_id).subscribe({
+      next: () => { this.deleteSubmitting.set(false); void this.router.navigate(['/community/community']); },
+      error: (error: CommunityApiError) => {
+        this.deleteSubmitting.set(false);
+        this.deleteError.set(error.status === 404 || error.status === 403 ? 'This post is no longer available to manage.' : 'We couldnâ€™t remove this post right now. Please try again.');
+      },
+    });
   }
 
   loadMoreReplies(): void { if (!this.post() || this.repliesLoading() || this.repliesLoadingMore() || !this.hasMoreReplies()) return; this.loadReplies(this.post()!.public_id, this.repliesPage() + 1, true); }

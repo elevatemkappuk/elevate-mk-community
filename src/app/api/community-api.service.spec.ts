@@ -76,6 +76,22 @@ describe('CommunityApiService', () => {
     request.flush({ public_id: 'reply-1' });
   });
 
+  it('updates and deletes a Community post through the authenticated contract', () => {
+    service.updateCommunityPost('post/one', { headline: 'Updated headline', body: 'Updated body' }).subscribe();
+    let request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ headline: 'Updated headline', body: 'Updated body' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ public_id: 'post-1' });
+
+    service.deleteCommunityPost('post/one').subscribe();
+    request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush(null);
+  });
+
   it('loads replies and uses the reply/report mutation contracts', () => {
     service.getCommunityReplies('post-1', 2).subscribe();
     let request = http.expectOne('/api/v1/community/posts/post-1/replies/?page=2');

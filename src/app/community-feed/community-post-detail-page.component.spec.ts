@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { CommunityApiService } from '../api/community-api.service';
@@ -10,11 +10,12 @@ const detail = {
   public_id: 'post-1', purpose: 'UPDATE' as const, headline: 'A long-form update', body: 'Full body\nwith line breaks.', audience: 'CONNECTIONS' as const,
   author: { directory_id: null, first_name: 'Amina', last_name: 'Zulu', photo_url: null, professional: { job_title: '', industry: null }, location: '' },
   created_at: '2026-10-07T10:00:00Z', updated_at: '2026-10-07T10:00:00Z', edited_at: '2026-10-07T11:00:00Z', reply_count: 0, is_own_post: false,
+  capabilities: { can_edit: false, can_delete: false, can_edit_purpose: false, can_edit_audience: false },
 };
 
 describe('CommunityPostDetailPageComponent', () => {
   let fixture: ComponentFixture<CommunityPostDetailPageComponent>;
-  let api: { getCommunityPost: ReturnType<typeof vi.fn>; getCommunityReplies: ReturnType<typeof vi.fn>; createCommunityReply: ReturnType<typeof vi.fn> };
+  let api: { getCommunityPost: ReturnType<typeof vi.fn>; getCommunityReplies: ReturnType<typeof vi.fn>; createCommunityReply: ReturnType<typeof vi.fn>; deleteCommunityPost: ReturnType<typeof vi.fn> };
 
   async function create(): Promise<void> {
     await TestBed.configureTestingModule({
@@ -25,7 +26,7 @@ describe('CommunityPostDetailPageComponent', () => {
     fixture.detectChanges();
   }
 
-  beforeEach(() => { api = { getCommunityPost: vi.fn(() => of(detail)), getCommunityReplies: vi.fn(() => of({ count: 0, next: null, previous: null, results: [] })), createCommunityReply: vi.fn(() => of({ public_id: 'reply-3', body: 'A useful response', author: null, created_at: '2026-10-07T10:03:00Z', updated_at: '2026-10-07T10:03:00Z', edited_at: null, is_own_reply: true, replying_to: null })) }; });
+  beforeEach(() => { api = { getCommunityPost: vi.fn(() => of(detail)), getCommunityReplies: vi.fn(() => of({ count: 0, next: null, previous: null, results: [] })), createCommunityReply: vi.fn(() => of({ public_id: 'reply-3', body: 'A useful response', author: null, created_at: '2026-10-07T10:03:00Z', updated_at: '2026-10-07T10:03:00Z', edited_at: null, is_own_reply: true, replying_to: null })), deleteCommunityPost: vi.fn(() => of(void 0)) }; });
 
   it('loads the public post id and renders the full body without reply UI', async () => {
     await create();
@@ -64,5 +65,30 @@ describe('CommunityPostDetailPageComponent', () => {
     await create();
     expect(fixture.nativeElement.textContent).toContain('POST UNAVAILABLE');
     expect(fixture.nativeElement.textContent).not.toContain('private reason');
+  });
+
+  it('renders authoritative own-post edit/delete actions and never offers Report', async () => {
+    api.getCommunityPost.mockReturnValue(of({ ...detail, is_own_post: true, capabilities: { can_edit: true, can_delete: true, can_edit_purpose: false, can_edit_audience: false } }));
+    await create();
+    expect(fixture.nativeElement.textContent).toContain('Edit');
+    expect(fixture.nativeElement.textContent).toContain('Delete');
+    expect(fixture.nativeElement.textContent).not.toContain('Report');
+    expect(fixture.nativeElement.textContent).not.toContain('Reply to');
+  });
+
+  it('requires delete confirmation and navigates only after backend success', async () => {
+    api.getCommunityPost.mockReturnValue(of({ ...detail, is_own_post: true, capabilities: { can_edit: false, can_delete: true, can_edit_purpose: false, can_edit_audience: false } }));
+    await create();
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const managementDelete = fixture.nativeElement.querySelector('.post-management-actions button') as HTMLButtonElement;
+    managementDelete.click();
+    fixture.detectChanges();
+    expect(api.deleteCommunityPost).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Delete post?');
+    const confirmation = (Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[]).find((button) => button.textContent?.trim() === 'Delete post') as HTMLButtonElement;
+    confirmation.click();
+    expect(api.deleteCommunityPost).toHaveBeenCalledWith('post-1');
+    expect(router.navigate).toHaveBeenCalledWith(['/community/community']);
   });
 });

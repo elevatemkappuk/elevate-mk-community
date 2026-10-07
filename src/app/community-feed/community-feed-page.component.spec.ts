@@ -10,6 +10,7 @@ const post = (id: string, purpose: 'ASK' | 'OFFER' = 'ASK') => ({
   public_id: id, purpose, headline: 'Looking for useful advice', body: 'A helpful community post.', audience: 'ELEVATE_COMMUNITY' as const,
   author: { directory_id: 'member-1', first_name: 'Amina', last_name: 'Zulu', photo_url: null, professional: { job_title: 'Founder', industry: { slug: 'technology', label: 'Technology' } }, location: 'Milton Keynes' },
   created_at: '2026-10-07T10:00:00Z', updated_at: '2026-10-07T10:00:00Z', edited_at: null, reply_count: 3, is_own_post: false,
+  capabilities: { can_edit: false, can_delete: false, can_edit_purpose: false, can_edit_audience: false },
 });
 
 describe('CommunityFeedPageComponent', () => {

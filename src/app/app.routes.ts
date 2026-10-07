@@ -26,6 +26,7 @@ export const routes: Routes = [
   { path: 'community', loadComponent: () => import('./community-home/community-home-page.component').then((module) => module.CommunityHomePageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/community', loadComponent: () => import('./community-feed/community-feed-page.component').then((module) => module.CommunityFeedPageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/community/post/new', loadComponent: () => import('./community-feed/community-post-create-page.component').then((module) => module.CommunityPostCreatePageComponent), canActivate: [communityAuthGuard] },
+  { path: 'community/community/post/:postId/edit', loadComponent: () => import('./community-feed/community-post-edit-page.component').then((module) => module.CommunityPostEditPageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/community/post/:postId', loadComponent: () => import('./community-feed/community-post-detail-page.component').then((module) => module.CommunityPostDetailPageComponent), canActivate: [communityAuthGuard] },
   { path: 'community/profile', component: CommunityProfilePageComponent, canActivate: [communityAuthGuard] },
   { path: 'community/profile/edit', component: CommunityProfileEditPageComponent, canActivate: [communityAuthGuard] },

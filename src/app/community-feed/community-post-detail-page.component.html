@@ -9,7 +9,7 @@
     } @else {
       @if (post(); as data) {
         <article class="community-post-detail" aria-labelledby="post-detail-title">
-          <div class="detail-meta"><div><span class="post-purpose">{{ purposeLabel(data.purpose) }}</span><span class="post-audience">{{ audienceLabel(data.audience) }}</span></div>@if (!data.is_own_post) { <button class="detail-secondary-action" type="button" (click)="openPostReport()">Report</button> }</div>
+          <div class="detail-meta"><div><span class="post-purpose">{{ purposeLabel(data.purpose) }}</span><span class="post-audience">{{ audienceLabel(data.audience) }}</span></div><div class="post-management-actions">@if (data.capabilities.can_edit) { <a class="detail-secondary-action" [routerLink]="['/community/community/post', data.public_id, 'edit']">Edit</a> } @if (data.capabilities.can_delete) { <button class="detail-secondary-action" type="button" (click)="requestPostDelete()">Delete</button> } @if (!data.is_own_post) { <button class="detail-secondary-action" type="button" (click)="openPostReport()">Report</button> }</div></div>
           <h1 id="post-detail-title">{{ data.headline }}</h1>
           <div class="detail-author">
             @if (data.author.directory_id; as directoryId) {
@@ -25,6 +25,15 @@
           <div class="detail-body">{{ data.body }}</div>
           <div class="detail-footer"><span>{{ data.reply_count }} {{ data.reply_count === 1 ? 'reply' : 'replies' }}</span><span>Conversation count</span></div>
         </article>
+
+        @if (deleteConfirmation()) {
+          <section class="post-delete-confirm" role="alertdialog" aria-labelledby="post-delete-title" aria-describedby="post-delete-description">
+            <p class="eyebrow">Community</p><h2 id="post-delete-title">Delete post?</h2>
+            <p id="post-delete-description">This will remove the post from Community. Existing conversation history may be retained.</p>
+            @if (deleteError(); as message) { <p class="reply-error" role="alert">{{ message }}</p> }
+            <div class="post-delete-actions"><button class="community-primary-action destructive-action" type="button" [disabled]="deleteSubmitting()" (click)="confirmPostDelete()">{{ deleteSubmitting() ? 'Deleting…' : 'Delete post' }}</button><button class="report-cancel" type="button" [disabled]="deleteSubmitting()" (click)="cancelPostDelete()">Cancel</button></div>
+          </section>
+        }
 
         @if (reportAcknowledgement(); as acknowledgement) { <p class="report-acknowledgement" role="status">{{ acknowledgement }}</p> }
         <section class="conversation" aria-labelledby="conversation-title">

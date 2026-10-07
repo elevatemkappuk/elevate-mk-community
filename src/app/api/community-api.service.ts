@@ -117,6 +117,14 @@ export interface CommunityPost {
   edited_at: string | null;
   reply_count: number;
   is_own_post: boolean;
+  capabilities: CommunityPostCapabilities;
+}
+
+export interface CommunityPostCapabilities {
+  can_edit: boolean;
+  can_delete: boolean;
+  can_edit_purpose: boolean;
+  can_edit_audience: boolean;
 }
 
 export interface CommunityPostPage {
@@ -154,6 +162,13 @@ export interface CommunityPostCreatePayload {
   headline: string;
   body: string;
   audience: CommunityPostAudience;
+}
+
+export interface CommunityPostUpdatePayload {
+  headline?: string;
+  body?: string;
+  purpose?: CommunityPostPurpose;
+  audience?: CommunityPostAudience;
 }
 
 export interface CommunityReplyCreatePayload { body: string; reply_to_id?: string | null; }
@@ -206,6 +221,18 @@ export class CommunityApiService {
       switchMap(() => this.http.post<CommunityPost>(`${this.apiConfig.apiBaseUrl}/community/posts/`, payload, {
         headers: { 'Idempotency-Key': idempotencyKey }, withCredentials: true,
       })),
+    );
+  }
+
+  updateCommunityPost(publicId: string, payload: CommunityPostUpdatePayload): Observable<CommunityPost> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.patch<CommunityPost>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(publicId)}/`, payload, { withCredentials: true })),
+    );
+  }
+
+  deleteCommunityPost(publicId: string): Observable<void> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.delete<void>(`${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(publicId)}/`, { withCredentials: true })),
     );
   }
 
