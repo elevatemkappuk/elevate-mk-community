@@ -29,7 +29,7 @@
             @if (data.person.location) { <p class="identity-location">{{ data.person.location }}</p> }
             <p class="member-context">Active Elevate MK Community member · Member since {{ data.membership.joined_at | date: 'd MMM y' }}</p>
           </div>
-          <a class="profile-button profile-edit-link" routerLink="/community/profile/edit">Edit profile</a>
+          <div class="profile-actions"><a class="profile-button" routerLink="/community/profile/edit">Edit profile</a><a class="profile-button secondary-action" routerLink="/community/account">Account &amp; preferences</a></div>
         </div>
         @if (data.community.review_required) {
           <aside class="review-banner" aria-labelledby="review-title">
@@ -41,6 +41,23 @@
             </div>
             @if (reviewError()) { <p class="review-error" role="alert">We couldn't confirm your review. Please try again.</p> }
           </aside>
+        }
+      </section>
+      <section class="connect-status" aria-labelledby="connect-status-title">
+        <div>
+          <p class="eyebrow" id="connect-status-title">Connect profile</p>
+          @if (data.community.directory_visible) {
+            <h2>Visible to Community members</h2>
+            <p>Your profile is discoverable in Connect.</p>
+          } @else {
+            <h2>Your profile isn't currently discoverable in Connect.</h2>
+            <p>Choose whether Community members can find you from Edit profile.</p>
+          }
+        </div>
+        @if (data.community.directory_visible) {
+          <a class="profile-button" [routerLink]="['/community/directory', data.community.directory_id]">View my Connect profile <span aria-hidden="true"> →</span></a>
+        } @else {
+          <a class="profile-button" routerLink="/community/profile/edit">Edit visibility <span aria-hidden="true"> →</span></a>
         }
       </section>
       <div class="profile-grid">

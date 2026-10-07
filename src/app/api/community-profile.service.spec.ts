@@ -44,7 +44,7 @@ describe('CommunityProfileService', () => {
 
     service.updateProfile({
       person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-      community: { bio: '' },
+      community: { bio: '', directory_visible: false, email_visible: false, mobile_visible: false },
       professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
       skills: [],
       interests: [],

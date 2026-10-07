@@ -1,0 +1,42 @@
+<article class="member-card" [attr.aria-labelledby]="'member-' + member().directory_id">
+  <div class="member-card-topline">
+    <app-profile-avatar
+      size="compact"
+      [photoUrl]="member().photo_url"
+      [initials]="initials()"
+      [altText]="member().first_name + ' ' + member().last_name + ' profile photo'"
+    />
+    <div class="member-card-identity">
+      <h2 [id]="'member-' + member().directory_id">{{ member().first_name }} {{ member().last_name }}</h2>
+      @if (member().location) { <p class="member-location">{{ member().location }}</p> }
+      @if (relationshipLabel(); as relationship) { <p class="member-relationship">{{ relationship }}</p> }
+    </div>
+  </div>
+
+  @if (member().professional.job_title || member().professional.company || member().professional.industry) {
+    <div class="member-professional">
+      @if (member().professional.job_title) { <p class="member-job-title">{{ member().professional.job_title }}</p> }
+      @if (member().professional.company) { <p>{{ member().professional.company }}</p> }
+      @if (member().professional.industry; as industry) { <p>{{ industry.label }}</p> }
+    </div>
+  }
+
+  @if (member().skills.length || member().interests.length) {
+    <div class="member-taxonomy">
+      @if (member().skills.length) {
+        <ul aria-label="Skills">
+          @for (skill of member().skills; track skill.slug) { <li>{{ skill.label }}</li> }
+        </ul>
+      }
+      @if (member().interests.length) {
+        <ul aria-label="Interests">
+          @for (interest of member().interests; track interest.slug) { <li>{{ interest.label }}</li> }
+        </ul>
+      }
+    </div>
+  }
+
+  <a class="member-card-link" [routerLink]="['/community/directory', member().directory_id]" [queryParams]="queryParams()">
+    View profile <span aria-hidden="true">→</span>
+  </a>
+</article>

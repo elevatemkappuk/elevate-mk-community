@@ -249,7 +249,7 @@ describe('JoinPageComponent', () => {
     component.onSubmit();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#email-error')?.textContent).toContain('Email is already in use.');
+    expect(fixture.nativeElement.querySelector('#join-validation-error')?.textContent).toContain('Email is already in use.');
     expect(fixture.nativeElement.textContent).not.toContain('"status"');
   });
 
@@ -319,12 +319,12 @@ describe('JoinPageComponent', () => {
     fixture.detectChanges();
 
     expect(firstName.touched).toBe(true);
-    expect(fixture.nativeElement.querySelector('#first-name-error')?.textContent).toContain(
+    expect(fixture.nativeElement.querySelector('#join-validation-error')?.textContent).toContain(
       'First name is required.',
     );
     expect(fixture.nativeElement.querySelector('#first-name')?.getAttribute('aria-invalid')).toBe('true');
     expect(fixture.nativeElement.querySelector('#first-name')?.getAttribute('aria-describedby')).toBe(
-      'first-name-error',
+      'join-validation-error',
     );
   });
 

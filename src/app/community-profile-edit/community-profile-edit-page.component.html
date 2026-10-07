@@ -44,8 +44,8 @@
         <fieldset formGroupName="person">
           <legend>Your details</legend>
           <div class="field-grid">
-            <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" />@if (form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched) { <span class="field-error">First name is required.</span> }</label>
-            <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" />@if (form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched) { <span class="field-error">Last name is required.</span> }</label>
+            <label>First name <input formControlName="first_name" autocomplete="given-name" [class.invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" [attr.aria-invalid]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched" [attr.aria-describedby]="form.controls.person.controls.first_name.invalid && form.controls.person.controls.first_name.touched ? 'profile-validation-error' : null" /></label>
+            <label>Last name <input formControlName="last_name" autocomplete="family-name" [class.invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" [attr.aria-invalid]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched" [attr.aria-describedby]="form.controls.person.controls.last_name.invalid && form.controls.person.controls.last_name.touched ? 'profile-validation-error' : null" /></label>
           </div>
           <label><span>Location <span class="optional-label">(optional)</span></span><input formControlName="location" autocomplete="address-level2" /></label>
         </fieldset>
@@ -66,7 +66,7 @@
             <label>Industry <app-select id="profile-industry" formControlName="industry" [options]="industryOptions" placeholder="Select an industry" [describedBy]="'industry-help'"></app-select></label>
             <label>Career stage <app-select id="profile-career-stage" formControlName="career_stage" [options]="careerStageOptions" placeholder="Select a career stage"></app-select></label>
           </div>
-          <label><span>LinkedIn profile <span class="optional-label">(optional)</span></span><input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" />@if (form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched) { <span class="field-error">Enter a valid http or https URL.</span> }</label>
+          <label><span>LinkedIn profile <span class="optional-label">(optional)</span></span><input formControlName="linkedin_url" type="url" autocomplete="url" placeholder="https://www.linkedin.com/in/your-name" [attr.aria-invalid]="form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched" [attr.aria-describedby]="form.controls.professional.controls.linkedin_url.invalid && form.controls.professional.controls.linkedin_url.touched ? 'profile-validation-error' : null" /></label>
         </fieldset>
 
         <fieldset>
@@ -81,10 +81,35 @@
           <app-multi-select formControlName="interests" [options]="interestOptions" placeholder="Add interests" searchPlaceholder="Search interests" noResultsText="No matching interests" removeLabel="Remove interest" />
         </fieldset>
 
+        <fieldset formGroupName="community" class="connect-privacy-section" aria-labelledby="connect-privacy-title">
+          <legend id="connect-privacy-title">Connect profile</legend>
+          <p class="field-help">Choose how other Community members can discover and contact you.</p>
+          <div class="privacy-controls">
+            <label class="privacy-control" for="directory-visible">
+              <span class="privacy-copy"><strong>Make my profile discoverable</strong><small id="directory-visible-help">Allow other Elevate MK Community members to find and view your profile in Connect.</small></span>
+              <span class="privacy-switch"><input id="directory-visible" type="checkbox" formControlName="directory_visible" aria-describedby="directory-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.directory_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
+            <h3 class="privacy-subheading">Contact sharing</h3>
+            <label class="privacy-control" for="email-visible">
+              <span class="privacy-copy"><strong>Share my email address</strong><small id="email-visible-help">Non-connected members follow this setting. Accepted connections can see it automatically.</small></span>
+              <span class="privacy-switch"><input id="email-visible" type="checkbox" formControlName="email_visible" aria-describedby="email-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.email_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
+            <label class="privacy-control" for="mobile-visible">
+              <span class="privacy-copy"><strong>Share my mobile number</strong><small id="mobile-visible-help">Non-connected members follow this setting. Accepted connections can see it automatically.</small></span>
+              <span class="privacy-switch"><input id="mobile-visible" type="checkbox" formControlName="mobile_visible" aria-describedby="mobile-visible-help" /><span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span><span class="switch-state" aria-hidden="true">{{ form.controls.community.controls.mobile_visible.value ? 'On' : 'Off' }}</span></span>
+            </label>
+          </div>
+          <aside class="privacy-explanation">
+            <strong>What other members can see</strong>
+            <p>When your Connect profile is discoverable, other Community members can view your profile details. Email and mobile are hidden from non-connected members unless you choose to share them. Accepted connections can see available contact details automatically while the connection is active.</p>
+          </aside>
+          <p class="privacy-note">Contact details are shown to non-connected members according to these settings. Accepted connections can see available contact details while the connection is active.</p>
+        </fieldset>
+
         @if (profile()?.community?.review_required) {
           <label class="review-checkbox"><input type="checkbox" [checked]="reviewAcknowledgement()" (change)="reviewAcknowledgement.set($any($event.target).checked)" /> <span>I’ve reviewed my profile and the information is up to date.</span></label>
         }
-        @if (saveError()) { <p class="form-error" role="alert">{{ saveError() }}</p> }
+        @if (validationMessages().length) { <div id="profile-validation-error" class="form-validation-errors" role="alert"><p>Profile needs attention:</p><ul>@for (message of validationMessages(); track message) { <li>{{ message }}</li> }</ul></div> }
         <div class="form-actions"><button class="profile-button secondary-action" type="button" [disabled]="saving()" (click)="cancel()">Cancel</button><button class="profile-button" type="submit" [disabled]="saving() || loading()">{{ saving() ? 'Saving...' : 'Save changes' }}</button></div>
       </form>
     }

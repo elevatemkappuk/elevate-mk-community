@@ -138,6 +138,11 @@ export class JoinPageComponent implements OnInit {
     return control.invalid && (control.touched || control.dirty);
   }
 
+  protected validationMessages(): string[] {
+    const fields = ['first_name', 'last_name', 'gender', 'age_range', 'email', 'location', 'industry', 'job_title', 'linkedin_url'] as const;
+    return [...new Set(fields.map((field) => this.shouldShowError(field) ? this.errorMessage(field) : '').filter(Boolean))];
+  }
+
   protected errorMessage(controlName: keyof JoinForm): string {
     const control = this.joinForm.controls[controlName];
 

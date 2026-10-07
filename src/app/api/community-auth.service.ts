@@ -12,6 +12,7 @@ export interface CommunityActivationResponse extends CommunityUser {}
 export interface CommunityActivationCheckResponse { usable: true; }
 export interface CommunityPasswordResetRequest { detail: string; }
 export interface CommunityPasswordResetConfirmRequest { detail: string; }
+export interface CommunityEmailChangeVerificationResponse { status: 'EMAIL_UPDATED'; detail: string; }
 interface CsrfBootstrapResponse { csrf_token: string; }
 
 @Injectable({ providedIn: 'root' })
@@ -112,8 +113,26 @@ export class CommunityAuthService {
         { uid, token, new_password: password, confirm_password: confirmPassword },
         { withCredentials: true },
       )),
+      tap(() => this.clearCurrentUser()),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );
+  }
+
+  verifyEmailChange(requestId: string, token: string): Observable<CommunityEmailChangeVerificationResponse> {
+    return this.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityEmailChangeVerificationResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/account/email-change/verify/`,
+        { request_id: requestId, token },
+        { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  clearCurrentUser(): void {
+    this.currentUser.set(null);
+    this.sessionLoaded.set(true);
+    this.currentUserRequest$ = of(null);
   }
 
   logout(): Observable<void> {

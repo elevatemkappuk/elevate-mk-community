@@ -1,4 +1,6 @@
 :host { display: block; }
+.sign-in-hero .hero-content { position: relative; z-index: 1; width: min(100%, 650px); }
+.sign-in-hero h1 span { color: var(--elevate-gold); }
 .forgot-password-prompt { margin: 1.25rem 0 0; text-align: right; }
 .forgot-password-prompt a { color: var(--elevate-muted); font-size: .9rem; font-weight: 750; text-decoration: underline; text-underline-offset: .2em; }
 .sign-in-form-content { width: 100%; }

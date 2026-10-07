@@ -22,7 +22,12 @@ type ProfileForm = FormGroup<{
     last_name: FormControl<string>;
     location: FormControl<string>;
   }>;
-  community: FormGroup<{ bio: FormControl<string> }>;
+  community: FormGroup<{
+    bio: FormControl<string>;
+    directory_visible: FormControl<boolean | null>;
+    email_visible: FormControl<boolean | null>;
+    mobile_visible: FormControl<boolean | null>;
+  }>;
   professional: FormGroup<{
     job_title: FormControl<string>;
     company: FormControl<string>;
@@ -53,7 +58,12 @@ export class CommunityProfileEditPageComponent implements OnInit {
       last_name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(150)] }),
       location: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
     }),
-    community: new FormGroup({ bio: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(400)] }) }),
+    community: new FormGroup({
+      bio: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(400)] }),
+      directory_visible: new FormControl<boolean | null>(null),
+      email_visible: new FormControl<boolean | null>(null),
+      mobile_visible: new FormControl<boolean | null>(null),
+    }),
     professional: new FormGroup({
       job_title: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
       company: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
@@ -84,11 +94,21 @@ export class CommunityProfileEditPageComponent implements OnInit {
     this.reviewContext.set(history.state?.review === true);
     forkJoin({ profile: this.profileService.getProfile(), options: this.profileService.getProfileOptions() }).subscribe({
       next: ({ profile, options }) => {
+        if (!this.hasPrivacyValues(profile)) {
+          this.loadError.set(true);
+          this.loading.set(false);
+          return;
+        }
         this.profile.set(profile);
         this.options.set(options);
         this.form.patchValue({
           person: profile.person,
-          community: { bio: profile.community.bio },
+          community: {
+            bio: profile.community.bio,
+            directory_visible: profile.community.directory_visible,
+            email_visible: profile.community.email_visible,
+            mobile_visible: profile.community.mobile_visible,
+          },
           professional: {
             job_title: profile.professional.job_title,
             company: profile.professional.company,
@@ -103,6 +123,11 @@ export class CommunityProfileEditPageComponent implements OnInit {
       },
       error: () => { this.loadError.set(true); this.loading.set(false); },
     });
+  }
+
+  private hasPrivacyValues(profile: CommunityProfileResponse): boolean {
+    return [profile.community.directory_visible, profile.community.email_visible, profile.community.mobile_visible]
+      .every((value) => typeof value === 'boolean');
   }
 
   get industryOptions(): SelectOption[] { return (this.options()?.industries ?? []).map(this.toSelectOption); }
@@ -123,12 +148,17 @@ export class CommunityProfileEditPageComponent implements OnInit {
     if (this.saving() || this.loading()) return;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+    const value = this.form.getRawValue();
+    const { directory_visible, email_visible, mobile_visible } = value.community;
+    if (directory_visible === null || email_visible === null || mobile_visible === null) {
+      this.saveError.set('We could not confirm your Connect privacy settings. Please reload your profile and try again.');
+      return;
+    }
     this.saving.set(true);
     this.saveError.set(null);
-    const value = this.form.getRawValue();
     const payload: CommunityProfilePatch = {
       person: value.person,
-      community: value.community,
+      community: { bio: value.community.bio, directory_visible, email_visible, mobile_visible },
       professional: {
         ...value.professional,
         industry: value.professional.industry || null,
@@ -163,6 +193,18 @@ export class CommunityProfileEditPageComponent implements OnInit {
   }
 
   cancel(): void { this.router.navigateByUrl('/community/profile'); }
+
+  validationMessages(): string[] {
+    const person = this.form.controls.person.controls;
+    const linkedin = this.form.controls.professional.controls.linkedin_url;
+    const messages = [
+      person.first_name.invalid && person.first_name.touched ? 'First name is required.' : '',
+      person.last_name.invalid && person.last_name.touched ? 'Last name is required.' : '',
+      linkedin.invalid && linkedin.touched ? 'Enter a valid http or https URL.' : '',
+      this.saveError() ?? '',
+    ];
+    return [...new Set(messages.filter(Boolean))];
+  }
 
   signOut(): void {
     if (this.signingOut()) return;

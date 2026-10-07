@@ -1,0 +1,21 @@
+:host { display: block; min-width: 0; }
+.connection-card { display: flex; min-height: 100%; flex-direction: column; border-top: 3px solid var(--elevate-gold-deep); padding: 1.35rem; background: var(--elevate-surface); box-shadow: var(--elevate-shadow); }
+.connection-card.compact { min-height: 0; padding: 1rem; box-shadow: none; }
+.connection-card-topline { display: flex; align-items: center; gap: 1rem; }
+.connection-card-identity { min-width: 0; }
+.connection-card h2 { margin: 0; color: var(--elevate-black); font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.055em; line-height: .95; overflow-wrap: anywhere; }
+.connection-card p { margin: .45rem 0 0; color: var(--elevate-muted); font-size: .9rem; }
+.connection-professional { margin-top: 1.25rem; line-height: 1.45; }
+.connection-professional p { margin: 0; }
+.connection-professional .primary-detail { color: var(--elevate-black); font-weight: 800; }
+.connection-status { margin-top: 1.25rem !important; color: var(--elevate-black) !important; font-weight: 800; }
+.connection-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin-top: auto; padding-top: 1.4rem; }
+.view-profile { color: var(--elevate-black); font-weight: 850; text-underline-offset: .25rem; }
+.view-profile:hover { color: var(--elevate-gold-deep); }
+.request-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.request-actions button { border: 0; padding: .7rem .9rem; background: var(--elevate-black); color: var(--elevate-surface); font: inherit; font-weight: 800; cursor: pointer; }
+.request-actions .secondary-action { border: 1px solid var(--elevate-black); background: transparent; color: var(--elevate-black); }
+.request-actions button:hover:not(:disabled) { background: var(--elevate-gold-deep); color: var(--elevate-black); }
+.request-actions button:disabled { cursor: not-allowed; opacity: .5; }
+.view-profile:focus-visible, .request-actions button:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
+@media (max-width: 520px) { .connection-card-actions, .request-actions { align-items: stretch; flex-direction: column; } .request-actions button { width: 100%; } }

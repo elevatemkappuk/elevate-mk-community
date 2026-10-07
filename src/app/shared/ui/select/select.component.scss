@@ -100,11 +100,13 @@
 }
 
 .select-option {
+  max-width: 100%;
   min-height: 2.75rem;
   padding: 0.7rem 0.75rem;
   color: var(--elevate-ink);
   cursor: pointer;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .select-option:hover,

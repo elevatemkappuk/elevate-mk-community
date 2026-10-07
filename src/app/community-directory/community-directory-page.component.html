@@ -1,0 +1,71 @@
+<div class="connect-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="connect-main" aria-labelledby="connect-title">
+    <header class="connect-heading">
+      <p class="eyebrow">Elevate MK Community</p>
+      <h1 id="connect-title">Connect</h1>
+      <p>Meet people across the Elevate MK community.</p>
+      <app-community-connect-nav />
+    </header>
+
+    <section class="connect-filters" aria-labelledby="discover-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Discover</p>
+          <h2 id="discover-title">Find your people</h2>
+        </div>
+        @if (hasActiveState()) { <button class="clear-filters" type="button" (click)="clearFilters()">Clear all</button> }
+      </div>
+      <div class="filter-grid" [formGroup]="filterForm">
+        <div class="search-field">
+          <label for="connect-search">Search by name or location</label>
+          <div class="search-control">
+            <input id="connect-search" type="search" [formControl]="searchControl" placeholder="Search by name or location" autocomplete="off" />
+            @if (searchControl.value) { <button type="button" class="clear-search" aria-label="Clear name or location search" (click)="clearSearch()">×</button> }
+          </div>
+        </div>
+        <app-select id="connect-industry" formControlName="industry" placeholder="Industry" [options]="industryOptions()" />
+        <app-select id="connect-skill" formControlName="skill" placeholder="Skills" [options]="skillOptions()" />
+        <app-select id="connect-interest" formControlName="interest" placeholder="Interests" [options]="interestOptions()" />
+      </div>
+      @if (optionsError()) { <p class="options-note" role="status">Some filters are temporarily unavailable. You can still search by name or location.</p> }
+      @if (activeStructuredFilters().length) {
+        <div class="active-filters" role="region" aria-labelledby="active-filters-title">
+          <span id="active-filters-title" class="active-filters-label">Active filters</span>
+          <ul>
+            @for (filter of activeStructuredFilters(); track filter.key) {
+              <li><button type="button" (click)="clearFilter(filter.key)" [attr.aria-label]="'Remove ' + filter.label + ' filter: ' + filter.valueLabel">{{ filter.label }}: {{ filter.valueLabel }} <span aria-hidden="true">×</span></button></li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+
+    @if (loading()) {
+      <section class="connect-state" aria-live="polite"><p class="eyebrow">Connect</p><h2>Finding community members</h2><p>Bringing the latest member profiles together.</p></section>
+    } @else if (errorMessage()) {
+      <section class="connect-state" role="alert" aria-labelledby="connect-error-title"><p class="eyebrow">Connect</p><h2 id="connect-error-title">We couldn’t load Connect</h2><p>{{ errorMessage() }}</p><button class="community-primary-action retry-button" type="button" (click)="retry()">Try again</button></section>
+    } @else if (!members().length) {
+      <section class="connect-state" aria-live="polite">
+        <p class="eyebrow">Connect</p>
+        <h2>{{ hasActiveState() ? 'No members found' : 'The community is growing' }}</h2>
+        <p>{{ hasActiveState() ? 'No members match your current search or filters.' : 'There aren’t any profiles available to discover yet.' }}</p>
+        @if (hasActiveState()) { <button class="community-primary-action connect-clear-button" type="button" (click)="clearFilters()">Clear search and filters</button> }
+      </section>
+    } @else {
+      <section class="connect-results" aria-labelledby="results-title">
+        <div class="section-heading results-heading"><h2 id="results-title">Community members</h2><p>{{ totalCount() }} {{ totalCount() === 1 ? 'member' : 'members' }}</p></div>
+        <div class="member-grid">
+          @for (member of members(); track member.directory_id) { <app-community-directory-member-card [member]="member" [queryParams]="connectQueryParams()" /> }
+        </div>
+        @if (hasPrevious() || hasNext()) {
+          <nav class="pagination" aria-label="Connect pages">
+            <button type="button" [disabled]="!hasPrevious()" (click)="goToPage(page() - 1)">Previous</button>
+            <span aria-live="polite">Page {{ page() }} of {{ totalPages() }}</span>
+            <button type="button" [disabled]="!hasNext()" (click)="goToPage(page() + 1)">Next</button>
+          </nav>
+        }
+      </section>
+    }
+  </main>
+</div>

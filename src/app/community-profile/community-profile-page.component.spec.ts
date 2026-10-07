@@ -8,7 +8,7 @@ import { CommunityProfilePageComponent } from './community-profile-page.componen
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: 'Community builder', review_required: true, photo_url: null },
+  community: { bio: 'Community builder', review_required: true, photo_url: null, directory_id: 'member-1', directory_visible: true, email_visible: false, mobile_visible: false },
   professional: {
     job_title: 'Designer', company: 'Elevate MK', industry: { id: 1, slug: 'technology', label: 'Technology' },
     career_stage: 'MID_CAREER', linkedin_url: 'https://www.linkedin.com/in/amina',
@@ -67,6 +67,26 @@ describe('CommunityProfilePageComponent', () => {
     fixture = TestBed.createComponent(CommunityProfilePageComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).not.toContain('Check your details');
+  });
+
+  it('shows the member-facing Connect visibility state and owner link', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Visible to Community members');
+    expect(element.textContent).toContain('View my Connect profile');
+    expect(element.querySelector('a[href="/community/directory/member-1"]')).not.toBeNull();
+  });
+
+  it('links the member to the read-only Account and preferences page', () => {
+    expect(fixture.nativeElement.querySelector('a[href="/community/account"]')?.textContent).toContain('Account & preferences');
+  });
+
+  it('shows Edit visibility without exposing the directory id when hidden', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: false } }));
+    fixture = TestBed.createComponent(CommunityProfilePageComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("Your profile isn't currently discoverable in Connect.");
+    expect(fixture.nativeElement.textContent).toContain('Edit visibility');
+    expect(fixture.nativeElement.textContent).not.toContain('member-1');
   });
 
   it('renders a safe load-error state', () => {

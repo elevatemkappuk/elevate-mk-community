@@ -1,5 +1,5 @@
 <app-community-account-shell variant="onboarding" [showSignIn]="false">
-  <div account-hero>
+  <div account-hero class="sign-in-hero">
     <div class="hero-content">
       <p class="eyebrow">Welcome back</p>
       <h1>Sign in to the <span>Elevate MK</span> Community</h1>
@@ -15,9 +15,7 @@
         <p>Access your Elevate MK Community account.</p>
       </div>
 
-      @if (credentialError()) {
-        <p class="sign-in-error" role="alert">Email or password is incorrect.</p>
-      } @else if (accessUnavailable()) {
+      @if (accessUnavailable()) {
         <div class="sign-in-error" role="alert">
           <p>Community access is not available for this account.</p>
           <p>If you think this is a mistake, please contact Elevate MK.</p>
@@ -27,17 +25,16 @@
       <form [formGroup]="signInForm" (ngSubmit)="submit()" novalidate>
         <div class="sign-in-field">
           <label for="sign-in-email">Email address</label>
-          <input id="sign-in-email" type="email" formControlName="email" autocomplete="email" [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched" />
-          @if (signInForm.controls.email.invalid && signInForm.controls.email.touched) { <p class="sign-in-field-error">Enter a valid email address.</p> }
+          <input id="sign-in-email" type="email" formControlName="email" autocomplete="email" [attr.aria-invalid]="signInForm.controls.email.invalid && signInForm.controls.email.touched" [attr.aria-describedby]="signInForm.controls.email.invalid && signInForm.controls.email.touched ? 'sign-in-validation-error' : null" />
         </div>
         <div class="sign-in-field">
           <label for="sign-in-password">Password</label>
           <div class="sign-in-password-control">
-            <input id="sign-in-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" [attr.aria-invalid]="signInForm.controls.password.invalid && signInForm.controls.password.touched" />
+            <input id="sign-in-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" [attr.aria-invalid]="signInForm.controls.password.invalid && signInForm.controls.password.touched" [attr.aria-describedby]="signInForm.controls.password.invalid && signInForm.controls.password.touched || credentialError() ? 'sign-in-validation-error' : null" />
             <button type="button" class="visibility-button" (click)="togglePassword()" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">{{ showPassword() ? 'Hide' : 'Show' }}</button>
           </div>
-          @if (signInForm.controls.password.invalid && signInForm.controls.password.touched) { <p class="sign-in-field-error">Enter your password.</p> }
         </div>
+        @if (validationMessages().length) { <div id="sign-in-validation-error" class="form-validation-errors" role="alert"><p>Sign-in needs attention:</p><ul>@for (message of validationMessages(); track message) { <li>{{ message }}</li> }</ul></div> }
         <button class="community-primary-action" type="submit" [disabled]="signInForm.invalid || submitting()" [attr.aria-busy]="submitting()">{{ submitting() ? 'Signing in…' : 'Sign in' }}</button>
       </form>
       <p class="forgot-password-prompt"><a routerLink="/forgot-password">Forgot password?</a></p>

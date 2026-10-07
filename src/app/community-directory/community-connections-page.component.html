@@ -1,0 +1,50 @@
+<div class="connect-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="workspace-main" aria-labelledby="workspace-title">
+    <header class="workspace-heading">
+      <p class="eyebrow">Connect</p>
+      <h1 id="workspace-title">{{ section() === 'connections' ? 'My connections' : 'Requests' }}</h1>
+      <p>{{ section() === 'connections' ? 'Keep the people you have connected with close at hand.' : 'Manage the people who want to connect with you.' }}</p>
+      <app-community-connect-nav />
+    </header>
+
+    @if (section() === 'requests') {
+      <nav class="request-tabs" aria-label="Connection request direction">
+        <a routerLink="." [queryParams]="{ direction: 'incoming', page: null }" queryParamsHandling="merge" [class.active]="direction() === 'incoming'" [attr.aria-current]="direction() === 'incoming' ? 'page' : null">Incoming</a>
+        <a routerLink="." [queryParams]="{ direction: 'outgoing', page: null }" queryParamsHandling="merge" [class.active]="direction() === 'outgoing'" [attr.aria-current]="direction() === 'outgoing' ? 'page' : null">Sent</a>
+      </nav>
+    }
+
+    @if (mutationError(); as message) { <p class="workspace-message" role="alert">{{ message }}</p> }
+    @if (loading()) {
+      <section class="workspace-state" aria-live="polite"><p class="eyebrow">Connect</p><h2>{{ section() === 'connections' ? 'Loading your connections' : 'Loading requests' }}</h2><p>Bringing the latest connection details together.</p></section>
+    } @else if (errorMessage(); as message) {
+      <section class="workspace-state" role="alert"><p class="eyebrow">Connect</p><h2>We couldn’t load this workspace</h2><p>{{ message }}</p><button class="workspace-button" type="button" (click)="retry()">Try again</button></section>
+    } @else if (!records().length) {
+      <section class="workspace-state" aria-live="polite"><p class="eyebrow">Connect</p><h2>{{ section() === 'connections' ? 'No connections yet' : (direction() === 'incoming' ? 'No incoming requests' : 'No sent requests') }}</h2><p>{{ section() === 'connections' ? 'Discover members through Connect and send a connection request when you find the right people.' : (direction() === 'incoming' ? 'New connection requests will appear here.' : 'Connection requests you send will appear here.') }}</p><a class="workspace-button" routerLink="/community/directory">Discover members</a></section>
+    } @else {
+      <section class="workspace-results" [attr.aria-labelledby]="section() === 'connections' ? 'connections-results-title' : 'requests-results-title'">
+        <div class="results-heading"><h2 [id]="section() === 'connections' ? 'connections-results-title' : 'requests-results-title'">{{ section() === 'connections' ? 'My connections' : (direction() === 'incoming' ? 'Incoming requests' : 'Sent requests') }}</h2><p>{{ totalCount() }} {{ totalCount() === 1 ? 'member' : 'members' }}</p></div>
+        <div class="workspace-grid">
+          @for (record of records(); track record.connection_id) {
+            <app-community-connection-card
+              [member]="record.member"
+              [mode]="section() === 'connections' ? 'connection' : direction()"
+              [connectionId]="record.connection_id"
+              [loadingAction]="cardLoadingAction(record.connection_id)"
+              (accept)="accept($event)"
+              (decline)="decline($event)"
+            />
+          }
+        </div>
+        @if (hasPrevious() || hasNext()) {
+          <nav class="pagination" aria-label="Connection workspace pages">
+            <button type="button" [disabled]="!hasPrevious()" (click)="goToPage(page() - 1)">Previous</button>
+            <span aria-live="polite">Page {{ page() }} of {{ totalPages() }}</span>
+            <button type="button" [disabled]="!hasNext()" (click)="goToPage(page() + 1)">Next</button>
+          </nav>
+        }
+      </section>
+    }
+  </main>
+</div>

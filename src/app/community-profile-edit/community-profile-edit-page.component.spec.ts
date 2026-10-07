@@ -8,7 +8,7 @@ import { CommunityProfileEditPageComponent } from './community-profile-edit-page
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: '', review_required: true, photo_url: null },
+  community: { bio: '', review_required: true, photo_url: null, directory_id: 'member-1', directory_visible: false, email_visible: false, mobile_visible: false },
   professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
   skills: [{ id: 1, name: 'Strategy', slug: 'strategy' }],
   interests: [],
@@ -69,11 +69,68 @@ describe('CommunityProfileEditPageComponent', () => {
     component.form.controls.community.controls.bio.setValue('A short bio');
     component.save();
     expect(profileService.updateProfile).toHaveBeenCalledWith(expect.objectContaining({
-      community: { bio: 'A short bio' },
+      community: { bio: 'A short bio', directory_visible: false, email_visible: false, mobile_visible: false },
       skills: [],
       interests: [],
     }));
     expect(profileService.updateProfile.mock.calls[0][0]).not.toHaveProperty('membership');
+  });
+
+  it('keeps Connect privacy flags independent and presents discoverability context', () => {
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    component.form.controls.community.controls.directory_visible.setValue(true);
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(element.textContent).toContain('Make my profile discoverable');
+    expect(element.textContent).toContain('What other members can see');
+    expect(element.textContent).toContain('Contact sharing');
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(true);
+    component.form.controls.community.controls.email_visible.setValue(true);
+    component.form.controls.community.controls.mobile_visible.setValue(true);
+    component.form.controls.community.controls.directory_visible.setValue(false);
+    expect(component.form.controls.community.value).toEqual(expect.objectContaining({ directory_visible: false, email_visible: true, mobile_visible: true }));
+    expect(element.textContent).toContain('Non-connected members follow this setting. Accepted connections can see it automatically.');
+    expect(element.textContent).toContain('Accepted connections can see available contact details automatically while the connection is active.');
+  });
+
+  it('uses API privacy values without inventing a visible default', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(false);
+    expect((element.querySelector('#email-visible') as HTMLInputElement).checked).toBe(false);
+    expect((element.querySelector('#mobile-visible') as HTMLInputElement).checked).toBe(false);
+    expect(element.querySelector('#directory-visible')?.getAttribute('aria-describedby')).toBe('directory-visible-help');
+  });
+
+  it('renders all switch states from the API response', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: true, email_visible: true, mobile_visible: true } }));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(true);
+    expect((element.querySelector('#email-visible') as HTMLInputElement).checked).toBe(true);
+    expect((element.querySelector('#mobile-visible') as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('preserves contact preferences when discoverability is turned off', () => {
+    const visibleProfile = { ...profile, community: { ...profile.community, directory_visible: true, email_visible: true, mobile_visible: true } };
+    profileService.getProfile.mockReturnValue(of(visibleProfile));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.form.controls.community.controls.directory_visible.setValue(false);
+    component.save();
+    expect(profileService.updateProfile).toHaveBeenCalledWith(expect.objectContaining({
+      community: { bio: '', directory_visible: false, email_visible: true, mobile_visible: true },
+    }));
+  });
+
+  it('fails safely when the API omits required privacy values', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: undefined as unknown as boolean } }));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.loadError()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain("couldn’t load your profile");
   });
 
   it('does not acknowledge when PATCH fails', () => {

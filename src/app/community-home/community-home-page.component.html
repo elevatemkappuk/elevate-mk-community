@@ -7,5 +7,27 @@
     <div class="home-actions">
       <a class="community-primary-action" href="https://elevatemk.org/">Back to Elevate MK</a>
     </div>
+    @if (requests().length) {
+      <section class="home-requests" aria-labelledby="home-requests-title">
+        <div class="home-requests-heading"><div><p class="eyebrow">Connection requests</p><h2 id="home-requests-title">People who would like to connect with you.</h2></div><a routerLink="/community/directory/requests" [queryParams]="{ direction: 'incoming' }">View all requests <span aria-hidden="true">→</span></a></div>
+        <div class="home-request-list">
+          @for (request of requests(); track request.connection_id) {
+            <app-community-connection-card
+              [member]="request.member"
+              mode="incoming"
+              [connectionId]="request.connection_id"
+              [loadingAction]="cardLoadingAction(request.connection_id)"
+              [compact]="true"
+              [returnQueryParams]="{ from: 'home' }"
+              (accept)="accept($event)"
+              (decline)="decline($event)"
+            />
+          }
+        </div>
+        @if (requestsError(); as message) { <p class="home-request-error" role="alert">{{ message }} <button type="button" (click)="retryRequests()">Try again</button></p> }
+      </section>
+    } @else if (requestsError()) {
+      <p class="home-request-error" role="status">{{ requestsError() }} <button type="button" (click)="retryRequests()">Try again</button></p>
+    }
   </main>
 </div>
