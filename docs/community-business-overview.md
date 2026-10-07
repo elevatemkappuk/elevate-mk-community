@@ -321,10 +321,12 @@ The following are not part of the current Community product:
 
 - QR profile sharing;
 - messaging;
-- an events or community event participation experience;
-- self-service email changes;
-- self-service mobile changes; and
-- a full Account Settings area.
+- an events or community event participation experience.
+
+Members can now use **Account & Preferences** to manage their account email
+through verification, mobile number, password and password recovery, and
+email marketing preferences. These account-management capabilities are
+separate from the read-only/profile-editing scope of My Profile.
 
 ## Where the product is heading
 
@@ -347,10 +349,14 @@ capabilities.
 | Existing-details review | Available |
 | Profile completion | Available |
 | Profile photo | Available |
+| Home member dashboard | Available |
+| Account & Preferences | Available |
+| Verified email change | Available |
+| Mobile number management | Available |
+| Password change and recovery | Available |
+| Email marketing preference management | Available |
 | Member directory and Connect discovery | Available |
 | QR profile sharing | Not yet available |
 | Connections and connection requests | Available |
 | Messaging | Not yet available |
 | Events/community event participation | Not yet available |
-| Self-service email or mobile change | Not yet available |
-| Full Account Settings | Not yet available |
