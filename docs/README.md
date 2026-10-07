@@ -16,6 +16,9 @@ uses the shared Elevate MK Django API.
   non-technical overview of the product, member journey, current
   capabilities and future scope.
 
+- [Community Feed V1](./feed.md) - Purpose-led posts, conversations,
+  reporting, member content controls and current limitations.
+
 ## Documentation areas still to be expanded
 
 - [Connections V1](./connections.md) — Connect discovery, relationship
