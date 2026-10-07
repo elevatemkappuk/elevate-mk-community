@@ -1,0 +1,31 @@
+<div class="community-post-detail-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="community-post-detail-main" aria-labelledby="post-detail-title">
+    <a class="back-community" routerLink="/community/community">← Back to Community</a>
+    @if (loading()) {
+      <section class="detail-state" aria-live="polite"><p class="eyebrow">Community</p><h1>Loading post</h1><p>Bringing the post details together.</p></section>
+    } @else if (unavailable() || !post()) {
+      <section class="detail-state" role="status" aria-labelledby="post-unavailable-title"><p class="eyebrow">Community</p><h1 id="post-unavailable-title">POST UNAVAILABLE</h1><p>This post is no longer available or you don’t have access to it.</p></section>
+    } @else {
+      @if (post(); as data) {
+        <article class="community-post-detail" aria-labelledby="post-detail-title">
+          <div class="detail-meta"><span class="post-purpose">{{ purposeLabel(data.purpose) }}</span><span class="post-audience">{{ audienceLabel(data.audience) }}</span></div>
+          <h1 id="post-detail-title">{{ data.headline }}</h1>
+          <div class="detail-author">
+            @if (data.author.directory_id; as directoryId) {
+              <a [routerLink]="['/community/directory', directoryId]" [attr.aria-label]="'View ' + authorName() + ' on Connect'"><app-profile-avatar size="compact" [photoUrl]="data.author.photo_url" [initials]="initials()" [altText]="authorName() + ' profile photo'" /></a>
+            } @else { <app-profile-avatar size="compact" [photoUrl]="data.author.photo_url" [initials]="initials()" [altText]="authorName() + ' profile photo'" /> }
+            <div>
+              @if (data.author.directory_id; as directoryId) { <a class="detail-author-name" [routerLink]="['/community/directory', directoryId]">{{ authorName() }}</a> } @else { <strong class="detail-author-name">{{ authorName() }}</strong> }
+              @if (data.author.professional.job_title || data.author.professional.industry?.label) { <p>{{ data.author.professional.job_title }}@if (data.author.professional.job_title && data.author.professional.industry?.label) { <span aria-hidden="true"> · </span> }{{ data.author.professional.industry?.label }}</p> }
+              @if (data.author.location) { <p>{{ data.author.location }}</p> }
+            </div>
+          </div>
+          <p class="detail-time"><time [attr.datetime]="data.created_at" [title]="data.created_at">{{ relativeTime(data.created_at) }}</time>@if (data.edited_at) { <span> · Edited</span> }</p>
+          <div class="detail-body">{{ data.body }}</div>
+          <div class="detail-footer"><span>{{ data.reply_count }} {{ data.reply_count === 1 ? 'reply' : 'replies' }}</span><span>Conversation count</span></div>
+        </article>
+      }
+    }
+  </main>
+</div>

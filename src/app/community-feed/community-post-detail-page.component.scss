@@ -1,0 +1,20 @@
+:host { display: block; min-height: 100svh; }
+.community-post-detail-shell { min-height: 100svh; background: var(--elevate-page); }
+.community-post-detail-main { max-width: 68rem; margin: 0 auto; padding: clamp(2rem, 5vw, 5rem) clamp(1.25rem, 5vw, 5rem); }
+.back-community { display: inline-block; color: var(--elevate-black); font-weight: 850; text-underline-offset: .25rem; }
+.back-community:focus-visible, .detail-author a:focus-visible, .detail-author-name:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
+.detail-state { margin-top: clamp(3rem, 8vw, 7rem); border-top: 3px solid var(--elevate-gold-deep); padding-top: 1.5rem; }
+.detail-state h1 { margin: 0; color: var(--elevate-black); font-size: clamp(2.5rem, 7vw, 6rem); letter-spacing: -.08em; line-height: .88; }
+.detail-state p:not(.eyebrow) { max-width: 38rem; margin: 1rem 0 0; color: var(--elevate-muted); line-height: 1.55; }
+.community-post-detail { margin-top: clamp(3rem, 7vw, 6rem); border-top: 3px solid var(--elevate-gold-deep); padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+.detail-meta { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: baseline; }
+.post-purpose { color: var(--elevate-black); font-size: .82rem; font-weight: 950; letter-spacing: .14em; }
+.post-audience { color: var(--elevate-muted); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.community-post-detail h1 { max-width: 58rem; margin: 1rem 0 0; color: var(--elevate-black); font-size: clamp(2.3rem, 6vw, 6rem); letter-spacing: -.08em; line-height: .9; overflow-wrap: anywhere; }
+.detail-author { display: flex; align-items: center; gap: .9rem; margin-top: 2rem; }
+.detail-author-name { color: var(--elevate-black); font-weight: 850; text-decoration: none; }
+a.detail-author-name:hover { color: var(--elevate-gold-deep); text-decoration: underline; text-underline-offset: .2rem; }
+.detail-author p { margin: .2rem 0 0; color: var(--elevate-muted); font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
+.detail-time { margin: .9rem 0 0; color: var(--elevate-muted); font-size: .8rem; }
+.detail-body { max-width: 58rem; margin-top: 2.5rem; color: var(--elevate-ink); font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.75; white-space: pre-line; overflow-wrap: anywhere; }
+.detail-footer { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin-top: 2.5rem; border-top: 1px solid var(--elevate-border); padding-top: 1.1rem; color: var(--elevate-muted); font-size: .85rem; }

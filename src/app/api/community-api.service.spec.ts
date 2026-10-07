@@ -43,6 +43,22 @@ describe('CommunityApiService', () => {
     request.flush({ count: 0, next: null, previous: null, results: [] });
   });
 
+  it('loads Community posts with the backend purpose and page contract', () => {
+    service.getCommunityPosts({ purpose: 'OPPORTUNITY', page: 2 }).subscribe();
+    const request = http.expectOne('/api/v1/community/posts/?purpose=OPPORTUNITY&page=2');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+  });
+
+  it('loads a Community post detail by encoded public id', () => {
+    service.getCommunityPost('post/one').subscribe();
+    const request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({});
+  });
+
   it('omits blank search and empty filters', () => {
     service.getDirectory({ q: '   ', industry: '', skill: '', interest: '', page: 1 }).subscribe();
     const request = http.expectOne('/api/v1/community/directory/');

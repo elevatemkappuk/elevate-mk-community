@@ -93,6 +93,44 @@ export interface ConnectionPage<T> {
   results: T[];
 }
 
+export type CommunityPostPurpose = 'ASK' | 'OFFER' | 'OPPORTUNITY' | 'UPDATE';
+export type CommunityPostAudience = 'ELEVATE_COMMUNITY' | 'CONNECTIONS';
+
+export interface CommunityPostAuthor {
+  directory_id: string | null;
+  first_name: string;
+  last_name: string;
+  photo_url: string | null;
+  professional: { job_title: string; industry: DirectoryTaxonomyOption | null };
+  location: string;
+}
+
+export interface CommunityPost {
+  public_id: string;
+  purpose: CommunityPostPurpose;
+  headline: string;
+  body: string;
+  audience: CommunityPostAudience;
+  author: CommunityPostAuthor;
+  created_at: string;
+  updated_at: string;
+  edited_at: string | null;
+  reply_count: number;
+  is_own_post: boolean;
+}
+
+export interface CommunityPostPage {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: CommunityPost[];
+}
+
+export interface CommunityPostQuery {
+  purpose?: CommunityPostPurpose;
+  page?: number;
+}
+
 export interface DirectoryQuery {
   q?: string;
   industry?: string;
@@ -110,6 +148,23 @@ export class CommunityApiService {
 
   getIndustries(): Observable<IndustryOption[]> {
     return this.http.get<IndustryOption[]>(`${this.apiConfig.apiBaseUrl}/community/industries/`);
+  }
+
+  getCommunityPosts(query: CommunityPostQuery = {}): Observable<CommunityPostPage> {
+    let params = new HttpParams();
+    if (query.purpose) params = params.set('purpose', query.purpose);
+    if (query.page && query.page > 1) params = params.set('page', query.page);
+    return this.http.get<CommunityPostPage>(`${this.apiConfig.apiBaseUrl}/community/posts/`, {
+      params,
+      withCredentials: true,
+    });
+  }
+
+  getCommunityPost(publicId: string): Observable<CommunityPost> {
+    return this.http.get<CommunityPost>(
+      `${this.apiConfig.apiBaseUrl}/community/posts/${encodeURIComponent(publicId)}/`,
+      { withCredentials: true },
+    );
   }
 
   getDirectory(query: DirectoryQuery = {}): Observable<DirectoryPage> {

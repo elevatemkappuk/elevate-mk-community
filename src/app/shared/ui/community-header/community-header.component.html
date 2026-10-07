@@ -5,6 +5,7 @@
   @if (authenticated()) {
     <nav class="authenticated-nav" aria-label="Community navigation">
       <a routerLink="/community" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [attr.aria-current]="(homeLink.isActive ? 'page' : null)" #homeLink="routerLinkActive">Home</a>
+      <a routerLink="/community/community" routerLinkActive="active" [attr.aria-current]="(communityLink.isActive ? 'page' : null)" #communityLink="routerLinkActive">Community</a>
       <a routerLink="/community/directory" routerLinkActive="active">Connect</a>
       <a routerLink="/community/profile" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">My Profile</a>
       <button type="button" [disabled]="signingOut()" (click)="signOut.emit()">
