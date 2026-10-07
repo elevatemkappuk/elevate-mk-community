@@ -1,12 +1,109 @@
 <div class="community-home-shell">
   <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
   <main class="community-home-main" aria-labelledby="welcome-title">
-    <p class="eyebrow">Elevate MK Community</p>
-    <h1 id="welcome-title">Welcome, {{ user()?.first_name }}.</h1>
-    <p>Your Community account is ready.</p>
-    <div class="home-actions">
-      <a class="community-primary-action" href="https://elevatemk.org/">Back to Elevate MK</a>
-    </div>
+    <section class="home-identity" aria-labelledby="welcome-title">
+      <div class="home-identity-main">
+        <app-profile-avatar
+          size="hero"
+          [photoUrl]="profile()?.community?.photo_url ?? null"
+          [initials]="(user()?.first_name?.charAt(0) ?? '') + (user()?.last_name?.charAt(0) ?? '')"
+          [altText]="(user()?.first_name ?? '') + ' ' + (user()?.last_name ?? '') + ' profile photo'"
+        />
+        <div class="home-identity-copy">
+          <p class="eyebrow">Elevate MK Community</p>
+          <h1 id="welcome-title">Welcome, {{ user()?.first_name }}.</h1>
+          @if (profile(); as data) {
+            @if (data.professional.job_title || data.professional.industry?.label) {
+              <p class="home-professional">{{ data.professional.job_title }}@if (data.professional.job_title && data.professional.industry?.label) { <span aria-hidden="true"> · </span> }{{ data.professional.industry?.label }}</p>
+            }
+            @if (data.person.location) { <p class="home-location">{{ data.person.location }}</p> }
+          } @else if (profileLoading()) {
+            <p class="home-profile-status" role="status">Loading your profile…</p>
+          }
+        </div>
+      </div>
+    </section>
+
+    @if (profileError()) {
+      <p class="home-profile-error" role="alert">We couldn’t load your profile details. <button type="button" (click)="retryProfile()">Try again</button></p>
+    }
+
+    @if (profile(); as data) {
+      @if (data.community.review_required) {
+        <aside class="home-attention home-attention-review" aria-labelledby="home-attention-title">
+          <div>
+            <p class="eyebrow">Check your details</p>
+            <h2 id="home-attention-title">Your profile is ready for review.</h2>
+            <p>Some details were already associated with your Elevate MK membership. Please review them and make sure everything is up to date.</p>
+          </div>
+          <a class="home-attention-action" routerLink="/community/profile/edit" [state]="{ review: true }">Review profile</a>
+        </aside>
+      } @else if (isProfileIncomplete(data)) {
+        <aside class="home-attention home-attention-incomplete" aria-labelledby="home-attention-title">
+          <div>
+            <p class="eyebrow">Profile progress</p>
+            <h2 id="home-attention-title">Make your profile more useful to the Community.</h2>
+            <p>Adding a few more details helps other members understand who you are.</p>
+          </div>
+          <a class="home-attention-action" routerLink="/community/profile/edit">Complete profile</a>
+        </aside>
+      } @else {
+        <p class="home-profile-complete" role="status"><span class="eyebrow">Profile status</span> Your profile is up to date.</p>
+      }
+    }
+
+    <section class="home-secondary-grid" aria-label="Community progress and destinations">
+      @if (profile(); as data) {
+        <section class="home-progress" aria-labelledby="home-progress-title">
+          @if (isProfileIncomplete(data) || data.community.review_required) {
+            <p class="eyebrow">Profile progress</p>
+            <h2 id="home-progress-title">Build your Community profile.</h2>
+            <div class="home-progress-summary">
+              <strong>{{ completedProfileCount(data) }} of 5 complete</strong>
+              <span>{{ profileCompletionPercent(data) }}%</span>
+            </div>
+            <div class="home-progress-track" role="progressbar" aria-label="Profile completion" [attr.aria-valuenow]="completedProfileCount(data)" aria-valuemin="0" aria-valuemax="5">
+              <span [style.width.%]="profileCompletionPercent(data)"></span>
+            </div>
+            <ul class="home-progress-list">
+              @for (item of profileCompletionItems(data); track item.label) {
+                <li [class.complete]="item.complete">
+                  <span class="home-progress-marker" aria-hidden="true">{{ item.complete ? '✓' : '○' }}</span>
+                  <span>{{ item.label }}</span>
+                  <strong>{{ item.complete ? 'Complete' : 'To do' }}</strong>
+                </li>
+              }
+            </ul>
+            <a class="home-progress-action" routerLink="/community/profile/edit">Edit profile <span aria-hidden="true">→</span></a>
+          } @else {
+            <p class="eyebrow">Profile complete</p>
+            <h2 id="home-progress-title">5 of 5 complete.</h2>
+            <p class="home-progress-complete">Your profile is up to date.</p>
+            <a class="home-progress-action" routerLink="/community/profile">View profile <span aria-hidden="true">→</span></a>
+          }
+        </section>
+      }
+
+      <nav class="home-destinations" aria-labelledby="home-destinations-title">
+        <p class="eyebrow">Continue in Community</p>
+        <h2 id="home-destinations-title">Where would you like to go next?</h2>
+        <div class="home-destination-list">
+          <a class="home-destination" routerLink="/community/directory">
+            <span><strong>Connect</strong><small>Discover members and manage connections.</small></span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <a class="home-destination" routerLink="/community/profile">
+            <span><strong>My Profile</strong><small>View and update how you appear in Community.</small></span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <a class="home-destination" routerLink="/community/account">
+            <span><strong>Account &amp; Preferences</strong><small>Manage contact details, email preferences and password security.</small></span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </nav>
+    </section>
+
     @if (requests().length) {
       <section class="home-requests" aria-labelledby="home-requests-title">
         <div class="home-requests-heading"><div><p class="eyebrow">Connection requests</p><h2 id="home-requests-title">People who would like to connect with you.</h2></div><a routerLink="/community/directory/requests" [queryParams]="{ direction: 'incoming' }">View all requests <span aria-hidden="true">→</span></a></div>
@@ -29,5 +126,9 @@
     } @else if (requestsError()) {
       <p class="home-request-error" role="status">{{ requestsError() }} <button type="button" (click)="retryRequests()">Try again</button></p>
     }
+
+    <footer class="home-exit">
+      <a href="https://elevatemk.org/"><span aria-hidden="true">←</span> Back to Elevate MK</a>
+    </footer>
   </main>
 </div>
