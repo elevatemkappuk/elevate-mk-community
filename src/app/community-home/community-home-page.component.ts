@@ -4,16 +4,22 @@ import { finalize } from 'rxjs';
 
 import { CommunityApiError, CommunityAuthService, CommunityUser } from '../api/community-auth.service';
 import { CommunityApiService, ConnectionRequestRecord } from '../api/community-api.service';
+import { CommunityProfileResponse, CommunityProfileService } from '../api/community-profile.service';
 import { CommunityHeaderComponent } from '../shared/ui/community-header/community-header.component';
 import { CommunityConnectionCardComponent } from '../community-directory/community-connection-card.component';
+import { ProfileAvatarComponent } from '../shared/ui/profile-avatar/profile-avatar.component';
 
-@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent, CommunityConnectionCardComponent, RouterLink], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-community-home-page', imports: [CommunityHeaderComponent, CommunityConnectionCardComponent, ProfileAvatarComponent, RouterLink], templateUrl: './community-home-page.component.html', styleUrl: './community-home-page.component.scss', changeDetection: ChangeDetectionStrategy.OnPush })
 export class CommunityHomePageComponent implements OnInit {
   private readonly auth = inject(CommunityAuthService);
   private readonly api = inject(CommunityApiService);
+  private readonly profileService = inject(CommunityProfileService);
   private readonly router = inject(Router);
 
   readonly user = signal<CommunityUser | null>(null);
+  readonly profile = signal<CommunityProfileResponse | null>(null);
+  readonly profileLoading = signal(true);
+  readonly profileError = signal(false);
   readonly signingOut = signal(false);
   readonly requests = signal<ConnectionRequestRecord[]>([]);
   readonly requestsLoading = signal(true);
@@ -22,6 +28,7 @@ export class CommunityHomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.user.set(this.auth.currentUser());
+    this.loadProfile();
     this.loadRequests();
   }
 
@@ -36,6 +43,39 @@ export class CommunityHomePageComponent implements OnInit {
   }
 
   retryRequests(): void { this.loadRequests(); }
+
+  retryProfile(): void { this.loadProfile(); }
+
+  isProfileIncomplete(profile: CommunityProfileResponse): boolean {
+    return Object.values(profile.completion).some((complete) => !complete);
+  }
+
+  profileCompletionItems(profile: CommunityProfileResponse): Array<{ label: string; complete: boolean }> {
+    return [
+      { label: 'Name', complete: profile.completion.name },
+      { label: 'Professional details', complete: profile.completion.professional_details },
+      { label: 'Bio', complete: profile.completion.bio },
+      { label: 'Skills', complete: profile.completion.skills },
+      { label: 'Interests', complete: profile.completion.interests },
+    ];
+  }
+
+  completedProfileCount(profile: CommunityProfileResponse): number {
+    return this.profileCompletionItems(profile).filter((item) => item.complete).length;
+  }
+
+  profileCompletionPercent(profile: CommunityProfileResponse): number {
+    return Math.round((this.completedProfileCount(profile) / 5) * 100);
+  }
+
+  private loadProfile(): void {
+    this.profileLoading.set(true);
+    this.profileError.set(false);
+    this.profileService.getProfile().subscribe({
+      next: (profile) => { this.profile.set(profile); this.profileLoading.set(false); },
+      error: () => { this.profileLoading.set(false); this.profileError.set(true); },
+    });
+  }
 
   private loadRequests(): void {
     this.requestsLoading.set(true);
