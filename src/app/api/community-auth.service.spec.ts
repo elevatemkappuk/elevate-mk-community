@@ -119,12 +119,15 @@ describe('CommunityAuthService', () => {
   });
 
   it('confirms a reset through the Community endpoint with route credentials only in the request', () => {
+    service.setCurrentUser({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
     service.confirmPasswordReset('uid-value', 'token-value', 'New-password-123!', 'New-password-123!').subscribe();
     http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
     const request = http.expectOne('/api/v1/community/password-reset/confirm/');
     expect(request.request.body).toEqual({ uid: 'uid-value', token: 'token-value', new_password: 'New-password-123!', confirm_password: 'New-password-123!' });
     expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
     request.flush({ detail: 'Your password has been reset successfully.' });
+    expect(service.currentUser()).toBeNull();
+    expect(service.sessionLoaded()).toBe(true);
   });
 
   it('verifies an email change through CSRF without storing the route token', () => {

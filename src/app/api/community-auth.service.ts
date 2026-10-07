@@ -113,6 +113,7 @@ export class CommunityAuthService {
         { uid, token, new_password: password, confirm_password: confirmPassword },
         { withCredentials: true },
       )),
+      tap(() => this.clearCurrentUser()),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );
   }

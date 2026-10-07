@@ -237,8 +237,10 @@ authoritative.
 At redemption time the backend rechecks Community eligibility. A member who
 has become ineligible cannot use a previously issued reset link. Invalid or
 expired links receive generic safe handling. A successful reset changes the
-password but does not automatically sign the member in; the member returns
-to `/sign-in`.
+password and invalidates existing Django-authenticated sessions when they are
+next used, including the current Community browser session. It does not
+automatically sign the member in; the member receives explicit sign-in-again
+guidance and returns to `/sign-in`.
 
 ## Verified email change
 
