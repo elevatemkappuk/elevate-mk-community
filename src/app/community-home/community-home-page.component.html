@@ -30,7 +30,7 @@
 
     @if (profile(); as data) {
       @if (data.community.review_required) {
-        <aside class="home-attention home-attention-review" aria-labelledby="home-attention-title">
+        <aside class="home-attention home-attention-review" style="order: 3" aria-labelledby="home-attention-title">
           <div>
             <p class="eyebrow">Check your details</p>
             <h2 id="home-attention-title">Your profile is ready for review.</h2>
@@ -39,7 +39,7 @@
           <a class="home-attention-action" routerLink="/community/profile/edit" [state]="{ review: true }">Review profile</a>
         </aside>
       } @else if (isProfileIncomplete(data)) {
-        <aside class="home-attention home-attention-incomplete" aria-labelledby="home-attention-title">
+        <aside class="home-attention home-attention-incomplete" style="order: 3" aria-labelledby="home-attention-title">
           <div>
             <p class="eyebrow">Profile progress</p>
             <h2 id="home-attention-title">Make your profile more useful to the Community.</h2>
@@ -48,11 +48,11 @@
           <a class="home-attention-action" routerLink="/community/profile/edit">Complete profile</a>
         </aside>
       } @else {
-        <p class="home-profile-complete" role="status"><span class="eyebrow">Profile status</span> Your profile is up to date.</p>
+        <p class="home-profile-complete" style="order: 2" role="status"><span class="eyebrow">Profile status</span> Your profile is up to date.</p>
       }
     }
 
-    <section class="home-secondary-grid" aria-label="Community progress and destinations">
+    <section class="home-secondary-grid" style="order: 4" aria-label="Community progress and destinations">
       @if (profile(); as data) {
         <section class="home-progress" aria-labelledby="home-progress-title">
           @if (isProfileIncomplete(data) || data.community.review_required) {
@@ -105,7 +105,7 @@
     </section>
 
     @if (requests().length) {
-      <section class="home-requests" aria-labelledby="home-requests-title">
+      <section class="home-requests" style="order: 2" aria-labelledby="home-requests-title">
         <div class="home-requests-heading"><div><p class="eyebrow">Connection requests</p><h2 id="home-requests-title">People who would like to connect with you.</h2></div><a routerLink="/community/directory/requests" [queryParams]="{ direction: 'incoming' }">View all requests <span aria-hidden="true">→</span></a></div>
         <div class="home-request-list">
           @for (request of requests(); track request.connection_id) {
@@ -127,7 +127,33 @@
       <p class="home-request-error" role="status">{{ requestsError() }} <button type="button" (click)="retryRequests()">Try again</button></p>
     }
 
-    <footer class="home-exit">
+    <section class="home-community" style="order: 1" aria-labelledby="home-community-title">
+      <div class="home-community-heading home-requests-heading">
+        <div>
+          <p class="eyebrow">From the Community</p>
+          <h2 id="home-community-title">HAVE SOMETHING USEFUL TO SHARE?</h2>
+          <p>Ask for help, offer something, share an opportunity or update the community.</p>
+        </div>
+        <a class="home-community-create" routerLink="/community/community/post/new">Create a post <span aria-hidden="true">→</span></a>
+      </div>
+      @if (communityPostsLoading()) {
+        <p class="home-profile-status" role="status">Loading the latest Community posts…</p>
+      } @else if (communityPostsError()) {
+        <div class="home-community-error home-request-error" role="alert">
+          <div><strong>COMMUNITY POSTS UNAVAILABLE</strong><p>We couldn't load the latest posts right now.</p></div>
+          <button type="button" (click)="retryCommunityPosts()">Retry</button>
+        </div>
+      } @else if (communityPosts().length) {
+        <div class="home-request-list">
+          @for (post of communityPosts(); track post.public_id) { <app-community-post-card [post]="post" /> }
+        </div>
+        <a class="home-community-view-all home-progress-action" routerLink="/community/community">View all Community posts <span aria-hidden="true">→</span></a>
+      } @else {
+        <div class="home-community-empty"><p>No posts yet. Be the first to ask for help, offer something or share an opportunity with the community.</p><a class="home-progress-action" routerLink="/community/community/post/new">Create a post <span aria-hidden="true">→</span></a></div>
+      }
+    </section>
+
+    <footer class="home-exit" style="order: 5">
       <a href="https://elevatemk.org/"><span aria-hidden="true">←</span> Back to Elevate MK</a>
     </footer>
   </main>

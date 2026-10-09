@@ -23,6 +23,14 @@ describe('Community routes', () => {
     expect(routes.find((route) => route.path === 'community/account/verify-email/:requestId/:token')?.canActivate).toBeUndefined();
     expect(await routes.find((route) => route.path === 'community')?.loadComponent?.()).toBeTruthy();
     expect(routes.find((route) => route.path === 'community')?.canActivate?.length).toBe(1);
+    expect(await routes.find((route) => route.path === 'community/community')?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/community')?.canActivate?.length).toBe(1);
+    expect(await routes.find((route) => route.path === 'community/community/post/new')?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/community/post/new')?.canActivate?.length).toBe(1);
+    expect(await routes.find((route) => route.path === 'community/community/post/:postId/edit')?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/community/post/:postId/edit')?.canActivate?.length).toBe(1);
+    expect(await routes.find((route) => route.path === 'community/community/post/:postId')?.loadComponent?.()).toBeTruthy();
+    expect(routes.find((route) => route.path === 'community/community/post/:postId')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/profile')?.component).toBe(CommunityProfilePageComponent);
     expect(routes.find((route) => route.path === 'community/profile')?.canActivate?.length).toBe(1);
     expect(routes.find((route) => route.path === 'community/profile/edit')?.component).toBe(CommunityProfileEditPageComponent);

@@ -335,6 +335,12 @@ product. Potential future areas include QR profile sharing, messaging and
 events. These are future possibilities or planned areas, not current
 capabilities.
 
+Community Feed is now available as a focused member conversation space. It
+supports purpose-led asks, offers, opportunities and updates, Community-wide
+or Connections-only audiences, flat replies, member reporting and bounded
+staff moderation. It deliberately does not include social-media engagement,
+ranking, media, messaging or Events.
+
 ## Current business capability summary
 
 | Capability | Current status |
@@ -358,5 +364,7 @@ capabilities.
 | Member directory and Connect discovery | Available |
 | QR profile sharing | Not yet available |
 | Connections and connection requests | Available |
+| Community Feed posts and conversations | Available |
+| Community Feed reporting and staff moderation | Available |
 | Messaging | Not yet available |
 | Events/community event participation | Not yet available |

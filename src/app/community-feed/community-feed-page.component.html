@@ -1,0 +1,38 @@
+<div class="community-feed-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="community-feed-main" aria-labelledby="community-title">
+    <header class="community-feed-heading">
+      <p class="eyebrow">Community</p>
+      <h1 id="community-title">Ask. Offer. Connect. Contribute.</h1>
+      <p>A useful professional community built around helping each other.</p>
+    </header>
+
+    <aside class="create-post-entry" aria-labelledby="create-post-entry-title">
+      <div><p class="eyebrow">Have something useful to share?</p><h2 id="create-post-entry-title">Ask for help, offer something, share an opportunity or update the community.</h2></div>
+      <a class="create-post-link" routerLink="/community/community/post/new">Create a post <span aria-hidden="true">→</span></a>
+    </aside>
+
+    <nav class="purpose-filters" aria-label="Community post purpose">
+      @for (filter of filters; track filter.label) {
+        <button type="button" [class.active]="selectedPurpose() === filter.value" [attr.aria-pressed]="selectedPurpose() === filter.value" (click)="choosePurpose(filter.value)">{{ filter.label }}</button>
+      }
+    </nav>
+
+    @if (loading() && !posts().length) {
+      <section class="community-feed-state" aria-live="polite"><p class="eyebrow">Community</p><h2>Finding the latest posts</h2><p>Bringing the newest conversations together.</p></section>
+    } @else if (errorMessage()) {
+      <section class="community-feed-state" role="alert" aria-labelledby="community-error-title"><p class="eyebrow">Community</p><h2 id="community-error-title">We couldn’t load Community</h2><p>{{ errorMessage() }}</p><button class="community-primary-action feed-retry" type="button" (click)="retry()">Try again</button></section>
+    } @else if (loaded() && !posts().length) {
+      <section class="community-feed-state" aria-live="polite"><p class="eyebrow">Community</p><h2>{{ selectedPurpose() ? 'NO ' + (selectedPurpose() === 'ASK' ? 'ASKS' : selectedPurpose() === 'OFFER' ? 'OFFERS' : selectedPurpose() === 'OPPORTUNITY' ? 'OPPORTUNITIES' : 'UPDATES') + ' YET' : 'NO COMMUNITY POSTS YET' }}</h2><p>{{ selectedPurpose() ? 'There are no posts in this purpose yet. Check back soon.' : 'Community posts will appear here as members ask for help, offer value, share opportunities and post relevant updates.' }}</p></section>
+    } @else {
+      <section class="community-feed-results" aria-labelledby="community-posts-title">
+        <div class="feed-results-heading"><div><p class="eyebrow">Latest</p><h2 id="community-posts-title">What members are sharing</h2></div><span>{{ posts().length }}{{ hasNext() ? '+' : '' }} {{ posts().length === 1 ? 'post' : 'posts' }}</span></div>
+        <div class="community-post-list">
+          @for (post of posts(); track post.public_id) { <app-community-post-card [post]="post" /> }
+        </div>
+        @if (loadMoreError(); as message) { <p class="feed-load-more-error" role="alert">{{ message }} <button type="button" (click)="loadMore()">Try again</button></p> }
+        @if (hasNext()) { <button class="load-more" type="button" [disabled]="loadingMore()" [attr.aria-busy]="loadingMore()" (click)="loadMore()">{{ loadingMore() ? 'Loading more…' : 'Load more' }}</button> }
+      </section>
+    }
+  </main>
+</div>

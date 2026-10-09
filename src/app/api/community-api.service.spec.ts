@@ -43,6 +43,84 @@ describe('CommunityApiService', () => {
     request.flush({ count: 0, next: null, previous: null, results: [] });
   });
 
+  it('loads Community posts with the backend purpose and page contract', () => {
+    service.getCommunityPosts({ purpose: 'OPPORTUNITY', page: 2 }).subscribe();
+    const request = http.expectOne('/api/v1/community/posts/?purpose=OPPORTUNITY&page=2');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+  });
+
+  it('loads a Community post detail by encoded public id', () => {
+    service.getCommunityPost('post/one').subscribe();
+    const request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({});
+  });
+
+  it('uses CSRF and a stable idempotency key for post and reply creation', () => {
+    service.createCommunityPost({ purpose: 'ASK', headline: 'Need help', body: 'A useful question', audience: 'ELEVATE_COMMUNITY' }, 'post-key').subscribe();
+    let request = http.expectOne('/api/v1/community/posts/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ purpose: 'ASK', headline: 'Need help', body: 'A useful question', audience: 'ELEVATE_COMMUNITY' });
+    expect(request.request.headers.get('Idempotency-Key')).toBe('post-key');
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush({ public_id: 'post-1' });
+
+    service.createCommunityReply('post/one', { body: 'A reply', reply_to_id: 'reply-1' }, 'reply-key').subscribe();
+    request = http.expectOne('/api/v1/community/posts/post%2Fone/replies/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ body: 'A reply', reply_to_id: 'reply-1' });
+    expect(request.request.headers.get('Idempotency-Key')).toBe('reply-key');
+    request.flush({ public_id: 'reply-1' });
+  });
+
+  it('updates and deletes a Community post through the authenticated contract', () => {
+    service.updateCommunityPost('post/one', { headline: 'Updated headline', body: 'Updated body' }).subscribe();
+    let request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ headline: 'Updated headline', body: 'Updated body' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({ public_id: 'post-1' });
+
+    service.deleteCommunityPost('post/one').subscribe();
+    request = http.expectOne('/api/v1/community/posts/post%2Fone/');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token');
+    request.flush(null);
+  });
+
+  it('loads replies and uses the reply/report mutation contracts', () => {
+    service.getCommunityReplies('post-1', 2).subscribe();
+    let request = http.expectOne('/api/v1/community/posts/post-1/replies/?page=2');
+    expect(request.request.method).toBe('GET');
+    request.flush({ count: 0, next: null, previous: null, results: [] });
+
+    service.editCommunityReply('post-1', 'reply-1', 'Edited').subscribe();
+    request = http.expectOne('/api/v1/community/posts/post-1/replies/reply-1/');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ body: 'Edited' });
+    request.flush({ public_id: 'reply-1' });
+
+    service.deleteCommunityReply('post-1', 'reply-1').subscribe();
+    request = http.expectOne('/api/v1/community/posts/post-1/replies/reply-1/');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null);
+
+    service.reportCommunityPost('post-1', { reason: 'OFF_TOPIC', details: '' }).subscribe();
+    request = http.expectOne('/api/v1/community/posts/post-1/report/');
+    expect(request.request.method).toBe('POST');
+    request.flush({ detail: 'Report received.' });
+
+    service.reportCommunityReply('post-1', 'reply-1', { reason: 'OTHER', details: 'Needs review' }).subscribe();
+    request = http.expectOne('/api/v1/community/posts/post-1/replies/reply-1/report/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ reason: 'OTHER', details: 'Needs review' });
+    request.flush({ detail: 'Report received.' });
+  });
+
   it('omits blank search and empty filters', () => {
     service.getDirectory({ q: '   ', industry: '', skill: '', interest: '', page: 1 }).subscribe();
     const request = http.expectOne('/api/v1/community/directory/');
