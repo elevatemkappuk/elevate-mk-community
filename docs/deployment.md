@@ -68,6 +68,29 @@ The checked-in development environment points to the local API at
 `http://localhost:8000/api/v1`. Angular development serving is explicitly
 configured for port `4201`.
 
+## Railway production serving
+
+Railway must use the repository's production commands rather than the local
+development `npm start` command. The checked-in `railway.json` configures:
+
+```text
+Build command: npm run build:railway
+Start command: npm run start:railway
+```
+
+`build:railway` writes the build-time API environment and creates the Angular
+production output once. `start:railway` uses the small Node launcher in
+`scripts/start-railway.mjs` to serve
+`dist/elevate-mk-community/browser` with the lightweight `serve` static server,
+enables SPA fallback with `-s`, binds to `0.0.0.0`, and uses Railway's
+`PORT` value. It falls back to port `8080` when `PORT` is not set, which is the
+expected staging port.
+
+Railway should provide `API_BASE_URL` as an absolute HTTP(S) URL ending in
+`/api/v1`. No API, session, CSRF or Angular route behavior changes are needed.
+Refreshing routes such as `/community`, `/community/community` and
+`/community/connect` is handled by the static server's SPA fallback.
+
 ## Configuration tests
 
 Run:
