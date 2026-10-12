@@ -86,8 +86,16 @@ enables SPA fallback with `-s`, binds to `0.0.0.0`, and uses Railway's
 `PORT` value. It falls back to port `8080` when `PORT` is not set, which is the
 expected staging port.
 
+The repository selects the `RAILPACK` builder and pins Node.js to `22.14.0`
+through both `package.json` and `.node-version`. Set
+`RAILPACK_NO_SPA=1` in the Railway service variables so Railpack does not
+replace the explicit Node static server with its Angular static-site output
+assumption. The explicit `start:railway` command remains authoritative and
+serves the built `browser` directory.
+
 Railway should provide `API_BASE_URL` as an absolute HTTP(S) URL ending in
-`/api/v1`. No API, session, CSRF or Angular route behavior changes are needed.
+`/api/v1`; `PORT` is supplied by Railway (with `8080` as the local/staging
+fallback). No API, session, CSRF or Angular route behavior changes are needed.
 Refreshing routes such as `/community`, `/community/community` and
 `/community/connect` is handled by the static server's SPA fallback.
 
@@ -132,7 +140,7 @@ The local development build uses `environment.development.ts`; the normal
 
 The current tooling baseline is:
 
-- Node `22.12.0` in GitHub Actions;
+- Node `22.14.0` for Railway and Node `22.12.0` in GitHub Actions;
 - npm `10.9.0`, declared by `package.json`;
 - `package-lock.json` lockfile version 3;
 - `npm ci` for deterministic CI installation.
