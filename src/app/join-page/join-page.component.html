@@ -40,12 +40,9 @@
               autocomplete="given-name"
               aria-required="true"
               [attr.aria-invalid]="shouldShowError('first_name') ? 'true' : null"
-              [attr.aria-describedby]="shouldShowError('first_name') ? 'first-name-error' : null"
+              [attr.aria-describedby]="shouldShowError('first_name') ? 'join-validation-error' : null"
             />
             <div class="field-message">
-              @if (shouldShowError('first_name')) {
-                <span id="first-name-error" class="field-error">{{ errorMessage('first_name') }}</span>
-              }
             </div>
           </div>
           <div class="field">
@@ -57,12 +54,9 @@
               autocomplete="family-name"
               aria-required="true"
               [attr.aria-invalid]="shouldShowError('last_name') ? 'true' : null"
-              [attr.aria-describedby]="shouldShowError('last_name') ? 'last-name-error' : null"
+              [attr.aria-describedby]="shouldShowError('last_name') ? 'join-validation-error' : null"
             />
             <div class="field-message">
-              @if (shouldShowError('last_name')) {
-                <span id="last-name-error" class="field-error">{{ errorMessage('last_name') }}</span>
-              }
             </div>
           </div>
         </div>
@@ -77,12 +71,9 @@
               placeholder="Select your gender"
               [required]="true"
               [invalid]="shouldShowError('gender')"
-              [describedBy]="shouldShowError('gender') ? 'gender-error' : ''"
+              [describedBy]="shouldShowError('gender') ? 'join-validation-error' : ''"
             ></app-select>
             <div class="field-message">
-              @if (shouldShowError('gender')) {
-                <span id="gender-error" class="field-error">{{ errorMessage('gender') }}</span>
-              }
             </div>
           </div>
           <div class="field">
@@ -94,12 +85,9 @@
               placeholder="Select your age range"
               [required]="true"
               [invalid]="shouldShowError('age_range')"
-              [describedBy]="shouldShowError('age_range') ? 'age-range-error' : ''"
+              [describedBy]="shouldShowError('age_range') ? 'join-validation-error' : ''"
             ></app-select>
             <div class="field-message">
-              @if (shouldShowError('age_range')) {
-                <span id="age-range-error" class="field-error">{{ errorMessage('age_range') }}</span>
-              }
             </div>
           </div>
         </div>
@@ -113,12 +101,9 @@
             autocomplete="email"
             aria-required="true"
             [attr.aria-invalid]="shouldShowError('email') ? 'true' : null"
-            [attr.aria-describedby]="shouldShowError('email') ? 'email-error' : null"
+            [attr.aria-describedby]="shouldShowError('email') ? 'join-validation-error' : null"
           />
           <div class="field-message">
-            @if (shouldShowError('email')) {
-              <span id="email-error" class="field-error">{{ errorMessage('email') }}</span>
-            }
           </div>
         </div>
 
@@ -151,12 +136,9 @@
             autocomplete="address-level2"
             aria-required="true"
             [attr.aria-invalid]="shouldShowError('location') ? 'true' : null"
-            [attr.aria-describedby]="shouldShowError('location') ? 'location-error' : null"
+            [attr.aria-describedby]="shouldShowError('location') ? 'join-validation-error' : null"
           />
           <div class="field-message">
-            @if (shouldShowError('location')) {
-              <span id="location-error" class="field-error">{{ errorMessage('location') }}</span>
-            }
           </div>
         </div>
 
@@ -173,7 +155,7 @@
             [required]="true"
             [disabled]="industriesLoading() || industries().length === 0"
             [invalid]="shouldShowError('industry')"
-            [describedBy]="'industry-status industry-error'"
+            [describedBy]="'industry-status' + (shouldShowError('industry') ? ' join-validation-error' : '')"
           ></app-select>
           <div class="field-message">
             @if (industriesLoading()) {
@@ -181,9 +163,6 @@
             } @else if (industriesError()) {
               <span id="industry-status" class="field-error" role="alert">{{ industriesError() }}</span>
               <button class="retry-button" type="button" (click)="loadIndustries()">Try again</button>
-            }
-            @if (shouldShowError('industry')) {
-              <span id="industry-error" class="field-error">{{ errorMessage('industry') }}</span>
             }
           </div>
         </div>
@@ -197,12 +176,9 @@
             autocomplete="organization-title"
             aria-required="true"
             [attr.aria-invalid]="shouldShowError('job_title') ? 'true' : null"
-            [attr.aria-describedby]="shouldShowError('job_title') ? 'job-title-error' : null"
+            [attr.aria-describedby]="shouldShowError('job_title') ? 'join-validation-error' : null"
           />
           <div class="field-message">
-            @if (shouldShowError('job_title')) {
-              <span id="job-title-error" class="field-error">{{ errorMessage('job_title') }}</span>
-            }
           </div>
         </div>
 
@@ -214,14 +190,13 @@
             formControlName="linkedin_url"
             autocomplete="url"
             [attr.aria-invalid]="shouldShowError('linkedin_url') ? 'true' : null"
-            [attr.aria-describedby]="shouldShowError('linkedin_url') ? 'linkedin-error' : null"
+            [attr.aria-describedby]="shouldShowError('linkedin_url') ? 'join-validation-error' : null"
           />
           <div class="field-message">
-            @if (shouldShowError('linkedin_url')) {
-              <span id="linkedin-error" class="field-error">{{ errorMessage('linkedin_url') }}</span>
-            }
           </div>
         </div>
+
+        @if (validationMessages().length) { <div id="join-validation-error" class="form-validation-errors" role="alert"><p>Membership form needs attention:</p><ul>@for (message of validationMessages(); track message) { <li>{{ message }}</li> }</ul></div> }
 
         <fieldset class="marketing-choice">
           <legend>Stay connected with Elevate MK</legend>

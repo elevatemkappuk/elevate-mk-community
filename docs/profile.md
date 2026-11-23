@@ -13,8 +13,9 @@ Three concepts are deliberately distinct:
   self-service editing experience.
 - **CommunityProfile** is a backend Community-owned one-to-one extension
   attached to `Person`. It stores Community-specific state only.
-- **Directory Profile** is a future privacy-safe projection intended for
-  other Community members. It is not implemented in Profile V1.
+- **Directory Profile** is a separate privacy-safe member-facing projection
+  used by the implemented Connect experience. It is not part of the My
+  Profile editing contract.
 
 The frontend is separate from the Staff CRM frontend. The shared Django API
 owns authorization, canonical data, completion rules and profile mutation.
@@ -38,12 +39,12 @@ does not copy those records.
 Current `CommunityProfile` state is:
 
 - `bio`;
+- the normalized private Profile Photo reference;
 - `person_preexisted_community`, which records existing-record provenance;
 - `review_acknowledged_at`, which records explicit review acknowledgement;
 - creation and update timestamps.
 
-Future Community-specific state may extend this model, but Profile V1 does
-not define photo, directory or sharing fields.
+Directory and sharing fields remain outside Profile V1.
 
 ## Routes and APIs
 
@@ -76,6 +77,7 @@ person:
 community:
   bio
   review_required
+  photo_url: string | null
 professional:
   job_title
   company
@@ -128,6 +130,27 @@ canonical industries, skills and interests are returned; career stages come
 from the canonical professional choices. The frontend does not create
 arbitrary taxonomy values.
 
+### Profile Photo
+
+The Edit Profile page supports uploading, changing, and removing the member's
+private profile photo through:
+
+```text
+POST /api/v1/community/profile/photo/
+DELETE /api/v1/community/profile/photo/
+```
+
+The browser accepts JPEG, PNG, and WebP files up to 5 MiB for immediate
+feedback. The backend remains authoritative for decoded-image limits,
+malformed files, animation, metadata normalization, and final storage. V1 has
+no cropper; photos are displayed with `object-fit: cover`, and initials remain
+the fallback when no photo exists or a temporary signed URL cannot be loaded.
+
+`photo_url` is an ephemeral backend-generated URL. The Community frontend does
+not persist it, construct S3 URLs, strip its query string, or add refresh
+timers. A fresh profile request supplies the current URL. Profile Photo does
+not contribute to Profile Progress.
+
 ### Review acknowledgement
 
 ```text
@@ -152,7 +175,7 @@ CSRF handling.
 The read-only page provides:
 
 - the authenticated Community header/navigation;
-- an initials avatar fallback;
+- the current profile photo with an initials avatar fallback;
 - member name, professional summary and location;
 - active membership context and member-since date;
 - an Edit profile action;
@@ -434,23 +457,18 @@ These are checkpoint figures, not a permanent test-count guarantee.
 
 The following are not part of Profile V1:
 
-- Profile Photo and durable object storage;
-- Directory and Directory Profile;
-- directory visibility/privacy settings;
-- stable public/community profile identifiers;
 - QR profile sharing;
-- connections and networking;
 - email or mobile self-service editing;
 - Account Settings.
 
-Profile Photo may be investigated separately, but remains deferred here.
 
-## Relationship to future Directory Profile
+## Relationship to Connect Directory Profile
 
-My Profile is the owner-facing composed profile. A future Directory Profile
-will be a privacy-safe member-facing projection of selected data.
+My Profile is the owner-facing composed profile. Connect uses a privacy-safe
+member-facing projection of selected data for discovery and connection
+workflows.
 
-Both should ultimately derive from the same canonical data and
+Both derive from the same canonical data and
 `CommunityProfile`; neither requires another duplicate identity/profile
-database. This document does not define future Directory fields or privacy
-defaults.
+database. Connect owns its member-facing privacy projection and relationship
+actions separately from My Profile editing.

@@ -1,0 +1,28 @@
+<div class="community-edit-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="community-edit-main" aria-labelledby="edit-post-title">
+    <a class="back-community" routerLink="/community/community">← Back to Community</a>
+    @if (loading()) {
+      <section class="edit-state" aria-live="polite"><p class="eyebrow">Community</p><h1>Loading post</h1><p>Bringing the post details together.</p></section>
+    } @else if (unavailable()) {
+      <section class="edit-state" role="status"><p class="eyebrow">Community</p><h1>POST NOT AVAILABLE</h1><p>This post is no longer available to edit.</p><a routerLink="/community/community">Back to Community</a></section>
+    } @else if (post(); as data) {
+      <header class="edit-heading"><p class="eyebrow">Community</p><h1 id="edit-post-title">Edit your post.</h1><p>Keep the detail useful and clear for the members reading it.</p></header>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <fieldset class="purpose-fieldset" [attr.aria-describedby]="data.capabilities.can_edit_purpose ? null : 'purpose-locked'">
+          <legend>What kind of contribution is this?</legend>
+          <div class="purpose-options" role="radiogroup" aria-label="Post purpose">
+            @for (purpose of purposes; track purpose.value) { <button type="button" class="purpose-option" role="radio" [disabled]="!data.capabilities.can_edit_purpose" [attr.aria-checked]="form.getRawValue().purpose === purpose.value" [class.selected]="form.getRawValue().purpose === purpose.value" (click)="selectPurpose(purpose.value)"><strong>{{ purpose.label }}</strong><span>{{ purpose.prompt }}</span></button> }
+          </div>
+          @if (!data.capabilities.can_edit_purpose) { <p id="purpose-locked" class="locked-guidance"><strong>Purpose locked</strong> The post purpose can’t be changed once a conversation has started.</p> } @else if (selectedPurpose(); as purpose) { <p class="purpose-guidance"><strong>{{ purpose.prompt }}</strong> {{ purpose.help }}</p> }
+          @if (showError('purpose')) { <p class="field-error" role="alert">{{ errorText('purpose') }}</p> }
+        </fieldset>
+        <div class="form-field"><label for="edit-post-headline">Headline</label><input id="edit-post-headline" formControlName="headline" maxlength="120" [attr.aria-invalid]="showError('headline')" [attr.aria-describedby]="showError('headline') ? 'edit-headline-error edit-headline-count' : 'edit-headline-count'" /><div class="field-meta"><span>@if (showError('headline')) { <span id="edit-headline-error" class="field-error">{{ errorText('headline') }}</span> }</span><span id="edit-headline-count">{{ remaining('headline', 120) }} characters left</span></div></div>
+        <div class="form-field"><label for="edit-post-body">Your contribution</label><textarea id="edit-post-body" rows="9" formControlName="body" maxlength="2000" [attr.aria-invalid]="showError('body')" [attr.aria-describedby]="showError('body') ? 'edit-body-error edit-body-count' : 'edit-body-count'"></textarea><div class="field-meta"><span>@if (showError('body')) { <span id="edit-body-error" class="field-error">{{ errorText('body') }}</span> }</span><span id="edit-body-count">{{ remaining('body', 2000) }} characters left</span></div></div>
+        <fieldset class="audience-fieldset" [attr.aria-describedby]="data.capabilities.can_edit_audience ? null : 'audience-locked'"><legend>Who can see this post?</legend><div class="audience-options"><label [class.selected]="form.getRawValue().audience === 'ELEVATE_COMMUNITY'"><input type="radio" formControlName="audience" value="ELEVATE_COMMUNITY" /> <span><strong>Elevate Community</strong><small>Everyone in the eligible Elevate Community can see this post.</small></span></label><label [class.selected]="form.getRawValue().audience === 'CONNECTIONS'"><input type="radio" formControlName="audience" value="CONNECTIONS" /> <span><strong>My connections</strong><small>Only your current accepted connections can see this post.</small></span></label></div>@if (!data.capabilities.can_edit_audience) { <p id="audience-locked" class="locked-guidance"><strong>Audience locked</strong> The audience can’t be changed once a conversation has started.</p> }</fieldset>
+        @if (errorMessage(); as message) { <p class="submit-error" role="alert">{{ message }} <button type="button" (click)="save()">Try again</button></p> }
+        <div class="form-actions"><button class="community-primary-action" type="submit" [disabled]="submitting()">{{ submitting() ? 'Saving…' : 'Save changes' }}</button><a class="cancel-action" [routerLink]="['/community/community/post', data.public_id]">Cancel</a></div>
+      </form>
+    }
+  </main>
+</div>

@@ -16,13 +16,22 @@ uses the shared Elevate MK Django API.
   non-technical overview of the product, member journey, current
   capabilities and future scope.
 
-## Future documentation areas
+- [Community Feed V1](./feed.md) - Purpose-led posts, conversations,
+  reporting, member content controls and current limitations.
+
+## Documentation areas still to be expanded
+
+- [Connections V1](./connections.md) — Connect discovery, relationship
+  lifecycle, privacy rules and frontend workspace behavior.
 
 These areas are not yet covered by the current Community frontend
 documentation:
 
-- Directory and Directory Profile
-- Profile photos and QR sharing
-- Connections and networking
+- QR sharing
 - CRM staff workflows
 - Brevo marketing architecture
+
+Connect discovery, member profiles, My Connections, connection requests and
+the Home incoming-request preview are implemented in the current Community
+frontend. Their behavior is documented in [Connections V1](./connections.md).
+Home does not provide polling, unread state or notification infrastructure.

@@ -12,9 +12,18 @@ skills and interests. The experience is connected to the existing Elevate MK
 membership and CRM information, so Community is designed to strengthen one
 shared member record rather than create a competing one.
 
-This is the current foundation for a broader member Community experience. A
-member directory, networking and connections are not available in the
-current release.
+This is the current foundation for a broader member Community experience.
+Members can now discover eligible profiles through Connect, view member
+profiles, manage established connections and process incoming or sent
+connection requests. Community Home also surfaces a compact preview of
+incoming requests with direct actions and a link to the full Requests
+workspace.
+
+Connections are mutual and require an explicit recipient decision. Directory
+visibility, current Community eligibility, accepted-connection contact access
+and the removal of access after disconnect are enforced by the backend.
+Connections do not include messaging, recommendations, or a broader social
+graph.
 
 ## The member journey today
 
@@ -139,7 +148,8 @@ includes:
 - professional information;
 - Community bio;
 - skills and interests;
-- membership context; and
+- membership context;
+- optional private profile photo; and
 - profile completion progress.
 
 It is intended to become the member's place for maintaining their Elevate MK
@@ -169,10 +179,14 @@ Members can currently update:
 - skills; and
 - interests.
 
+Members can also upload, change, or remove a private profile photo. JPEG, PNG,
+and WebP files up to 5 MiB are accepted for client-side feedback; backend
+validation remains authoritative. There is no cropper in V1, initials are used
+as a fallback, and profile photos do not affect Profile Progress.
+
 Skills and Interests use Elevate MK's managed choices rather than unrestricted
-free-text entries. This keeps information consistent and creates a stronger
-foundation for future member discovery and networking capabilities, without
-claiming that those capabilities exist today.
+free-text entries. This keeps information consistent for the current Connect
+discovery and networking experience.
 
 ## Information members cannot currently change
 
@@ -305,25 +319,27 @@ engagement or conversion.
 
 The following are not part of the current Community product:
 
-- profile photo;
-- member Directory;
-- member-facing Directory Profile;
-- directory search or discovery;
 - QR profile sharing;
-- member connections or networking;
 - messaging;
-- an events or community event participation experience;
-- member-to-member contact features;
-- self-service email changes;
-- self-service mobile changes; and
-- a full Account Settings area.
+- an events or community event participation experience.
+
+Members can now use **Account & Preferences** to manage their account email
+through verification, mobile number, password and password recovery, and
+email marketing preferences. These account-management capabilities are
+separate from the read-only/profile-editing scope of My Profile.
 
 ## Where the product is heading
 
 The current release establishes the foundation for a richer Community
-product. Potential future areas include profile photos, a member directory,
-member discovery, QR profile sharing and networking or connections. These
-are future possibilities or planned areas, not current capabilities.
+product. Potential future areas include QR profile sharing, messaging and
+events. These are future possibilities or planned areas, not current
+capabilities.
+
+Community Feed is now available as a focused member conversation space. It
+supports purpose-led asks, offers, opportunities and updates, Community-wide
+or Connections-only audiences, flat replies, member reporting and bounded
+staff moderation. It deliberately does not include social-media engagement,
+ranking, media, messaging or Events.
 
 ## Current business capability summary
 
@@ -338,11 +354,17 @@ are future possibilities or planned areas, not current capabilities.
 | Skills and interests | Available |
 | Existing-details review | Available |
 | Profile completion | Available |
-| Profile photo | Not yet available |
-| Member directory | Not yet available |
+| Profile photo | Available |
+| Home member dashboard | Available |
+| Account & Preferences | Available |
+| Verified email change | Available |
+| Mobile number management | Available |
+| Password change and recovery | Available |
+| Email marketing preference management | Available |
+| Member directory and Connect discovery | Available |
 | QR profile sharing | Not yet available |
-| Connections and networking | Not yet available |
+| Connections and connection requests | Available |
+| Community Feed posts and conversations | Available |
+| Community Feed reporting and staff moderation | Available |
 | Messaging | Not yet available |
 | Events/community event participation | Not yet available |
-| Self-service email or mobile change | Not yet available |
-| Full Account Settings | Not yet available |

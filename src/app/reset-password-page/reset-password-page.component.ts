@@ -65,6 +65,16 @@ export class ResetPasswordPageComponent {
     return '';
   }
 
+  validationMessages(): string[] {
+    const messages = [
+      this.form.controls.password.invalid && this.form.controls.password.touched ? this.passwordError() : '',
+      this.form.controls.confirm_password.invalid && this.form.controls.confirm_password.touched && !this.hasMismatch() ? 'Confirm your password.' : '',
+      this.hasMismatch() ? 'Passwords do not match.' : '',
+      this.serverError(),
+    ];
+    return [...new Set(messages.filter(Boolean))];
+  }
+
   private handleError(error: CommunityApiError): void {
     this.submitting.set(false);
     const body = error.body as Record<string, unknown> | null;

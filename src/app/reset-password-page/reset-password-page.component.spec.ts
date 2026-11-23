@@ -51,7 +51,7 @@ describe('ResetPasswordPageComponent', () => {
     component.submit();
     fixture.detectChanges();
     expect(auth.confirmPasswordReset).toHaveBeenCalledWith('uid-value', 'token-value', 'Secure-password-123!', 'Secure-password-123!');
-    expect(fixture.nativeElement.textContent).toContain('Your Elevate MK account password has been updated.');
+    expect(fixture.nativeElement.textContent).toContain('Password updated. Sign in with your new password.');
     expect(fixture.nativeElement.querySelector('a[href="/sign-in"]')).not.toBeNull();
     const hero = fixture.nativeElement.querySelector('.reset-password-hero') as HTMLElement;
     expect(hero.querySelectorAll('.hero-line')[0].textContent).toBe("You're");

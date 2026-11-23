@@ -8,6 +8,14 @@
 .profile-form { display: grid; gap: 3rem; margin-top: clamp(2.5rem, 5vw, 4.5rem); }
 fieldset { min-width: 0; margin: 0; border: 0; border-top: 1px solid var(--elevate-border); padding: 1.5rem 0 0; }
 legend { margin-bottom: 1.25rem; color: var(--elevate-black); font-size: clamp(1.65rem, 3vw, 2.5rem); font-weight: 800; letter-spacing: -.06em; line-height: .95; }
+.photo-controls { display: flex; align-items: center; gap: 2rem; }
+.photo-controls app-profile-avatar { width: clamp(6rem, 12vw, 9rem); }
+.photo-controls app-profile-avatar .profile-avatar { width: 100%; }
+.photo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; min-width: 0; }
+.photo-actions .field-help { flex-basis: 100%; max-width: 34rem; margin: 0; }
+.photo-file-label { position: relative; overflow: hidden; }
+.photo-file-label input { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; }
+.photo-file-label.disabled { cursor: not-allowed; opacity: .58; }
 .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 label { display: grid; gap: .5rem; margin-bottom: 1.25rem; color: var(--elevate-black); font-size: .88rem; font-weight: 750; }
 .optional-label { color: var(--elevate-muted); font-size: .78rem; font-weight: 500; }
@@ -28,3 +36,4 @@ input.invalid { border-color: #8f2f25; }
 .secondary-action { border: 1px solid var(--elevate-black); background: transparent; color: var(--elevate-black); }
 .secondary-action:hover:not(:disabled) { background: var(--elevate-black); color: var(--elevate-surface); }
 @media (max-width: 760px) { .edit-main { padding: 2.5rem 1rem 4rem; } .field-grid { grid-template-columns: 1fr; } .form-actions { flex-direction: column-reverse; } .form-actions .profile-button { width: 100%; } }
+@media (max-width: 520px) { .photo-controls { align-items: flex-start; flex-direction: column; } .photo-actions { width: 100%; } .photo-actions .profile-button { flex: 1 1 auto; } }

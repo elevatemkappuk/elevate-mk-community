@@ -8,7 +8,7 @@ import { CommunityProfileEditPageComponent } from './community-profile-edit-page
 
 const profile: CommunityProfileResponse = {
   person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-  community: { bio: '', review_required: true },
+  community: { bio: '', review_required: true, photo_url: null, directory_id: 'member-1', directory_visible: false, email_visible: false, mobile_visible: false },
   professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
   skills: [{ id: 1, name: 'Strategy', slug: 'strategy' }],
   interests: [],
@@ -30,6 +30,8 @@ describe('CommunityProfileEditPageComponent', () => {
     getProfileOptions: ReturnType<typeof vi.fn>;
     updateProfile: ReturnType<typeof vi.fn>;
     acknowledgeProfileReview: ReturnType<typeof vi.fn>;
+    uploadProfilePhoto: ReturnType<typeof vi.fn>;
+    removeProfilePhoto: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -38,6 +40,8 @@ describe('CommunityProfileEditPageComponent', () => {
       getProfileOptions: vi.fn(() => of(options)),
       updateProfile: vi.fn(() => of(profile)),
       acknowledgeProfileReview: vi.fn(() => of({ review_required: false })),
+      uploadProfilePhoto: vi.fn(() => of(profile)),
+      removeProfilePhoto: vi.fn(() => of(profile)),
     };
     await TestBed.configureTestingModule({
       imports: [CommunityProfileEditPageComponent],
@@ -65,11 +69,68 @@ describe('CommunityProfileEditPageComponent', () => {
     component.form.controls.community.controls.bio.setValue('A short bio');
     component.save();
     expect(profileService.updateProfile).toHaveBeenCalledWith(expect.objectContaining({
-      community: { bio: 'A short bio' },
+      community: { bio: 'A short bio', directory_visible: false, email_visible: false, mobile_visible: false },
       skills: [],
       interests: [],
     }));
     expect(profileService.updateProfile.mock.calls[0][0]).not.toHaveProperty('membership');
+  });
+
+  it('keeps Connect privacy flags independent and presents discoverability context', () => {
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    component.form.controls.community.controls.directory_visible.setValue(true);
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(element.textContent).toContain('Make my profile discoverable');
+    expect(element.textContent).toContain('What other members can see');
+    expect(element.textContent).toContain('Contact sharing');
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(true);
+    component.form.controls.community.controls.email_visible.setValue(true);
+    component.form.controls.community.controls.mobile_visible.setValue(true);
+    component.form.controls.community.controls.directory_visible.setValue(false);
+    expect(component.form.controls.community.value).toEqual(expect.objectContaining({ directory_visible: false, email_visible: true, mobile_visible: true }));
+    expect(element.textContent).toContain('Non-connected members follow this setting. Accepted connections can see it automatically.');
+    expect(element.textContent).toContain('Accepted connections can see available contact details automatically while the connection is active.');
+  });
+
+  it('uses API privacy values without inventing a visible default', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(false);
+    expect((element.querySelector('#email-visible') as HTMLInputElement).checked).toBe(false);
+    expect((element.querySelector('#mobile-visible') as HTMLInputElement).checked).toBe(false);
+    expect(element.querySelector('#directory-visible')?.getAttribute('aria-describedby')).toBe('directory-visible-help');
+  });
+
+  it('renders all switch states from the API response', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: true, email_visible: true, mobile_visible: true } }));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect((element.querySelector('#directory-visible') as HTMLInputElement).checked).toBe(true);
+    expect((element.querySelector('#email-visible') as HTMLInputElement).checked).toBe(true);
+    expect((element.querySelector('#mobile-visible') as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('preserves contact preferences when discoverability is turned off', () => {
+    const visibleProfile = { ...profile, community: { ...profile.community, directory_visible: true, email_visible: true, mobile_visible: true } };
+    profileService.getProfile.mockReturnValue(of(visibleProfile));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.form.controls.community.controls.directory_visible.setValue(false);
+    component.save();
+    expect(profileService.updateProfile).toHaveBeenCalledWith(expect.objectContaining({
+      community: { bio: '', directory_visible: false, email_visible: true, mobile_visible: true },
+    }));
+  });
+
+  it('fails safely when the API omits required privacy values', () => {
+    profileService.getProfile.mockReturnValue(of({ ...profile, community: { ...profile.community, directory_visible: undefined as unknown as boolean } }));
+    fixture = TestBed.createComponent(CommunityProfileEditPageComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.loadError()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain("couldn’t load your profile");
   });
 
   it('does not acknowledge when PATCH fails', () => {
@@ -77,5 +138,60 @@ describe('CommunityProfileEditPageComponent', () => {
     fixture.componentInstance.save();
     expect(profileService.acknowledgeProfileReview).not.toHaveBeenCalled();
     expect(fixture.componentInstance.saveError()).toContain('Invalid profile');
+  });
+
+  it('shows Upload photo without Remove photo when no photo exists', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Upload photo');
+    expect(element.textContent).not.toContain('Remove photo');
+  });
+
+  it('validates client file type and exact 5 MiB boundary before upload', () => {
+    const component = fixture.componentInstance;
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const invalid = new File(['x'], 'avatar.gif', { type: 'image/gif' });
+    Object.defineProperty(input, 'files', { value: [invalid], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.photoError()).toContain('JPEG, PNG or WebP');
+    expect(profileService.uploadProfilePhoto).not.toHaveBeenCalled();
+
+    const boundary = new File(['x'], 'avatar.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(boundary, 'size', { value: 5 * 1024 * 1024 });
+    Object.defineProperty(input, 'files', { value: [boundary], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(profileService.uploadProfilePhoto).toHaveBeenCalledWith(boundary);
+  });
+
+  it('updates the profile after upload and removes it through the dedicated API', () => {
+    const component = fixture.componentInstance;
+    const uploaded = { ...profile, community: { ...profile.community, photo_url: 'https://example.test/photo.jpg?signature=temporary' } };
+    profileService.uploadProfilePhoto.mockReturnValue(of(uploaded));
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const file = new File(['photo'], 'avatar.webp', { type: 'image/webp' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.profile()?.community.photo_url).toContain('signature=temporary');
+
+    profileService.removeProfilePhoto.mockReturnValue(of({ ...profile, community: { ...profile.community, photo_url: null } }));
+    component.removePhoto();
+    expect(profileService.removeProfilePhoto).toHaveBeenCalledOnce();
+    expect(component.profile()?.community.photo_url).toBeNull();
+  });
+
+  it('shows Change and Remove for an existing photo and preserves it when upload fails', () => {
+    const component = fixture.componentInstance;
+    const currentPhoto = 'https://example.test/current.jpg?signature=temporary';
+    component.profile.set({ ...profile, community: { ...profile.community, photo_url: currentPhoto } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Change photo');
+    expect(fixture.nativeElement.textContent).toContain('Remove photo');
+
+    profileService.uploadProfilePhoto.mockReturnValue(throwError(() => ({ status: 400, body: { photo: ['Upload a valid image.'] } })));
+    const input = fixture.nativeElement.querySelector('#photoInput') as HTMLInputElement;
+    const file = new File(['photo'], 'avatar.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    expect(component.profile()?.community.photo_url).toBe(currentPhoto);
+    expect(component.photoError()).toBe('Upload a valid image.');
   });
 });

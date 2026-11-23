@@ -37,8 +37,8 @@ describe('CommunityAccountShellComponent', () => {
   it('renders projected hero and form content with the shared header', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('app-community-header')).toBeTruthy();
-    expect(element.querySelector('.account-shell-hero')?.textContent).toContain('Hero content');
-    expect(element.querySelector('.account-shell-form-panel')?.textContent).toContain('Form content');
+    expect(element.querySelector('.shell-hero')?.textContent).toContain('Hero content');
+    expect(element.querySelector('.shell-form-panel')?.textContent).toContain('Form content');
     expect(element.querySelector('.account-shell-onboarding')).toBeTruthy();
   });
 
@@ -47,8 +47,8 @@ describe('CommunityAccountShellComponent', () => {
     securityFixture.detectChanges();
     const element = securityFixture.nativeElement as HTMLElement;
     expect(element.querySelector('.account-shell-security')).toBeTruthy();
-    expect(element.querySelector('.account-shell-hero')?.textContent).toContain('Security hero');
-    expect(element.querySelector('.account-shell-form-panel')?.textContent).toContain('Security form');
+    expect(element.querySelector('.shell-hero')?.textContent).toContain('Security hero');
+    expect(element.querySelector('.shell-form-panel')?.textContent).toContain('Security form');
   });
 
   it('supports an opt-in raised form position without changing the security default', () => {

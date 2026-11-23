@@ -1,0 +1,21 @@
+:host { position: relative; z-index: 10; }
+.report-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(11 11 10 / 48%); }
+.report-dialog { width: min(100%, 34rem); max-height: calc(100svh - 2rem); overflow: auto; border-top: 3px solid var(--elevate-gold-deep); padding: clamp(1.25rem, 4vw, 2rem); background: var(--elevate-surface); box-shadow: var(--elevate-shadow); }
+.report-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.eyebrow { margin: 0 0 .65rem; color: var(--elevate-gold-deep); font-size: .7rem; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
+.report-dialog h2 { margin: 0; color: var(--elevate-black); font-size: clamp(1.7rem, 5vw, 2.6rem); letter-spacing: -.07em; line-height: .92; }
+.report-close { border: 0; padding: .25rem .45rem; background: transparent; color: var(--elevate-black); font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.report-close:focus-visible, .report-cancel:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
+.report-intro { margin: 1rem 0 1.5rem; color: var(--elevate-muted); line-height: 1.45; }
+fieldset { display: grid; gap: .65rem; margin: 0; border: 0; padding: 0; }
+legend { margin-bottom: .4rem; color: var(--elevate-black); font-weight: 850; }
+fieldset label { display: flex; gap: .6rem; align-items: flex-start; color: var(--elevate-ink); line-height: 1.35; cursor: pointer; }
+fieldset input { flex: 0 0 auto; accent-color: var(--elevate-gold-deep); margin-top: .2rem; }
+.details-label { display: block; margin-top: 1.5rem; color: var(--elevate-black); font-weight: 850; }
+.details-label span { color: var(--elevate-muted); font-size: .82rem; font-weight: 500; }
+textarea { display: block; width: 100%; margin-top: .5rem; border: 1px solid var(--elevate-border); padding: .75rem; background: var(--elevate-page); color: var(--elevate-ink); font: inherit; resize: vertical; }
+textarea:focus { border-color: var(--elevate-focus); outline: 3px solid rgb(205 153 23 / 18%); }
+.report-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
+.report-error { margin: 1rem 0 0; color: #8f2f25; font-size: .88rem; }
+.report-actions .community-primary-action { width: auto; min-height: 3rem; padding: .75rem 1rem; }
+.report-cancel { border: 0; background: transparent; color: var(--elevate-black); font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: .2rem; cursor: pointer; }

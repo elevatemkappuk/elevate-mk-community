@@ -13,7 +13,15 @@ export interface CommunityProfileIndustry {
 
 export interface CommunityProfileResponse {
   person: { first_name: string; last_name: string; location: string };
-  community: { bio: string; review_required: boolean };
+  community: {
+    bio: string;
+    review_required: boolean;
+    photo_url: string | null;
+    directory_id: string;
+    directory_visible: boolean;
+    email_visible: boolean;
+    mobile_visible: boolean;
+  };
   professional: {
     job_title: string;
     company: string;
@@ -43,7 +51,7 @@ export interface CommunityProfileOptions {
 
 export interface CommunityProfilePatch {
   person: { first_name: string; last_name: string; location: string };
-  community: { bio: string };
+  community: { bio: string; directory_visible: boolean; email_visible: boolean; mobile_visible: boolean };
   professional: {
     job_title: string;
     company: string;
@@ -89,6 +97,26 @@ export class CommunityProfileService {
     return this.auth.bootstrapCsrf().pipe(
       switchMap(() => this.http.post<{ review_required: boolean }>(
         `${this.apiConfig.apiBaseUrl}/community/profile/review-acknowledgement/`, {}, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  uploadProfilePhoto(photo: File): Observable<CommunityProfileResponse> {
+    const body = new FormData();
+    body.append('photo', photo);
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.post<CommunityProfileResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/profile/photo/`, body, { withCredentials: true },
+      )),
+      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+    );
+  }
+
+  removeProfilePhoto(): Observable<CommunityProfileResponse> {
+    return this.auth.bootstrapCsrf().pipe(
+      switchMap(() => this.http.delete<CommunityProfileResponse>(
+        `${this.apiConfig.apiBaseUrl}/community/profile/photo/`, { withCredentials: true },
       )),
       catchError((error: unknown) => throwError(() => this.toApiError(error))),
     );

@@ -119,11 +119,27 @@ describe('CommunityAuthService', () => {
   });
 
   it('confirms a reset through the Community endpoint with route credentials only in the request', () => {
+    service.setCurrentUser({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
     service.confirmPasswordReset('uid-value', 'token-value', 'New-password-123!', 'New-password-123!').subscribe();
     http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
     const request = http.expectOne('/api/v1/community/password-reset/confirm/');
     expect(request.request.body).toEqual({ uid: 'uid-value', token: 'token-value', new_password: 'New-password-123!', confirm_password: 'New-password-123!' });
     expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
     request.flush({ detail: 'Your password has been reset successfully.' });
+    expect(service.currentUser()).toBeNull();
+    expect(service.sessionLoaded()).toBe(true);
+  });
+
+  it('verifies an email change through CSRF without storing the route token', () => {
+    service.verifyEmailChange('request-id', 'verification-token').subscribe((response) => {
+      expect(response.status).toBe('EMAIL_UPDATED');
+    });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    const request = http.expectOne('/api/v1/community/account/email-change/verify/');
+    expect(request.request.body).toEqual({ request_id: 'request-id', token: 'verification-token' });
+    expect(request.request.headers.get('X-CSRFToken')).toBe('csrf-token-a');
+    request.flush({ status: 'EMAIL_UPDATED', detail: 'Your email address has been verified and updated.' });
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
   });
 });

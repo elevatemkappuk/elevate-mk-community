@@ -44,7 +44,7 @@ describe('CommunityProfileService', () => {
 
     service.updateProfile({
       person: { first_name: 'Amina', last_name: 'Zulu', location: 'Milton Keynes' },
-      community: { bio: '' },
+      community: { bio: '', directory_visible: false, email_visible: false, mobile_visible: false },
       professional: { job_title: '', company: '', industry: null, career_stage: null, linkedin_url: '' },
       skills: [],
       interests: [],
@@ -58,5 +58,24 @@ describe('CommunityProfileService', () => {
     request = http.expectOne('/api/v1/community/profile/review-acknowledgement/');
     expect(request.request.method).toBe('POST');
     request.flush({ review_required: false });
+  });
+
+  it('uploads a photo as FormData without forcing the multipart Content-Type', () => {
+    const photo = new File(['photo'], 'avatar.webp', { type: 'image/webp' });
+    service.uploadProfilePhoto(photo).subscribe();
+    const request = http.expectOne('/api/v1/community/profile/photo/');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBeInstanceOf(FormData);
+    expect((request.request.body as FormData).get('photo')).toBe(photo);
+    expect(request.request.headers.has('Content-Type')).toBe(false);
+    request.flush({});
+  });
+
+  it('removes a photo through the authenticated unsafe-request path', () => {
+    service.removeProfilePhoto().subscribe();
+    const request = http.expectOne('/api/v1/community/profile/photo/');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush({});
   });
 });

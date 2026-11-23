@@ -1,0 +1,55 @@
+<div class="connect-profile-shell">
+  <app-community-header [authenticated]="true" [signingOut]="signingOut()" (signOut)="signOut()" />
+  <main class="connect-profile-main" aria-labelledby="connect-profile-title">
+    <a class="back-link" [routerLink]="backRoute()" [queryParams]="backQueryParams()">← {{ backLabel() }}</a>
+    <app-community-connect-nav />
+    @if (loading()) {
+      <section class="profile-state" aria-live="polite"><p class="eyebrow">Connect</p><h1 id="connect-profile-title">Loading profile</h1></section>
+    } @else if (unavailable()) {
+      <section class="profile-state" aria-labelledby="unavailable-title"><p class="eyebrow">Profile unavailable</p><h1 id="unavailable-title">This member profile isn't available.</h1><p>This profile may no longer be discoverable. Return to Connect to continue exploring.</p></section>
+    } @else if (errorMessage(); as message) {
+      <section class="profile-state" role="alert" aria-labelledby="profile-error-title"><p class="eyebrow">Connect</p><h1 id="profile-error-title">We couldn’t load this profile</h1><p>{{ message }}</p><button class="profile-button" type="button" (click)="retry()">Try again</button></section>
+    } @else if (profile(); as data) {
+      <section class="profile-hero" aria-labelledby="connect-profile-title">
+        <app-profile-avatar size="detail" [photoUrl]="data.photo_url" [initials]="initials()" [altText]="data.first_name + ' ' + data.last_name + ' profile photo'" />
+        <div class="profile-identity">
+          <p class="eyebrow">Connect</p>
+          <h1 id="connect-profile-title">{{ data.first_name }} {{ data.last_name }}</h1>
+          @if (professionalSummary()) { <p class="profile-lead">{{ professionalSummary() }}</p> }
+          @if (data.location) { <p class="profile-location">{{ data.location }}</p> }
+          <div class="profile-actions" aria-live="polite" [attr.aria-busy]="mutationLoading()">
+            @if (data.relationship.can_connect) {
+              <button class="profile-button connection-action" type="button" [disabled]="mutationLoading()" (click)="sendConnectionRequest()">{{ mutationLoading() ? 'Sending...' : 'Connect' }}</button>
+            }
+            @if (data.relationship.can_accept) {
+              <button class="profile-button connection-action" type="button" [disabled]="mutationLoading()" (click)="acceptConnection()">{{ mutationLoading() ? 'Accepting...' : 'Accept' }}</button>
+            }
+            @if (data.relationship.can_decline) {
+              <button class="profile-button connection-action secondary-action" type="button" [disabled]="mutationLoading()" (click)="declineConnection()">{{ mutationLoading() ? 'Updating...' : 'Decline' }}</button>
+            }
+            @if (data.relationship.state === 'OUTGOING_PENDING' && !data.relationship.can_connect) { <p class="connection-status" role="status">Request sent</p> }
+            @if (data.relationship.state === 'CONNECTED') {
+              <p class="connection-status" role="status">Connected</p>
+              @if (data.relationship.can_remove) { <button class="profile-button connection-action secondary-action" type="button" [disabled]="mutationLoading()" (click)="removeConnection()">{{ mutationLoading() ? 'Removing...' : 'Remove connection' }}</button> }
+            }
+            @if (mutationError(); as message) { <p class="action-error" role="alert">{{ message }}</p> }
+          </div>
+        </div>
+      </section>
+      <div class="profile-sections">
+        @if (data.bio) { <section class="profile-section"><p class="eyebrow">About</p><h2>Community story</h2><p>{{ data.bio }}</p></section> }
+        @if (professionalSummary() || data.professional.industry || data.professional.career_stage || data.professional.linkedin_url) {
+          <section class="profile-section"><p class="eyebrow">Professional</p><h2>What they do</h2>
+            @if (professionalSummary()) { <p class="primary-detail">{{ professionalSummary() }}</p> }
+            @if (data.professional.industry) { <p>{{ data.professional.industry.label }}</p> }
+            @if (data.professional.career_stage) { <p>{{ careerStageLabel(data.professional.career_stage) }}</p> }
+            @if (data.professional.linkedin_url) { <a class="text-link" [href]="data.professional.linkedin_url" target="_blank" rel="noreferrer">LinkedIn profile ↗</a> }
+          </section>
+        }
+        @if (data.skills.length) { <section class="profile-section"><p class="eyebrow">Skills</p><h2>What they bring</h2><ul class="tag-list">@for (skill of data.skills; track skill.slug) { <li>{{ skill.label }}</li> }</ul></section> }
+        @if (data.interests.length) { <section class="profile-section"><p class="eyebrow">Interests</p><h2>What inspires them</h2><ul class="tag-list">@for (interest of data.interests; track interest.slug) { <li>{{ interest.label }}</li> }</ul></section> }
+        @if (data.contact.email || data.contact.mobile) { <section class="profile-section"><p class="eyebrow">Contact</p><h2>Connect directly</h2>@if (data.contact.email) { <a class="text-link contact-link" [href]="'mailto:' + data.contact.email">{{ data.contact.email }}</a> }@if (data.contact.mobile) { <a class="text-link contact-link" [href]="'tel:' + data.contact.mobile">{{ data.contact.mobile }}</a> }</section> }
+      </div>
+    }
+  </main>
+</div>

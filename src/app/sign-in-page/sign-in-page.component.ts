@@ -45,6 +45,14 @@ export class SignInPageComponent {
 
   togglePassword(): void { this.showPassword.update((visible) => !visible); }
 
+  validationMessages(): string[] {
+    const messages: string[] = [];
+    if (this.signInForm.controls.email.invalid && this.signInForm.controls.email.touched) messages.push('Enter a valid email address.');
+    if (this.signInForm.controls.password.invalid && this.signInForm.controls.password.touched) messages.push('Enter your password.');
+    if (this.credentialError()) messages.push('Email or password is incorrect.');
+    return [...new Set(messages)];
+  }
+
   private handleError(error: CommunityApiError): void {
     this.submitting.set(false);
     const body = error.body as Record<string, unknown> | null;

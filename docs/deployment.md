@@ -68,6 +68,37 @@ The checked-in development environment points to the local API at
 `http://localhost:8000/api/v1`. Angular development serving is explicitly
 configured for port `4201`.
 
+## Railway production serving
+
+Railway must use the repository's production commands rather than the local
+development `npm start` command. The checked-in `railway.json` configures:
+
+```text
+Build command: npm run build:railway
+Start command: npm run start:railway
+```
+
+`build:railway` writes the build-time API environment and creates the Angular
+production output once. `start:railway` uses the small Node launcher in
+`scripts/start-railway.mjs` to serve
+`dist/elevate-mk-community/browser` with the lightweight `serve` static server,
+enables SPA fallback with `-s`, binds to `0.0.0.0`, and uses Railway's
+`PORT` value. It falls back to port `8080` when `PORT` is not set, which is the
+expected staging port.
+
+The repository selects the `RAILPACK` builder and pins Node.js to `22.14.0`
+through both `package.json` and `.node-version`. Set
+`RAILPACK_NO_SPA=1` in the Railway service variables so Railpack does not
+replace the explicit Node static server with its Angular static-site output
+assumption. The explicit `start:railway` command remains authoritative and
+serves the built `browser` directory.
+
+Railway should provide `API_BASE_URL` as an absolute HTTP(S) URL ending in
+`/api/v1`; `PORT` is supplied by Railway (with `8080` as the local/staging
+fallback). No API, session, CSRF or Angular route behavior changes are needed.
+Refreshing routes such as `/community`, `/community/community` and
+`/community/connect` is handled by the static server's SPA fallback.
+
 ## Configuration tests
 
 Run:
@@ -109,7 +140,7 @@ The local development build uses `environment.development.ts`; the normal
 
 The current tooling baseline is:
 
-- Node `22.12.0` in GitHub Actions;
+- Node `22.14.0` for Railway and Node `22.12.0` in GitHub Actions;
 - npm `10.9.0`, declared by `package.json`;
 - `package-lock.json` lockfile version 3;
 - `npm ci` for deterministic CI installation.
@@ -174,6 +205,16 @@ CORS, CSRF trusted origins, secure cookies and `SameSite` behavior together.
 The API also needs the correct Community frontend URL for generated
 activation and password-reset links.
 
+The Community Railway build must set `API_BASE_URL` to the dedicated API host:
+
+```text
+Staging:    https://community-api.staging.elevatemk.org/api/v1
+Production: https://community-api.elevatemk.org/api/v1
+```
+
+The local development environment continues to use
+`http://localhost:8000/api/v1`.
+
 The verified API settings are:
 
 ```text
@@ -210,17 +251,17 @@ claim about current deployment:
 
 ```text
 https://community.elevatemk.org
-https://api.elevatemk.org
+https://community-api.elevatemk.org
 ```
 
-Using a Community hostname and sibling API hostname keeps the applications on
-different origins while sharing a parent site. This is a better fit for
-Django session/cookie authentication than relying on unrelated
-`*.up.railway.app` domains.
+Using a dedicated Community API hostname keeps its browser session and CSRF
+cookies isolated from the CRM API hostname while retaining the shared Django
+backend. The staging equivalent is
+`community-api.staging.elevatemk.org`.
 
-The repositories do not establish both names as currently live. Configure the
-actual production values operationally and list the exact Community origin in
-the API CORS and CSRF settings.
+The repositories do not establish the frontend names as currently live.
+Configure the actual frontend values operationally and list the exact
+Community origin in the API CORS and CSRF settings.
 
 ## CSRF deployment behavior
 

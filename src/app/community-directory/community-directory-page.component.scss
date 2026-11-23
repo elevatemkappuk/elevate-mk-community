@@ -1,0 +1,33 @@
+:host { display: block; min-height: 100svh; background: var(--elevate-page); }
+.connect-main { max-width: 1320px; margin: 0 auto; padding: clamp(3.5rem, 7vw, 6.5rem) clamp(1.25rem, 4vw, 3.5rem) 5rem; }
+.connect-heading { max-width: 52rem; border-bottom: 1px solid var(--elevate-border); padding-bottom: clamp(2rem, 4vw, 3.5rem); }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 1.2rem; color: var(--elevate-black); font-size: clamp(4rem, 10vw, 8.5rem); font-weight: 900; letter-spacing: -.09em; line-height: .82; text-transform: uppercase; }
+.connect-heading > p:last-child { margin-bottom: 0; color: var(--elevate-muted); font-size: clamp(1.05rem, 1.8vw, 1.35rem); }
+.connect-filters { margin-top: clamp(2rem, 4vw, 3.5rem); border-top: 3px solid var(--elevate-gold-deep); padding: 1.35rem 0 2rem; }
+.section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.section-heading h2 { margin-bottom: 0; color: var(--elevate-black); font-size: clamp(1.55rem, 3vw, 2.35rem); letter-spacing: -.06em; line-height: .95; }
+.clear-filters { border: 0; border-bottom: 1px solid currentColor; padding: .3rem 0; background: transparent; font: inherit; font-weight: 800; cursor: pointer; }
+.clear-filters:focus-visible, .clear-search:focus-visible, .active-filters button:focus-visible { outline: 3px solid var(--elevate-focus); outline-offset: 3px; }
+.filter-grid { display: grid; grid-template-columns: minmax(15rem, 2fr) repeat(3, minmax(10rem, 1fr)); gap: 1rem; align-items: end; margin-top: 1.4rem; }
+.search-field { display: grid; gap: .5rem; }
+.search-field label { color: var(--elevate-black); font-size: .78rem; font-weight: 800; }
+.search-control { position: relative; }
+.search-control input { width: 100%; min-height: 3.35rem; border: 1px solid var(--elevate-border); border-radius: .25rem; padding: .85rem 2.5rem .85rem 1.05rem; background: var(--elevate-surface); color: var(--elevate-ink); font: inherit; }
+.search-control input:focus-visible { outline: 3px solid rgb(185 130 0 / 42%); outline-offset: 2px; }
+.clear-search { position: absolute; top: 50%; right: .7rem; width: 1.8rem; height: 1.8rem; transform: translateY(-50%); border: 0; border-radius: 50%; background: var(--elevate-page); color: var(--elevate-black); font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.options-note { color: var(--elevate-muted); }
+.active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: 1.15rem 0 .75rem; }
+.active-filters-label { color: var(--elevate-black); font-size: .78rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.active-filters ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.active-filters button { max-width: 100%; min-height: 2.35rem; border: 1px solid var(--elevate-border); padding: .45rem .7rem; background: var(--elevate-surface); color: var(--elevate-ink); font: inherit; font-size: .82rem; font-weight: 750; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.results-heading { margin-bottom: 1.25rem; }
+.results-heading p { color: var(--elevate-muted); font-size: .9rem; }
+.member-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.connect-state { max-width: 42rem; margin-top: 2rem; border-top: 1px solid var(--elevate-border); padding: 2rem 0; }
+.connect-state h2 { margin-bottom: .8rem; color: var(--elevate-black); font-size: clamp(1.8rem, 3vw, 2.7rem); letter-spacing: -.06em; line-height: .95; }
+.connect-state p:not(.eyebrow) { color: var(--elevate-muted); line-height: 1.6; }
+.retry-button { width: auto; margin-top: .75rem; }
+.connect-clear-button { width: auto; min-height: 3rem; padding: .85rem 1.2rem; font-family: inherit; font-size: .9rem; }
+@media (max-width: 1000px) { .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-field { grid-column: 1 / -1; } .member-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .connect-main { padding: 2.75rem 1rem 4rem; } h1 { font-size: clamp(3.8rem, 20vw, 6rem); } .section-heading { align-items: flex-start; flex-direction: column; } .filter-grid { grid-template-columns: 1fr; } .search-field { grid-column: auto; } .member-grid { grid-template-columns: 1fr; } .pagination { justify-content: space-between; gap: .5rem; } .pagination button { min-width: 6rem; } }
