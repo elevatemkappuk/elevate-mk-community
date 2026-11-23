@@ -205,6 +205,16 @@ CORS, CSRF trusted origins, secure cookies and `SameSite` behavior together.
 The API also needs the correct Community frontend URL for generated
 activation and password-reset links.
 
+The Community Railway build must set `API_BASE_URL` to the dedicated API host:
+
+```text
+Staging:    https://community-api.staging.elevatemk.org/api/v1
+Production: https://community-api.elevatemk.org/api/v1
+```
+
+The local development environment continues to use
+`http://localhost:8000/api/v1`.
+
 The verified API settings are:
 
 ```text
@@ -241,17 +251,17 @@ claim about current deployment:
 
 ```text
 https://community.elevatemk.org
-https://api.elevatemk.org
+https://community-api.elevatemk.org
 ```
 
-Using a Community hostname and sibling API hostname keeps the applications on
-different origins while sharing a parent site. This is a better fit for
-Django session/cookie authentication than relying on unrelated
-`*.up.railway.app` domains.
+Using a dedicated Community API hostname keeps its browser session and CSRF
+cookies isolated from the CRM API hostname while retaining the shared Django
+backend. The staging equivalent is
+`community-api.staging.elevatemk.org`.
 
-The repositories do not establish both names as currently live. Configure the
-actual production values operationally and list the exact Community origin in
-the API CORS and CSRF settings.
+The repositories do not establish the frontend names as currently live.
+Configure the actual frontend values operationally and list the exact
+Community origin in the API CORS and CSRF settings.
 
 ## CSRF deployment behavior
 
