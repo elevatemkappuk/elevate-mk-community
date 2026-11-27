@@ -194,6 +194,11 @@ The request is credentialed and CSRF protected. On success, the frontend
 clears its in-memory current user and returns to `/join`. Protected-route
 guards then prevent access without a valid backend session.
 
+If logout audit persistence fails after the server session has been invalidated,
+the Community client also clears its local current-user state before surfacing
+the error. This prevents stale local identity from surviving a failed logout
+response; the server-side session remains invalidated.
+
 CSRF is refreshed after login and activation because Django authentication
 rotates CSRF state. This is part of the normal session model, not a separate
 login step.

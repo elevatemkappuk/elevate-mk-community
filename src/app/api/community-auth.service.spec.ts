@@ -99,6 +99,15 @@ describe('CommunityAuthService', () => {
     logout.flush(null, { status: 204, statusText: 'No Content' });
   });
 
+  it('clears local identity when the server invalidates the session but reports audit failure', () => {
+    service.setCurrentUser({ id: 1, first_name: 'Amina', last_name: 'Zulu' });
+    service.logout().subscribe({ error: (error) => expect(error.status).toBe(500) });
+    http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });
+    http.expectOne('/api/v1/auth/logout/').flush({ detail: 'audit unavailable' }, { status: 500, statusText: 'Server Error' });
+    expect(service.currentUser()).toBeNull();
+    expect(service.sessionLoaded()).toBe(true);
+  });
+
   it('does not refresh CSRF after failed activation', () => {
     service.activate('invitation-id', 'raw-token', 'bad', 'bad').subscribe({ error: (error) => expect(error.status).toBe(400) });
     http.expectOne('/api/v1/auth/csrf/').flush({ csrf_token: 'csrf-token-a' });

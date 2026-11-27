@@ -139,7 +139,12 @@ export class CommunityAuthService {
     return this.bootstrapCsrf().pipe(
       switchMap(() => this.http.post<void>(`${this.apiConfig.apiBaseUrl}/auth/logout/`, {}, { withCredentials: true })),
       tap(() => { this.currentUser.set(null); this.sessionLoaded.set(true); this.currentUserRequest$ = of(null); }),
-      catchError((error: unknown) => throwError(() => this.toApiError(error))),
+      catchError((error: unknown) => {
+        // The API invalidates the session before reporting an audit-store failure.
+        // Clear local identity too, so a failed response cannot retain a stale session.
+        this.clearCurrentUser();
+        return throwError(() => this.toApiError(error));
+      }),
     );
   }
 
